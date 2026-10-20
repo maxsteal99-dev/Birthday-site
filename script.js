@@ -6,9 +6,12 @@
    in the browser (no file needed). If you have a recorded song
    file, put it in assets/audio/ and write its path here, e.g.
    var SONG_FILE = 'assets/audio/birthday-song.mp3';
-   The player will then play that file instead.
+   The player will then play that file instead, and falls back to
+   the music box if the file is missing.
    --------------------------------------------------------- */
-var SONG_FILE = '';
+var SONG_FILE = 'assets/audio/him-and-i-instrumental.mp3';
+var SONG_TITLE = 'Him & I (Instrumental)';
+var SONG_LOOP = true;
 
 document.documentElement.classList.add('js');
 try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
@@ -172,7 +175,7 @@ if (rm) rail.style.setProperty('--rail', 1);
 var Song = (function () {
 var AC = window.AudioContext || window.webkitAudioContext;
 var cx = null, mg = null, an = null, tm = null, on = false, step = 0, nt = 0, userPaused = false;
-var el = null, mode = SONG_FILE ? 'file' : 'box', elapsed = 0, since = 0, state = 'idle', subs = [];
+var wanted = false, el = null, mode = SONG_FILE ? 'file' : 'box', elapsed = 0, since = 0, state = 'idle', subs = [];
 var PHRASE = 32 * .31;
 
 /* music box: C, Am, F, G with a bell melody, soft pads and an echo */
@@ -198,15 +201,16 @@ function setupBox() {
   nt = cx.currentTime + .1;
 }
 function setupFile() {
-  el = new Audio(); el.preload = 'auto'; el.src = SONG_FILE;
+  el = new Audio(); el.preload = 'auto'; el.loop = SONG_LOOP; el.src = SONG_FILE;
   el.addEventListener('waiting', function () { if (on) set('loading'); });
   el.addEventListener('playing', function () { set('playing'); });
   el.addEventListener('ended', function () { on = false; set('paused', 'That was your song. Press play to hear it again.'); });
   el.addEventListener('error', function () {
     // the file could not be loaded: fall back to the built-in music box
-    var was = on; on = false; mode = 'box'; el = null; seek.disabled = true; du.textContent = 'Loop';
+    on = false; mode = 'box'; el = null; seek.disabled = true; du.textContent = 'Loop';
+    if (nowEl) nowEl.textContent = 'Now playing';
     set('idle', 'The song file could not be loaded, so the music box will play instead.');
-    if (was) play();
+    if (wanted) play();
   });
   try { var s = ctx().createMediaElementSource(el); s.connect(cx.destination); s.connect(an); } catch (e) {}
 }
@@ -214,13 +218,13 @@ function setupFile() {
 function set(s, msg) { state = s; subs.forEach(function (f) { f(s, msg); }); }
 function play() {
   if (!AC && mode === 'box') { set('unavailable'); return; }
-  userPaused = false;
+  userPaused = false; wanted = true;
   try {
     if (mode === 'file') {
       if (!el) setupFile();
       if (cx && cx.state === 'suspended') cx.resume();
       on = true; set('loading');
-      var pr = el.play(); if (pr && pr.catch) pr.catch(function () { on = false; set('paused', 'Tap play to start the song.'); });
+      var pr = el.play(); if (pr && pr.catch) pr.catch(function () { if (mode !== 'file' || !el || el.error) return; on = false; set('paused', 'Tap play to start the song.'); });
       return;
     }
     if (!mg) setupBox();
@@ -232,7 +236,7 @@ function play() {
   } catch (e) { on = false; set('unavailable'); }
 }
 function pause() {
-  userPaused = true;
+  userPaused = true; wanted = false;
   if (!on) return;
   on = false;
   if (mode === 'file') { if (el) el.pause(); set('paused'); return; }
@@ -272,7 +276,8 @@ var player = document.querySelector('.player'), btn = document.getElementById('p
 var stat = document.getElementById('song-status'), te = document.getElementById('t-el'), du = document.getElementById('t-du'), seek = document.getElementById('seek');
 var viz = document.getElementById('viz'), vg = viz.getContext('2d'), songVisible = false, rm = matchMedia('(prefers-reduced-motion: reduce)').matches, buf = null;
 var MSG = { idle: 'Turn your sound up, then press play.', loading: 'Loading the song…', playing: 'Playing, just for you', paused: 'Paused', unavailable: 'Sound isn’t available in this browser. Try opening the page in Safari or Chrome.' };
-if (mode === 'file') { seek.disabled = false; du.textContent = '0:00'; }
+var nowEl = document.getElementById('now-playing');
+if (mode === 'file') { seek.disabled = false; du.textContent = '0:00'; if (SONG_TITLE) nowEl.textContent = 'Now playing · ' + SONG_TITLE; }
 
 subs.push(function (s, msg) {
   player.setAttribute('data-state', s);

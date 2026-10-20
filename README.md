@@ -26,15 +26,15 @@ Then open http://localhost:8000.
 
 ## The birthday song
 
-The song is a music box generated live in the browser (C – Am – F – G bells with soft pads and an echo), exactly as in the original page. It starts with her first tap (normally **Open your birthday box**). She can also play and pause it from the record player in the "Your birthday song" scene, or from the small floating button.
+The page is set up to play **"Him & I" (Instrumental)**, which loops while she scrolls. It starts with her first tap (normally **Open your birthday box**), and she can play or pause it from the record player in the "Your birthday song" scene or from the small floating button.
 
-**Have a recorded song file?** Copy it to `assets/audio/` (for example `assets/audio/birthday-song.mp3`) and edit the first setting in `script.js`:
+**You need to add the audio file yourself**, because the song is copyrighted and isn't included in this repository:
 
-```js
-var SONG_FILE = 'assets/audio/birthday-song.mp3';
-```
+1. Get an instrumental version you're allowed to use, as an MP3.
+2. Rename it to exactly `him-and-i-instrumental.mp3` (all lowercase).
+3. Put it in `assets/audio/`, commit and push (on GitHub: open the `assets/audio` folder → **Add file → Upload files**).
 
-The player will then play that file and show a real progress bar and seek control. If the file can't be loaded, the page falls back to the music box automatically.
+Until the file is there, the page plays its original built-in music box instead (C – Am – F – G bells with soft pads), so nothing is ever silent or broken. The settings are at the top of `script.js`: `SONG_FILE`, `SONG_TITLE` (shown as "Now playing · …"), and `SONG_LOOP`.
 
 ## Publish it for free (recommended: GitHub Pages)
 
