@@ -10,7 +10,6 @@
    the music box if the file is missing.
    --------------------------------------------------------- */
 var SONG_FILE = 'assets/audio/him-and-i-instrumental.mp3';
-var SONG_TITLE = 'Him & I (Instrumental)';
 var SONG_LOOP = true;
 
 document.documentElement.classList.add('js');
@@ -171,164 +170,60 @@ addEventListener('resize', sc); sc();
 if (rm) rail.style.setProperty('--rail', 1);
 })();
 
-/* ---------- The birthday song + player ---------- */
-var Song = (function () {
+/* ---------- Background music ----------
+   Browsers only allow sound after the visitor interacts, so the music
+   starts with her first tap, click or key press (normally "Open your
+   birthday box") and then loops in the background. It pauses while the
+   tab is hidden and resumes when she comes back. */
+(function () {
 var AC = window.AudioContext || window.webkitAudioContext;
-var cx = null, mg = null, an = null, tm = null, on = false, step = 0, nt = 0, userPaused = false;
-var wanted = false, el = null, mode = SONG_FILE ? 'file' : 'box', elapsed = 0, since = 0, state = 'idle', subs = [];
-var PHRASE = 32 * .31;
+var cx = null, mg = null, tm = null, on = false, step = 0, nt = 0, el = null, mode = SONG_FILE ? 'file' : 'box';
 
 /* music box: C, Am, F, G with a bell melody, soft pads and an echo */
 var ch = [[60, 64, 67, 72], [57, 60, 64, 69], [53, 57, 60, 65], [55, 59, 62, 67]], pat = [0, 2, 1, 3, 2, 1, 3, 2];
 function fr(n) { return 440 * Math.pow(2, (n - 69) / 12); }
 function bell(n, t, v, d) { var o = cx.createOscillator(), o2 = cx.createOscillator(), g = cx.createGain(), g2 = cx.createGain(); o.frequency.value = fr(n); o2.frequency.value = fr(n) * 2.01; g2.gain.value = .25; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .01); g.gain.exponentialRampToValueAtTime(.0008, t + d); o.connect(g); o2.connect(g2); g2.connect(g); g.connect(mg); o.start(t); o2.start(t); o.stop(t + d + .05); o2.stop(t + d + .05); }
 function pad(c, t, d) { c.slice(0, 3).forEach(function (n) { var o = cx.createOscillator(), g = cx.createGain(); o.type = 'triangle'; o.frequency.value = fr(n - 12); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.022, t + .4); g.gain.linearRampToValueAtTime(0, t + d); o.connect(g); g.connect(mg); o.start(t); o.stop(t + d + .05); }); }
-function sched() { if (!on) return; while (nt < cx.currentTime + .3) { var e = step % 8, c = ch[Math.floor(step / 8) % 4]; if (e === 0) pad(c, nt, 2.1); bell(c[pat[e]] + (e === 7 ? 12 : 0), nt, .1, 1.4); if (e % 4 === 0) bell(c[0] - 12, nt, .08, 1.2); nt += .31; step++; } }
-
-function ctx() {
-  if (cx) return cx;
-  cx = new AC(); an = cx.createAnalyser(); an.fftSize = 256; an.smoothingTimeConstant = .82;
-  cx.onstatechange = function () { if (cx.state === 'running') dropGestures(); };
-  return cx;
-}
-function setupBox() {
-  ctx(); mg = cx.createGain(); mg.gain.value = .5;
-  var dl = cx.createDelay(1), fb = cx.createGain(), lp = cx.createBiquadFilter();
-  dl.delayTime.value = .37; fb.gain.value = .3; lp.type = 'lowpass'; lp.frequency.value = 2800;
-  mg.connect(cx.destination); mg.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(cx.destination);
-  mg.connect(an); lp.connect(an);
-  mg.gain.setValueAtTime(0, cx.currentTime); mg.gain.linearRampToValueAtTime(.5, cx.currentTime + 3);
-  nt = cx.currentTime + .1;
-}
-function setupFile() {
-  el = new Audio(); el.preload = 'auto'; el.loop = SONG_LOOP; el.src = SONG_FILE;
-  el.addEventListener('waiting', function () { if (on) set('loading'); });
-  el.addEventListener('playing', function () { set('playing'); });
-  el.addEventListener('ended', function () { on = false; set('paused', 'That was your song. Press play to hear it again.'); });
-  el.addEventListener('error', function () {
-    // the file could not be loaded: fall back to the built-in music box
-    on = false; mode = 'box'; el = null; seek.disabled = true; du.textContent = 'Loop';
-    if (nowEl) nowEl.textContent = 'Now playing';
-    set('idle', 'The song file could not be loaded, so the music box will play instead.');
-    if (wanted) play();
-  });
-  try { var s = ctx().createMediaElementSource(el); s.connect(cx.destination); s.connect(an); } catch (e) {}
-}
-
-function set(s, msg) { state = s; subs.forEach(function (f) { f(s, msg); }); }
-function play() {
-  if (!AC && mode === 'box') { set('unavailable'); return; }
-  userPaused = false; wanted = true;
+function sched() { while (nt < cx.currentTime + .3) { var e = step % 8, c = ch[Math.floor(step / 8) % 4]; if (e === 0) pad(c, nt, 2.1); bell(c[pat[e]] + (e === 7 ? 12 : 0), nt, .1, 1.4); if (e % 4 === 0) bell(c[0] - 12, nt, .08, 1.2); nt += .31; step++; } }
+function startBox() {
+  if (!AC) return;
   try {
-    if (mode === 'file') {
-      if (!el) setupFile();
-      if (cx && cx.state === 'suspended') cx.resume();
-      on = true; set('loading');
-      var pr = el.play(); if (pr && pr.catch) pr.catch(function () { if (mode !== 'file' || !el || el.error) return; on = false; set('paused', 'Tap play to start the song.'); });
-      return;
+    if (!cx) {
+      cx = new AC(); mg = cx.createGain();
+      var dl = cx.createDelay(1), fb = cx.createGain(), lp = cx.createBiquadFilter();
+      dl.delayTime.value = .37; fb.gain.value = .3; lp.type = 'lowpass'; lp.frequency.value = 2800;
+      mg.connect(cx.destination); mg.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(cx.destination);
+      mg.gain.setValueAtTime(0, cx.currentTime); mg.gain.linearRampToValueAtTime(.5, cx.currentTime + 3);
+      nt = cx.currentTime + .1;
+      cx.onstatechange = function () { if (cx.state === 'running' && !document.hidden) stopListening(); };
     }
-    if (!mg) setupBox();
-    else { mg.gain.cancelScheduledValues(cx.currentTime); mg.gain.setValueAtTime(mg.gain.value, cx.currentTime); mg.gain.linearRampToValueAtTime(.5, cx.currentTime + .8); }
-    if (cx.state !== 'running') cx.resume();
-    if (nt < cx.currentTime) nt = cx.currentTime + .05;
+    cx.resume();
     if (!tm) tm = setInterval(sched, 100);
-    on = true; since = performance.now(); set('playing');
-  } catch (e) { on = false; set('unavailable'); }
+    on = true;
+  } catch (e) {}
 }
-function pause() {
-  userPaused = true; wanted = false;
-  if (!on) return;
-  on = false;
-  if (mode === 'file') { if (el) el.pause(); set('paused'); return; }
-  elapsed += (performance.now() - since) / 1000;
-  try { var t = cx.currentTime; mg.gain.cancelScheduledValues(t); mg.gain.setValueAtTime(mg.gain.value, t); mg.gain.linearRampToValueAtTime(0, t + .35); setTimeout(function () { if (!on) cx.suspend(); }, 420); } catch (e) {}
-  set('paused');
+function startFile() {
+  if (!el) {
+    el = new Audio(SONG_FILE); el.loop = SONG_LOOP; el.preload = 'auto'; el.volume = 0;
+    el.addEventListener('playing', function () { stopListening(); fadeIn(); });
+    el.addEventListener('error', function () { el = null; mode = 'box'; if (on) startBox(); });
+  }
+  on = true;
+  var pr = el.play(); if (pr && pr.catch) pr.catch(function () {});
 }
-function toggle() { if (on) pause(); else play(); }
-function time() {
-  if (mode === 'file' && el) return { t: el.currentTime || 0, d: isFinite(el.duration) ? el.duration : 0 };
-  var t = elapsed + (on ? (performance.now() - since) / 1000 : 0);
-  return { t: t, d: 0, phase: (t % PHRASE) / PHRASE };
-}
+function fadeIn() { if (!el) return; var v = el.volume; var t = setInterval(function () { if (!el) return clearInterval(t); v = Math.min(1, v + .05); el.volume = v; if (v >= 1) clearInterval(t); }, 120); }
+function start() { if (mode === 'file') startFile(); else startBox(); }
 
-/* As before: her first tap, click or key press anywhere starts the song
-   (browsers only allow sound after a gesture). On iPhone a scroll swipe
-   is not enough, so we keep listening until sound is really running. */
 var G = ['click', 'touchend', 'keydown'];
-function gesture(e) {
-  if (e && e.target && e.target.closest && e.target.closest('[data-song-control]')) return;
-  if (userPaused) { dropGestures(); return; }
-  if (!on) play();
-  else if (cx && cx.state === 'suspended' && !document.hidden) cx.resume();
-  if (mode === 'file' && on) dropGestures();
-}
-function dropGestures() { G.forEach(function (ev) { removeEventListener(ev, gesture); }); }
+function gesture() { if (document.hidden) return; if (!on) start(); else if (mode === 'file' && el && el.paused) el.play().catch(function () {}); else if (cx && cx.state !== 'running') cx.resume(); }
+function stopListening() { G.forEach(function (ev) { removeEventListener(ev, gesture); }); }
 G.forEach(function (ev) { addEventListener(ev, gesture, { passive: true }); });
 
 document.addEventListener('visibilitychange', function () {
   if (!on) return;
-  if (mode === 'file') return;
-  if (document.hidden) { cx.suspend(); } else { cx.resume(); }
+  if (mode === 'file' && el) { if (document.hidden) el.pause(); else el.play().catch(function () {}); }
+  else if (cx) { if (document.hidden) cx.suspend(); else cx.resume(); }
 });
-
-/* ---- UI ---- */
-var player = document.querySelector('.player'), btn = document.getElementById('play'), mini = document.getElementById('mini'), miniBtn = document.getElementById('mini-play');
-var stat = document.getElementById('song-status'), te = document.getElementById('t-el'), du = document.getElementById('t-du'), seek = document.getElementById('seek');
-var viz = document.getElementById('viz'), vg = viz.getContext('2d'), songVisible = false, rm = matchMedia('(prefers-reduced-motion: reduce)').matches, buf = null;
-var MSG = { idle: 'Turn your sound up, then press play.', loading: 'Loading the song…', playing: 'Playing, just for you', paused: 'Paused', unavailable: 'Sound isn’t available in this browser. Try opening the page in Safari or Chrome.' };
-var nowEl = document.getElementById('now-playing');
-if (mode === 'file') { seek.disabled = false; du.textContent = '0:00'; if (SONG_TITLE) nowEl.textContent = 'Now playing · ' + SONG_TITLE; }
-
-subs.push(function (s, msg) {
-  player.setAttribute('data-state', s);
-  var playing = s === 'playing' || s === 'loading';
-  [btn, miniBtn].forEach(function (b) { b.setAttribute('aria-pressed', playing ? 'true' : 'false'); b.setAttribute('aria-label', playing ? 'Pause the birthday song' : 'Play the birthday song'); });
-  mini.classList.toggle('playing', s === 'playing');
-  stat.textContent = msg || MSG[s] || '';
-});
-btn.addEventListener('click', toggle);
-miniBtn.addEventListener('click', toggle);
-seek.addEventListener('input', function () { if (mode === 'file' && el && isFinite(el.duration)) el.currentTime = seek.value / 1000 * el.duration; });
-
-function fmt(s) { s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }
-
-new IntersectionObserver(function (es) {
-  songVisible = es[0].isIntersecting;
-  mini.classList.toggle('show', !songVisible);
-  if (songVisible) requestAnimationFrame(loop);
-}, { threshold: .25 }).observe(document.getElementById('song'));
-
-function sizeViz() { var r = Math.min(window.devicePixelRatio || 1, 2), b = viz.getBoundingClientRect(); viz.width = Math.max(1, b.width * r); viz.height = Math.max(1, b.height * r); }
-addEventListener('resize', sizeViz);
-
-function loop(now) {
-  var tt = time();
-  te.textContent = fmt(tt.t);
-  if (mode === 'file') { if (tt.d) { du.textContent = fmt(tt.d); if (document.activeElement !== seek) seek.value = Math.round(tt.t / tt.d * 1000); } }
-  else seek.value = Math.round((tt.phase || 0) * 1000);
-  seek.style.setProperty('--p', (seek.value / 10) + '%');
-  drawViz(now || 0);
-  if (songVisible) requestAnimationFrame(loop);
-}
-function drawViz(now) {
-  if (!viz.width || viz.width < 2) sizeViz();
-  var W = viz.width, R = W / 2, N = 72, r0 = R * .7, max = R * .27;
-  vg.clearRect(0, 0, W, W);
-  if (an && on) { buf = buf || new Uint8Array(an.frequencyBinCount); an.getByteFrequencyData(buf); }
-  vg.save(); vg.translate(R, R); vg.lineCap = 'round'; vg.lineWidth = Math.max(1.5, W / 220);
-  for (var i = 0; i < N; i++) {
-    var k = i < N / 2 ? i : N - i, v;
-    if (an && on && buf) { var bin = 1 + Math.floor(k * .42); v = Math.min(1, Math.pow(buf[bin] / 255, 1.4) * (1 + k * .05)); }
-    else v = rm ? .08 : .06 + .04 * Math.sin(now / 900 + i * .5);
-    var a = i / N * Math.PI * 2 - Math.PI / 2, l = 4 + v * max;
-    vg.strokeStyle = 'rgba(236,215,178,' + (.25 + v * .75).toFixed(3) + ')';
-    vg.beginPath(); vg.moveTo(Math.cos(a) * r0, Math.sin(a) * r0); vg.lineTo(Math.cos(a) * (r0 + l), Math.sin(a) * (r0 + l)); vg.stroke();
-  }
-  vg.restore();
-}
-sizeViz(); drawViz(0); set('idle');
-
-return { play: play, pause: pause, toggle: toggle };
 })();
 
 /* ---------- Balloons drifting up + sparkles while scrolling ---------- */

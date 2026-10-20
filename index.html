@@ -97,38 +97,6 @@
   </figure>
 </section>
 
-<section class="scene song" id="song" data-mood="rose" aria-labelledby="song-title">
-  <div class="wrap narrow center">
-    <div class="ornament reveal" aria-hidden="true"></div>
-    <p class="eyebrow reveal" id="now-playing">Now playing</p>
-    <h2 id="song-title" class="reveal" style="--d:.08s">Your birthday song</h2>
-    <p class="song-credit reveal" style="--d:.16s">For Sagarika, with all my love, Mani</p>
-
-    <div class="player reveal" style="--d:.24s" data-state="idle">
-      <div class="disc-wrap">
-        <canvas id="viz" aria-hidden="true"></canvas>
-        <div class="disc" aria-hidden="true">
-          <span class="grooves"></span>
-          <img src="assets/img/sagarika.jpg" alt="" width="480" height="480" loading="lazy" decoding="async">
-          <span class="spindle"></span>
-        </div>
-        <button class="play-btn" id="play" type="button" data-song-control aria-pressed="false" aria-label="Play the birthday song">
-          <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
-          <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/></svg>
-          <span class="spinner" aria-hidden="true"></span>
-        </button>
-      </div>
-
-      <div class="timeline">
-        <span class="t" id="t-el">0:00</span>
-        <input type="range" id="seek" min="0" max="1000" value="0" step="1" aria-label="Song position" disabled data-song-control>
-        <span class="t" id="t-du">Loop</span>
-      </div>
-      <p class="status" id="song-status" aria-live="polite">Turn your sound up, then press play.</p>
-    </div>
-  </div>
-</section>
-
 <section class="scene latte-scene" data-mood="coffee">
   <div class="wrap split">
     <div class="latte-stage reveal" aria-hidden="true">
@@ -234,15 +202,6 @@
   </div>
 </section>
 </main>
-
-<div class="mini" id="mini" aria-label="Birthday song">
-  <button type="button" id="mini-play" class="mini-btn" data-song-control aria-pressed="false" aria-label="Play the birthday song">
-    <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
-    <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/></svg>
-  </button>
-  <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-  <span class="mini-label">Your song</span>
-</div>
 
 <script src="script.js"></script>
 </body>
