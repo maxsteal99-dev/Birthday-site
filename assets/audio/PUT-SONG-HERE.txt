@@ -1,7 +1,0 @@
-Put the song file in this folder and name it exactly:
-
-    him-and-i-instrumental.mp3
-
-(all lowercase, with hyphens). The website plays it automatically.
-To use a different file name, change SONG_FILE at the top of script.js.
-Until the file is here, the page plays its built-in music box instead.

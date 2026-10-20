@@ -26,9 +26,9 @@ Then open http://localhost:8000.
 
 ## The birthday song
 
-Music plays in the background. Browsers only allow sound after a tap, so it starts when she taps **Open your birthday box** (or anywhere else), then loops for as long as the page is open. It pauses while the tab is hidden and resumes when she returns.
+`assets/audio/him-and-i-instrumental.mp3` (a piano cover of "Him & I") plays in the background on a seamless loop, with no controls. The silence at the start and end of the file is trimmed in the browser, so the loop has no gap. It tries to start as soon as the page loads. Most phones only allow sound after a tap, so there it starts on her first tap (usually **Open your birthday box**). It pauses while the tab is hidden and resumes when she returns. If the file can't be played, the page falls back to its built-in music box.
 
-To use a recorded song, put the MP3 in `assets/audio/` named `him-and-i-instrumental.mp3` (or change `SONG_FILE` at the top of `script.js`). Only use a recording you have the rights to share. Until a file is there, the page plays its built-in music box (C – Am – F – G bells with soft pads).
+To change the song, replace the file or edit `SONG_FILE` at the top of `script.js`.
 
 ## Publish it for free (recommended: GitHub Pages)
 

@@ -1,13 +1,9 @@
 /* Happy 30th, Sagarika */
 
 /* ---------------------------------------------------------
-   The birthday song.
-   By default the page plays its own music box, generated live
-   in the browser (no file needed). If you have a recorded song
-   file, put it in assets/audio/ and write its path here, e.g.
-   var SONG_FILE = 'assets/audio/birthday-song.mp3';
-   The player will then play that file instead, and falls back to
-   the music box if the file is missing.
+   Background song: "Him & I" piano cover, looping.
+   To change it, replace the file or point SONG_FILE at another
+   one. Set it to '' to use the page's built-in music box.
    --------------------------------------------------------- */
 var SONG_FILE = 'assets/audio/him-and-i-instrumental.mp3';
 var SONG_LOOP = true;
@@ -171,58 +167,93 @@ if (rm) rail.style.setProperty('--rail', 1);
 })();
 
 /* ---------- Background music ----------
-   Browsers only allow sound after the visitor interacts, so the music
-   starts with her first tap, click or key press (normally "Open your
-   birthday box") and then loops in the background. It pauses while the
-   tab is hidden and resumes when she comes back. */
+   The song loads as soon as the page opens and loops seamlessly in the
+   background (silence at the start and end of the file is trimmed so the
+   loop has no gap). It tries to start right away; where the browser
+   requires a tap first (most phones), it starts on her first tap, click
+   or key press. It pauses while the tab is hidden and resumes after. */
 (function () {
 var AC = window.AudioContext || window.webkitAudioContext;
-var cx = null, mg = null, tm = null, on = false, step = 0, nt = 0, el = null, mode = SONG_FILE ? 'file' : 'box';
+var cx = null, out = null, src = null, buf = null, el = null, began = false, wanted = true, fellBack = false;
 
-/* music box: C, Am, F, G with a bell melody, soft pads and an echo */
-var ch = [[60, 64, 67, 72], [57, 60, 64, 69], [53, 57, 60, 65], [55, 59, 62, 67]], pat = [0, 2, 1, 3, 2, 1, 3, 2];
-function fr(n) { return 440 * Math.pow(2, (n - 69) / 12); }
-function bell(n, t, v, d) { var o = cx.createOscillator(), o2 = cx.createOscillator(), g = cx.createGain(), g2 = cx.createGain(); o.frequency.value = fr(n); o2.frequency.value = fr(n) * 2.01; g2.gain.value = .25; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .01); g.gain.exponentialRampToValueAtTime(.0008, t + d); o.connect(g); o2.connect(g2); g2.connect(g); g.connect(mg); o.start(t); o2.start(t); o.stop(t + d + .05); o2.stop(t + d + .05); }
-function pad(c, t, d) { c.slice(0, 3).forEach(function (n) { var o = cx.createOscillator(), g = cx.createGain(); o.type = 'triangle'; o.frequency.value = fr(n - 12); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.022, t + .4); g.gain.linearRampToValueAtTime(0, t + d); o.connect(g); g.connect(mg); o.start(t); o.stop(t + d + .05); }); }
-function sched() { while (nt < cx.currentTime + .3) { var e = step % 8, c = ch[Math.floor(step / 8) % 4]; if (e === 0) pad(c, nt, 2.1); bell(c[pat[e]] + (e === 7 ? 12 : 0), nt, .1, 1.4); if (e % 4 === 0) bell(c[0] - 12, nt, .08, 1.2); nt += .31; step++; } }
-function startBox() {
-  if (!AC) return;
+function ctx() {
+  if (cx || !AC) return cx;
   try {
-    if (!cx) {
-      cx = new AC(); mg = cx.createGain();
-      var dl = cx.createDelay(1), fb = cx.createGain(), lp = cx.createBiquadFilter();
-      dl.delayTime.value = .37; fb.gain.value = .3; lp.type = 'lowpass'; lp.frequency.value = 2800;
-      mg.connect(cx.destination); mg.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(cx.destination);
-      mg.gain.setValueAtTime(0, cx.currentTime); mg.gain.linearRampToValueAtTime(.5, cx.currentTime + 3);
-      nt = cx.currentTime + .1;
-      cx.onstatechange = function () { if (cx.state === 'running' && !document.hidden) stopListening(); };
-    }
-    cx.resume();
-    if (!tm) tm = setInterval(sched, 100);
-    on = true;
-  } catch (e) {}
+    cx = new AC(); out = cx.createGain(); out.gain.value = 0; out.connect(cx.destination);
+    cx.onstatechange = function () { if (cx.state === 'running') { startBuffer(); if (src) stopListening(); } };
+  } catch (e) { cx = null; }
+  return cx;
 }
-function startFile() {
+
+/* find where the music really starts and ends, so the loop is seamless */
+function bounds(b) {
+  var d = b.getChannelData(0), d2 = b.numberOfChannels > 1 ? b.getChannelData(1) : d, th = .004, s = 0, e = d.length - 1;
+  while (s < e && Math.abs(d[s]) < th && Math.abs(d2[s]) < th) s++;
+  while (e > s && Math.abs(d[e]) < th && Math.abs(d2[e]) < th) e--;
+  return [s / b.sampleRate, (e + 1) / b.sampleRate];
+}
+function startBuffer() {
+  if (!buf || src || !cx || cx.state !== 'running' || document.hidden) return;
+  var lb = bounds(buf);
+  src = cx.createBufferSource(); src.buffer = buf; src.loop = true; src.loopStart = lb[0]; src.loopEnd = lb[1];
+  src.connect(out); src.start(0, lb[0]);
+  if (!began) { began = true; var t = cx.currentTime; out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(.9, t + 2.5); }
+  stopListening();
+}
+
+/* fallback for browsers that can't decode the file in Web Audio */
+function startElement() {
   if (!el) {
-    el = new Audio(SONG_FILE); el.loop = SONG_LOOP; el.preload = 'auto'; el.volume = 0;
-    el.addEventListener('playing', function () { stopListening(); fadeIn(); });
-    el.addEventListener('error', function () { el = null; mode = 'box'; if (on) startBox(); });
+    el = new Audio(SONG_FILE); el.loop = SONG_LOOP; el.preload = 'auto';
+    el.addEventListener('playing', function () { began = true; stopListening(); });
+    el.addEventListener('error', musicBox);
   }
-  on = true;
   var pr = el.play(); if (pr && pr.catch) pr.catch(function () {});
 }
-function fadeIn() { if (!el) return; var v = el.volume; var t = setInterval(function () { if (!el) return clearInterval(t); v = Math.min(1, v + .05); el.volume = v; if (v >= 1) clearInterval(t); }, 120); }
-function start() { if (mode === 'file') startFile(); else startBox(); }
 
-var G = ['click', 'touchend', 'keydown'];
-function gesture() { if (document.hidden) return; if (!on) start(); else if (mode === 'file' && el && el.paused) el.play().catch(function () {}); else if (cx && cx.state !== 'running') cx.resume(); }
-function stopListening() { G.forEach(function (ev) { removeEventListener(ev, gesture); }); }
-G.forEach(function (ev) { addEventListener(ev, gesture, { passive: true }); });
+/* last resort: the page's original built-in music box */
+function musicBox() {
+  if (fellBack || !ctx()) return; fellBack = true; el = null;
+  var mg = cx.createGain(), nt, step = 0, ch = [[60, 64, 67, 72], [57, 60, 64, 69], [53, 57, 60, 65], [55, 59, 62, 67]], pat = [0, 2, 1, 3, 2, 1, 3, 2];
+  function fr(n) { return 440 * Math.pow(2, (n - 69) / 12); }
+  function bell(n, t, v, d) { var o = cx.createOscillator(), o2 = cx.createOscillator(), g = cx.createGain(), g2 = cx.createGain(); o.frequency.value = fr(n); o2.frequency.value = fr(n) * 2.01; g2.gain.value = .25; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .01); g.gain.exponentialRampToValueAtTime(.0008, t + d); o.connect(g); o2.connect(g2); g2.connect(g); g.connect(mg); o.start(t); o2.start(t); o.stop(t + d + .05); o2.stop(t + d + .05); }
+  function pad(c, t, d) { c.slice(0, 3).forEach(function (n) { var o = cx.createOscillator(), g = cx.createGain(); o.type = 'triangle'; o.frequency.value = fr(n - 12); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.022, t + .4); g.gain.linearRampToValueAtTime(0, t + d); o.connect(g); g.connect(mg); o.start(t); o.stop(t + d + .05); }); }
+  var dl = cx.createDelay(1), fb = cx.createGain(), lp = cx.createBiquadFilter();
+  dl.delayTime.value = .37; fb.gain.value = .3; lp.type = 'lowpass'; lp.frequency.value = 2800;
+  mg.gain.value = .5; mg.connect(out); mg.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(out);
+  nt = cx.currentTime + .1;
+  setInterval(function () { if (cx.state !== 'running') return; if (nt < cx.currentTime) nt = cx.currentTime + .05; while (nt < cx.currentTime + .3) { var e = step % 8, c = ch[Math.floor(step / 8) % 4]; if (e === 0) pad(c, nt, 2.1); bell(c[pat[e]] + (e === 7 ? 12 : 0), nt, .1, 1.4); if (e % 4 === 0) bell(c[0] - 12, nt, .08, 1.2); nt += .31; step++; } }, 100);
+  var t = cx.currentTime; out.gain.cancelScheduledValues(t); out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(1, t + 3);
+  if (cx.state === 'running') stopListening();
+}
+
+/* load the song straight away */
+if (!SONG_FILE) musicBox();
+else if (ctx() && window.fetch) {
+  fetch(SONG_FILE).then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); })
+    .then(function (ab) { return new Promise(function (ok, no) { var p = cx.decodeAudioData(ab, ok, no); if (p && p.then) p.then(ok, no); }); })
+    .then(function (b) { buf = b; startBuffer(); })
+    .catch(function () { el = 'pending'; if (cx && cx.state === 'running') { el = null; startElement(); } });
+} else { el = 'pending'; }
+
+/* try to start immediately; browsers that need a tap will wait for one */
+try { if (cx) cx.resume(); } catch (e) {}
+
+var G = ['pointerdown', 'mousedown', 'touchend', 'click', 'keydown'];
+function gesture() {
+  if (document.hidden) return;
+  if (el === 'pending') { el = null; startElement(); return; }
+  if (el && el.paused) { startElement(); return; }
+  if (cx && cx.state !== 'running') cx.resume();
+  startBuffer();
+}
+function stopListening() { G.forEach(function (ev) { removeEventListener(ev, gesture, true); }); }
+G.forEach(function (ev) { addEventListener(ev, gesture, { capture: true, passive: true }); });
 
 document.addEventListener('visibilitychange', function () {
-  if (!on) return;
-  if (mode === 'file' && el) { if (document.hidden) el.pause(); else el.play().catch(function () {}); }
-  else if (cx) { if (document.hidden) cx.suspend(); else cx.resume(); }
+  if (el && el !== 'pending') { if (document.hidden) el.pause(); else if (began || !el.paused) el.play().catch(function () {}); return; }
+  if (!cx) return;
+  if (document.hidden) cx.suspend(); else cx.resume();
 });
 })();
 
