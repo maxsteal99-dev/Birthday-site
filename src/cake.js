@@ -5,6 +5,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 import topperFont from './topper-font.json';
+import { createBreathDetector } from './breath.js';
 
 const CANDLES = 30;
 const V2 = THREE.Vector2;
@@ -310,28 +311,22 @@ export function createCake(canvas, { onProgress, onTrick, onAllOut } = {}) {
     windTarget.set((Math.random() - .5) * 2, 0);
   }
 
-  /* ---------- microphone: blowing makes a loud low rush of air ---------- */
-  let mic = null;
+  /* ---------- microphone: listens for a real breath (see breath.js) ---------- */
+  let mic = null, micLast = { level: 0, blow: 0 };
   async function listen() {
-    if (mic) return true;
-    try { if (navigator.audioSession) navigator.audioSession.type = 'auto'; } catch (e) {}
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: false, autoGainControl: false } });
-    const ac = new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') await ac.resume();
-    const src = ac.createMediaStreamSource(stream), an = ac.createAnalyser(); an.fftSize = 1024; an.smoothingTimeConstant = 0.3; src.connect(an);
-    mic = { stream, ac, an, buf: new Uint8Array(an.frequencyBinCount), floor: 0, warm: 0, blowing: 0 };
-    return true;
+    if (mic) return mic.ac.state;
+    try { if (navigator.audioSession) navigator.audioSession.type = 'play-and-record'; } catch (e) {}
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    const src = ac.createMediaStreamSource(stream), an = ac.createAnalyser(); an.fftSize = 2048; an.smoothingTimeConstant = 0.2; src.connect(an);
+    mic = { stream, ac, an, det: createBreathDetector(an, ac.sampleRate) };
+    try { await Promise.race([ac.resume(), new Promise(r => setTimeout(r, 600))]); } catch (e) {}
+    return ac.state; // 'running', or 'suspended' if this browser wants one tap first
   }
+  function resumeMic() { if (mic && mic.ac.state !== 'running') return mic.ac.resume(); return Promise.resolve(); }
   function micLevel(dt) {
-    if (!mic) return 0;
-    const { an, buf } = mic; an.getByteFrequencyData(buf);
-    const hz = mic.ac.sampleRate / an.fftSize, lo = Math.max(1, Math.round(60 / hz)), hi = Math.round(900 / hz), hi2 = Math.round(4000 / hz);
-    let low = 0, mid = 0; for (let i = lo; i < hi; i++) low += buf[i]; for (let i = hi; i < hi2; i++) mid += buf[i];
-    low /= (hi - lo) * 255; mid /= (hi2 - hi) * 255;
-    const e = low * 0.7 + mid * 0.3;
-    if (mic.warm < 0.6) { mic.warm += dt; mic.floor = Math.max(mic.floor, e); return 0; }
-    const thr = Math.max(0.28, mic.floor * 1.6 + 0.08), s = THREE.MathUtils.clamp((e - thr) / 0.25, 0, 1);
-    if (s === 0) mic.floor = mic.floor * 0.995 + e * 0.005;
-    return s;
+    if (!mic || mic.ac.state !== 'running') return micLast = { level: 0, blow: 0 };
+    return micLast = mic.det.update(dt);
   }
   function stopMic() { if (!mic) return; mic.stream.getTracks().forEach(t => t.stop()); mic.ac.close(); mic = null; try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {} }
 
@@ -359,10 +354,12 @@ export function createCake(canvas, { onProgress, onTrick, onAllOut } = {}) {
     intro = Math.min(1, intro + dt * 0.6);
 
     // blowing into the mic
-    const s = micLevel(dt);
+    const m = micLevel(dt), s = m.blow;
+    // any sound makes the flames flutter a little, so she can see the mic is listening
+    if (m.level > 0.05 && !s) windTarget.x += (Math.sin(t * 23) * 0.5) * m.level * 0.6;
     if (s > 0) {
-      windTarget.set((Math.sin(t * 9) * 0.4 + 0.6) * (0.6 + s), 0);
-      for (let i = 0; i < CANDLES; i++) if (lit[i]) { const z = flameScreen(i).z; const front = 1.4 - (z - 0.97) * 30; if (Math.random() < s * dt * 4.5 * THREE.MathUtils.clamp(front, 0.35, 1.6)) out(i); }
+      windTarget.set((Math.sin(t * 9) * 0.4 + 0.7) * (0.7 + s), 0);
+      for (let i = 0; i < CANDLES; i++) if (lit[i]) { const z = flameScreen(i).z; const front = 1.4 - (z - 0.97) * 30; if (Math.random() < s * dt * 7 * THREE.MathUtils.clamp(front, 0.45, 1.6)) out(i); }
     }
     uniforms.uWind.value.lerp(windTarget, 1 - Math.pow(0.002, dt));
     windTarget.multiplyScalar(Math.pow(0.04, dt));
@@ -411,7 +408,7 @@ export function createCake(canvas, { onProgress, onTrick, onAllOut } = {}) {
   // compile shaders and draw the first frame before we reveal anything
   renderer.compile(scene, camera); renderer.render(scene, camera);
 
-  return { start, stop, dispose, puff, listen, stopMic, get left() { return left; }, total: CANDLES };
+  return { start, stop, dispose, puff, listen, resumeMic, stopMic, get micDebug() { return micLast; }, get left() { return left; }, total: CANDLES };
 }
 
 export function webglAvailable() {

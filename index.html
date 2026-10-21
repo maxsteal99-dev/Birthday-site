@@ -27,15 +27,15 @@
 </div>
 
 <div class="gate" id="gate" hidden>
-  <canvas id="cake-canvas" tabindex="0" role="img" aria-label="A birthday cake with 30 lit candles. Swipe across the flames, tap them, or blow into the microphone to blow them out. Press Space to blow."></canvas>
+  <canvas id="cake-canvas" tabindex="0" role="img" aria-label="A birthday cake with 30 lit candles. Blow on your phone's microphone or swipe across the flames to blow them out. Press Space to blow."></canvas>
   <div class="gate-top">
     <p class="eyebrow">Make a wish, Sagarika</p>
     <p class="gate-title">Blow out your candles</p>
     <p class="gate-count" id="gate-count" aria-live="polite">30 candles still burning</p>
   </div>
   <div class="gate-bottom">
-    <button class="btn btn-lux" id="gate-mic" type="button">🎤 Blow into the mic</button>
-    <p class="gate-hint">or swipe across the flames · drag to spin the cake</p>
+    <p class="gate-mic" id="gate-mic" aria-live="polite"><span class="mic-dot" aria-hidden="true"></span><span id="gate-mic-text">Blow on your phone to blow out the candles</span></p>
+    <p class="gate-hint" id="gate-hint">or swipe across the flames with your finger</p>
   </div>
   <button class="gate-skip" id="gate-skip" type="button">Skip</button>
   <p class="gate-toast" id="gate-toast" role="status"></p>

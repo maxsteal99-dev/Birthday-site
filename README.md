@@ -36,7 +36,7 @@ Live at https://maxsteal99-dev.github.io/Birthday-site/
 
 ## The cake
 
-The page opens on a real-time 3D cake with 30 lit candles (Three.js, loaded as its own chunk while the loading screen shows). She can blow into the microphone, swipe across the flames, tap a candle or press Space; dragging spins the cake. One candle is a trick candle that relights once. When the last flame is out, confetti fires, the song starts and the site opens. Slow devices automatically get a lower resolution and no shadows. Browsers without WebGL skip straight to the site.
+The page opens on a real-time 3D cake with 30 lit candles (Three.js, loaded as its own chunk while the loading screen shows). The microphone is the main way: the page asks for it as soon as the cake appears, then `src/breath.js` listens for a real breath (loud, broadband, flat-spectrum noise), so talking, laughing or music do not blow the candles out. She can also swipe across the flames, tap a candle or press Space; dragging spins the cake. One candle is a trick candle that relights once. When the last flame is out, confetti fires, the song starts and the site opens. Slow devices automatically get a lower resolution and no shadows. Browsers without WebGL skip straight to the site.
 
 ## The birthday song
 

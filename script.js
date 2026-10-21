@@ -47,13 +47,29 @@ window.__cakeReady = import('./src/cake.js').then(function (mod) {
   cake.start();
 }).catch(function () { close(false); });
 
-micBtn.addEventListener('click', function () {
-  if (!cake) return;
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { micBtn.hidden = true; say('Swipe across the flames to blow them out.', 3000); return; }
-  micBtn.disabled = true; micBtn.textContent = 'Allow the microphone…';
-  cake.listen().then(function () { micBtn.textContent = 'Listening… now blow! 💨'; micBtn.classList.add('listening'); micBtn.disabled = false; })
-    .catch(function () { micBtn.hidden = true; say('No microphone? No problem. Swipe across the flames instead.', 3400); });
-});
+/* the microphone is the main way: ask for it as soon as the cake is on screen */
+var micText = document.getElementById('gate-mic-text'), hint = document.getElementById('gate-hint');
+function micSay(state, text) { micBtn.setAttribute('data-state', state); micText.textContent = text; }
+function startMic() {
+  if (!cake || closed) return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.isSecureContext) { micOff(); return; }
+  micSay('asking', 'Allow the microphone, then blow on your phone');
+  cake.listen().then(function (state) {
+    if (state === 'running') micSay('on', 'Listening… blow on your phone 🌬️');
+    else { // some phones need one touch before they will listen
+      micSay('tap', 'Tap the cake once, then blow');
+      var wake = function () { cake.resumeMic().then(function () { micSay('on', 'Listening… blow on your phone 🌬️'); }); removeEventListener('pointerdown', wake, true); };
+      addEventListener('pointerdown', wake, true);
+    }
+  }).catch(micOff);
+}
+function micOff() { micSay('off', 'Swipe across the flames to blow them out'); hint.textContent = 'tap a single flame, or drag to spin the cake'; }
+function whenVisible(fn) {
+  if (!root.classList.contains('loading')) { fn(); return; }
+  var mo = new MutationObserver(function () { if (!root.classList.contains('loading')) { mo.disconnect(); setTimeout(fn, 500); } });
+  mo.observe(root, { attributes: true, attributeFilter: ['class'] });
+}
+window.__cakeReady.then(function () { whenVisible(startMic); });
 canvas.addEventListener('keydown', function (e) { if (cake && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); cake.puff(.3); } });
 document.getElementById('gate-skip').addEventListener('click', function () { close(false); });
 })();
