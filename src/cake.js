@@ -246,7 +246,7 @@ export function createCake(canvas, { onProgress, onTrick, onAllOut } = {}) {
       setTimeout(() => { if (finished) return; lit[i] = true; target01[i] = 1; left++; onTrick && onTrick(); onProgress && onProgress(left); }, 1400);
     }
     onProgress && onProgress(left);
-    if (left === 0) { finished = true; setTimeout(() => onAllOut && onAllOut(), 900); }
+    if (left === 0) { finished = true; setTimeout(() => onAllOut && onAllOut(), 250); }
     return true;
   }
 
@@ -330,7 +330,7 @@ export function createCake(canvas, { onProgress, onTrick, onAllOut } = {}) {
     if (!mic || mic.ac.state !== 'running') return micLast = { level: 0, blow: 0 };
     return micLast;
   }
-  function stopMic() { if (!mic) return; clearInterval(mic.timer); mic.stream.getTracks().forEach(t => t.stop()); mic.ac.close(); mic = null; try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {} }
+  function stopMic(keepContext) { if (!mic) return; clearInterval(mic.timer); mic.stream.getTracks().forEach(t => t.stop()); if (!keepContext) mic.ac.close(); mic = null; try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {} }
 
   /* ---------- the loop ---------- */
   const clock = new THREE.Clock(); let raf = 0, running = false, intro = 0;
@@ -410,7 +410,7 @@ export function createCake(canvas, { onProgress, onTrick, onAllOut } = {}) {
   // compile shaders and draw the first frame before we reveal anything
   renderer.compile(scene, camera); renderer.render(scene, camera);
 
-  return { start, stop, dispose, puff, listen, resumeMic, stopMic, get micDebug() { return micLast; }, get left() { return left; }, total: CANDLES };
+  return { start, stop, dispose, puff, listen, resumeMic, stopMic, get micContext() { return mic && mic.ac; }, get micDebug() { return micLast; }, get left() { return left; }, total: CANDLES };
 }
 
 export function webglAvailable() {

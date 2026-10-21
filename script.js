@@ -15,7 +15,7 @@ try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } ca
 /* ---------- The cake: blow out 30 candles to open the site ---------- */
 (function () {
 var gate = document.getElementById('gate'), root = document.documentElement;
-function finish() { window.__cakeDone = true; dispatchEvent(new Event('cakedone')); }
+function finish(ctx) { window.__cakeDone = true; var ev; try { ev = new CustomEvent('cakedone', { detail: { ctx: ctx || null } }); } catch (e) { ev = new Event('cakedone'); } dispatchEvent(ev); }
 function hasGL() { try { var c = document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl'))); } catch (e) { return false; } }
 if (!gate || !hasGL()) { finish(); return; }
 
@@ -27,11 +27,14 @@ function progress(n) { count.textContent = n === 0 ? 'All out!' : n === 1 ? 'Jus
 
 function close(celebrate) {
   if (closed) return; closed = true;
-  if (cake) cake.stopMic();
+  // the mic's audio channel is already allowed to make sound (no tap needed),
+  // so hand it to the song: it starts the moment the last candle goes out
+  var live = cake && cake.micContext && cake.micContext.state === 'running' ? cake.micContext : null;
+  if (cake) cake.stopMic(!!live);
   // open the surprise underneath, then let the cake fade away
   var main = document.querySelector('main'); main.classList.add('open'); document.body.classList.add('opened');
   if (celebrate) { say('Your wish is on its way ✨', 2600); if (window.burst) { burst(); setTimeout(burst, 450); } }
-  finish();
+  finish(live);
   setTimeout(function () {
     gate.classList.add('leaving'); root.classList.remove('gated');
     setTimeout(function () { if (cake) cake.dispose(); gate.remove(); }, 1400);
@@ -564,12 +567,18 @@ function bounds(b) {
   return [s / b.sampleRate, (e + 1) / b.sampleRate];
 }
 function held() { return !window.__cakeDone; } // the song waits until the candles are out
+var alt = null; // a second, already-running audio channel (the one the mic used), if the phone hasn't unlocked ours
 function startBuffer() {
-  if (held() || !buf || src || !cx || cx.state !== 'running' || document.hidden) return;
+  if (held() || !buf || src || document.hidden) return;
+  var c = cx && cx.state === 'running' ? cx : (alt && alt.state === 'running' ? alt : null);
+  if (!c) return;
+  var o = out;
+  if (c !== cx) { o = c.createGain(); o.connect(c.destination); out = o; cx = c; }
   var lb = bounds(buf);
-  src = cx.createBufferSource(); src.buffer = buf; src.loop = true; src.loopStart = lb[0]; src.loopEnd = lb[1];
-  src.connect(out); src.start(0, lb[0]);
-  if (!began) { began = true; var t = cx.currentTime; out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(.9, t + 2.5); }
+  src = c.createBufferSource(); src.buffer = buf; src.loop = true; src.loopStart = lb[0]; src.loopEnd = lb[1];
+  src.connect(o); src.start(0, lb[0]);
+  // fade in quickly so it starts right with the celebration
+  if (!began) { began = true; var t = c.currentTime; o.gain.setValueAtTime(0.25, t); o.gain.linearRampToValueAtTime(.9, t + 1.0); }
   stopListening();
 }
 
@@ -622,8 +631,9 @@ function gesture() {
 }
 function stopListening() { G.forEach(function (ev) { removeEventListener(ev, gesture, true); }); }
 G.forEach(function (ev) { addEventListener(ev, gesture, { capture: true, passive: true }); });
-addEventListener('cakedone', function () {
-  if (cx && cx.state !== 'running') cx.resume();
+addEventListener('cakedone', function (e) {
+  if (e && e.detail && e.detail.ctx) alt = e.detail.ctx;
+  if (cx && cx.state !== 'running') { try { cx.resume(); } catch (er) {} }
   if (el === 'pending') { el = null; startElement(); } else startBuffer();
 });
 
