@@ -319,16 +319,18 @@ export function createCake(canvas, { onProgress, onTrick, onAllOut } = {}) {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
     const ac = new (window.AudioContext || window.webkitAudioContext)();
     const src = ac.createMediaStreamSource(stream), an = ac.createAnalyser(); an.fftSize = 2048; an.smoothingTimeConstant = 0.2; src.connect(an);
-    mic = { stream, ac, an, det: createBreathDetector(an, ac.sampleRate) };
+    mic = { stream, ac, an, det: createBreathDetector(an, ac.sampleRate), last: performance.now() };
+    // listen on a steady ~33 Hz timer, independent of how fast the 3D scene draws
+    mic.timer = setInterval(() => { if (!mic || mic.ac.state !== 'running') return; const now = performance.now(), d = Math.min(0.1, (now - mic.last) / 1000); mic.last = now; micLast = mic.det.update(d); }, 30);
     try { await Promise.race([ac.resume(), new Promise(r => setTimeout(r, 600))]); } catch (e) {}
     return ac.state; // 'running', or 'suspended' if this browser wants one tap first
   }
   function resumeMic() { if (mic && mic.ac.state !== 'running') return mic.ac.resume(); return Promise.resolve(); }
-  function micLevel(dt) {
+  function micLevel() {
     if (!mic || mic.ac.state !== 'running') return micLast = { level: 0, blow: 0 };
-    return micLast = mic.det.update(dt);
+    return micLast;
   }
-  function stopMic() { if (!mic) return; mic.stream.getTracks().forEach(t => t.stop()); mic.ac.close(); mic = null; try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {} }
+  function stopMic() { if (!mic) return; clearInterval(mic.timer); mic.stream.getTracks().forEach(t => t.stop()); mic.ac.close(); mic = null; try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {} }
 
   /* ---------- the loop ---------- */
   const clock = new THREE.Clock(); let raf = 0, running = false, intro = 0;
@@ -354,7 +356,7 @@ export function createCake(canvas, { onProgress, onTrick, onAllOut } = {}) {
     intro = Math.min(1, intro + dt * 0.6);
 
     // blowing into the mic
-    const m = micLevel(dt), s = m.blow;
+    const m = micLevel(), s = m.blow;
     // any sound makes the flames flutter a little, so she can see the mic is listening
     if (m.level > 0.05 && !s) windTarget.x += (Math.sin(t * 23) * 0.5) * m.level * 0.6;
     if (s > 0) {
