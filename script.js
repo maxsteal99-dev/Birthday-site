@@ -149,6 +149,86 @@ pb.addEventListener('click', function () {
 })();
 (function () { var d = document.getElementById('drops'); for (var i = 0; i < 46; i++) { var s = document.createElement('span'), z = 2.5 + Math.random() * 6.5; s.className = 'dr'; s.style.cssText = 'left:' + (10 + Math.random() * 125) + 'px;top:' + (14 + Math.random() * 365) + 'px;width:' + z + 'px;height:' + (Math.random() < .35 ? z * 1.6 : z) + 'px'; d.appendChild(s); } })();
 
+/* ---------- Memory album: swipe through, tap to turn over ---------- */
+(function () {
+var stage = document.getElementById('album'); if (!stage) return;
+var cards = [].slice.call(stage.querySelectorAll('.pc')), N = cards.length, order = cards.map(function (c, i) { return i; });
+var count = document.getElementById('al-count'), rm = matchMedia('(prefers-reduced-motion: reduce)').matches, celebrated = false, busy = false;
+var tilt = cards.map(function (c, i) { return [-4, 3, -2, 5, -3, 2][i % 6]; });
+
+function load(i) { var img = cards[i].querySelector('img'); if (img && !img.src) img.src = img.getAttribute('data-src'); }
+function layout() {
+  order.forEach(function (ci, k) {
+    var c = cards[ci], vis = k < 4;
+    c.classList.toggle('top', k === 0);
+    c.style.zIndex = N - k;
+    c.style.opacity = vis ? 1 : 0;
+    c.style.pointerEvents = k === 0 ? 'auto' : 'none';
+    c.style.transform = 'translate3d(' + (k ? (k % 2 ? 1 : -1) * k * 7 : 0) + 'px,' + k * 9 + 'px,0) rotate(' + (k ? tilt[ci] : tilt[ci] * .35) + 'deg) scale(' + (1 - k * .04) + ')';
+    c.setAttribute('aria-hidden', k === 0 ? 'false' : 'true');
+    if (k > 0) c.classList.remove('flipped');
+    if (k < 5) load(ci);
+  });
+  load(order[N - 1]);
+  count.textContent = (order[0] + 1) + ' / ' + N;
+  if (order[0] === N - 1 && !celebrated) { celebrated = true; if (window.burst) setTimeout(burst, 350); }
+}
+function go(dir, fromDx) {
+  if (busy) return; busy = true;
+  var top = cards[order[0]];
+  if (dir > 0) {
+    // send the top photo away, then tuck it under the pile
+    top.style.transform = 'translate3d(' + (fromDx < 0 ? -1 : 1) * 130 + '%,-4%,0) rotate(' + (fromDx < 0 ? -18 : 18) + 'deg)';
+    top.style.opacity = 0;
+    setTimeout(function () { order.push(order.shift()); top.classList.remove('flipped'); layout(); busy = false; }, rm ? 0 : 320);
+  } else {
+    // pull the last photo back on top from the side
+    var ci = order.pop(), c = cards[ci]; order.unshift(ci);
+    c.classList.add('dragging'); c.style.zIndex = N + 1; c.style.opacity = 0;
+    c.style.transform = 'translate3d(-130%,-4%,0) rotate(-18deg)';
+    void c.offsetWidth; c.classList.remove('dragging');
+    layout(); setTimeout(function () { busy = false; }, rm ? 0 : 320);
+  }
+}
+function flip() { cards[order[0]].classList.toggle('flipped'); }
+
+/* drag or swipe the top photo; a tap turns it over */
+var sx = 0, sy = 0, dx = 0, dragging = false, moved = false, pid = null;
+stage.addEventListener('pointerdown', function (e) {
+  var c = e.target.closest('.pc'); if (!c || !c.classList.contains('top') || busy) return;
+  dragging = true; moved = false; sx = e.clientX; sy = e.clientY; dx = 0; pid = e.pointerId;
+  c.classList.add('dragging'); try { c.setPointerCapture(pid); } catch (er) {}
+});
+stage.addEventListener('pointermove', function (e) {
+  if (!dragging || e.pointerId !== pid) return;
+  dx = e.clientX - sx; var dy = e.clientY - sy;
+  if (!moved && Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+  if (!moved && Math.abs(dy) > Math.abs(dx)) { end(e, true); return; } // let her scroll the page
+  moved = true;
+  cards[order[0]].style.transform = 'translate3d(' + dx + 'px,0,0) rotate(' + dx / 18 + 'deg)';
+});
+function end(e, cancel) {
+  if (!dragging) return; dragging = false;
+  var c = cards[order[0]]; c.classList.remove('dragging');
+  if (cancel) { layout(); return; }
+  if (moved && Math.abs(dx) > Math.min(90, stage.offsetWidth * .2)) go(1, dx);
+  else if (!moved) flip();
+  else layout();
+}
+stage.addEventListener('pointerup', function (e) { end(e, false); });
+stage.addEventListener('pointercancel', function (e) { end(e, true); });
+stage.addEventListener('keydown', function (e) {
+  if (e.key === 'ArrowRight') { e.preventDefault(); go(1, -1); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+  else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); }
+});
+document.getElementById('al-next').addEventListener('click', function () { go(1, -1); });
+document.getElementById('al-prev').addEventListener('click', function () { go(-1); });
+
+layout(); stage.classList.add('ready');
+if (!rm) new IntersectionObserver(function (es, ob) { if (es[0].isIntersecting) { stage.classList.add('nudge'); ob.disconnect(); } }, { threshold: .6 }).observe(stage);
+})();
+
 /* ---------- Scroll: progress bar, parallax, opening fade, timeline rail ---------- */
 (function () {
 var rm = matchMedia('(prefers-reduced-motion: reduce)').matches, bar = document.getElementById('bar'), pe = [].slice.call(document.querySelectorAll('[data-p]')), tk = false;
