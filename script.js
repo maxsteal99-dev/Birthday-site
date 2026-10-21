@@ -229,6 +229,85 @@ layout(); stage.classList.add('ready');
 if (!rm) new IntersectionObserver(function (es, ob) { if (es[0].isIntersecting) { stage.classList.add('nudge'); ob.disconnect(); } }, { threshold: .6 }).observe(stage);
 })();
 
+/* ---------- Snack machine: tap a craving, collect its coupon ---------- */
+(function () {
+var vend = document.getElementById('vend'); if (!vend) return;
+var tray = document.getElementById('tray'), msg = document.getElementById('vend-msg'), wallet = document.getElementById('coupons');
+var slots = [].slice.call(vend.querySelectorAll('.slot')), rm = matchMedia('(prefers-reduced-motion: reduce)').matches, busy = false, got = {}, ac = null;
+var S = {
+  garlic: { code: 'A1', name: 'Garlic bread', say: 'Garlic bread incoming. Extra butter, obviously.',
+    coupon: 'Good for one basket of hot garlic bread, extra cheesy. I won’t steal the last piece. (Probably.)' },
+  burger: { code: 'B2', name: 'McSpicy Paneer', say: 'One McSpicy Paneer. Hot and spicy, just like you.',
+    coupon: 'Good for one McSpicy Paneer with fries, at any hour. Even midnight. Especially midnight.' },
+  kurkure: { code: 'C3', name: 'Kurkure Solid Masti Twisteez', say: 'Crunchy, twisty, full of masti. Sounds like someone I know.',
+    coupon: 'Good for one packet of Solid Masti Twisteez, all to yourself. I’ll buy my own this time.' }
+};
+var AGAIN = 'You already have that coupon, but here’s seconds anyway.';
+
+function clunk() { try {
+  ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') ac.resume();
+  var t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+  o.type = 'triangle'; o.frequency.setValueAtTime(180, t + .38); o.frequency.exponentialRampToValueAtTime(60, t + .5);
+  g.gain.setValueAtTime(.0001, t); g.gain.setValueAtTime(.35, t + .38); g.gain.exponentialRampToValueAtTime(.001, t + .55);
+  o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + .6);
+} catch (e) {} }
+
+function coupon(k, combo) {
+  var d = document.createElement('div'); d.className = 'coupon' + (combo ? ' combo' : '');
+  var no = combo ? 'No. 0411 · Combo' : 'No. 0411 · ' + S[k].code;
+  var title = combo ? 'Snack trifecta' : S[k].name;
+  var text = combo ? 'All three, a movie, a blanket and me on the couch. Redeemable any night you like.' : S[k].coupon;
+  d.innerHTML = '<div class="cp-main"><span class="cp-no"></span><strong></strong><p></p></div><div class="cp-side"><span>Redeem with</span><b>Mani</b><em>Valid forever</em></div>';
+  d.querySelector('.cp-no').textContent = no; d.querySelector('strong').textContent = title; d.querySelector('p').textContent = text;
+  wallet.appendChild(d);
+}
+
+function vendOut(slot) {
+  var k = slot.getAttribute('data-snack'), art = slot.querySelector('.snack');
+  busy = true; slot.classList.add('vending'); clunk();
+  var done = function () {
+    tray.querySelectorAll('.snack').forEach(function (n) { n.remove(); });
+    var inTray = art.cloneNode(true); inTray.style.left = (12 + Math.random() * 40) + '%'; tray.appendChild(inTray);
+    if (!rm) inTray.animate([{ transform: 'translateY(-30px)' }, { transform: 'translateY(4px)' }, { transform: 'translateY(-6px)' }, { transform: 'none' }], { duration: 420, easing: 'ease-out' });
+    slot.classList.add('empty'); slot.classList.remove('vending');
+    setTimeout(function () { slot.classList.remove('empty'); }, 900);
+    var first = !got[k]; got[k] = true;
+    msg.textContent = first ? S[k].say : AGAIN;
+    if (first) coupon(k);
+    if (first && got.garlic && got.burger && got.kurkure) {
+      setTimeout(function () { coupon(null, true); msg.textContent = 'Snack trifecta unlocked! One combo coupon for my favourite girl.'; if (window.burst) burst(); }, 700);
+    }
+    busy = false;
+  };
+  if (rm) { done(); return; }
+  // let the snack fall from its coil into the tray
+  var vr = vend.getBoundingClientRect(), ar = art.getBoundingClientRect(), tr = tray.getBoundingClientRect();
+  var fall = art.cloneNode(true); fall.className = 'drop';
+  fall.style.cssText = 'left:' + (ar.left - vr.left) + 'px;top:' + (ar.top - vr.top) + 'px;width:' + ar.width + 'px;height:' + ar.height + 'px';
+  vend.appendChild(fall); art.style.opacity = 0;
+  var dy = tr.top + tr.height - 70 - ar.top, dx = (tr.left + tr.width * .35) - ar.left;
+  var an = fall.animate([
+    { transform: 'translate(0,0) rotate(0)' },
+    { transform: 'translate(0,10px) rotate(-6deg)', offset: .25 },
+    { transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(24deg) scale(.7)' }
+  ], { duration: 620, delay: 120, easing: 'cubic-bezier(.55,0,.85,.3)', fill: 'forwards' });
+  an.onfinish = function () { fall.remove(); art.style.opacity = ''; done(); };
+}
+
+slots.forEach(function (s) { s.addEventListener('click', function () { if (!busy) vendOut(s); }); });
+document.getElementById('surprise').addEventListener('click', function () {
+  if (busy) return; busy = true;
+  var pick = Math.floor(Math.random() * 3), steps = rm ? 0 : 10 + pick, i = 0;
+  msg.textContent = 'Hmm, what are you craving…';
+  (function spin() {
+    if (i >= steps) { busy = false; vendOut(slots[pick]); setTimeout(function () { slots[pick].classList.remove('lit'); }, 900); return; }
+    slots.forEach(function (s) { s.classList.remove('lit'); });
+    slots[i % 3].classList.add('lit'); i++;
+    setTimeout(spin, 70 + i * 14);
+  })();
+});
+})();
+
 /* ---------- Scroll: progress bar, parallax, opening fade, timeline rail ---------- */
 (function () {
 var rm = matchMedia('(prefers-reduced-motion: reduce)').matches, bar = document.getElementById('bar'), pe = [].slice.call(document.querySelectorAll('[data-p]')), tk = false;
