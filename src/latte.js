@@ -346,8 +346,8 @@ export function createLatte(canvas, { onStep, onMessage, onDone } = {}) {
   function adapt(now) { const ms = lastWall ? now - lastWall : 16; lastWall = now; if (level >= 2) return; slow = ms > 45 ? slow + 1 : Math.max(0, slow - 1); if (slow < 8) return; slow = 0; level++; if (level === 1) renderer.setPixelRatio(Math.min(renderer.getPixelRatio(), 1.25)); else { renderer.setPixelRatio(1); renderer.shadowMap.enabled = false; key.castShadow = false; scene.traverse(o => { if (o.material) o.material.needsUpdate = true; }); } resize(); }
   function frame(now) {
     raf = requestAnimationFrame(frame); adapt(now || performance.now());
-    const dt = Math.min(clock.getDelta(), 0.05); L.time += dt;
-    for (let i = tweens.length - 1; i >= 0; i--) { const tw = tweens[i]; tw.t = Math.min(1, tw.t + dt / tw.dur); tw.fn(tw.ease(tw.t)); if (tw.t >= 1) { tweens.splice(i, 1); tw.res(); } }
+    const rawDt = clock.getDelta(), dt = Math.min(rawDt, 0.05), tdt = Math.min(rawDt, 0.25); L.time += dt;
+    for (let i = tweens.length - 1; i >= 0; i--) { const tw = tweens[i]; tw.t = Math.min(1, tw.t + tdt / tw.dur); tw.fn(tw.ease(tw.t)); if (tw.t >= 1) { tweens.splice(i, 1); tw.res(); } }
     // ice: fall, bounce, then float near the surface once there is milk
     cubes.forEach((c, i) => {
       const d = c.userData; if (!d.active) return;

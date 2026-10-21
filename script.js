@@ -327,9 +327,36 @@ grab.addEventListener('pointerup', release); grab.addEventListener('pointercance
 
 /* button (and keyboard): plays the whole opening */
 pb.addEventListener('click', function () {
+  if (window.__can3d) { window.__can3d.autoOpen(); return; }
   if (opened) { reset(); setTimeout(function () { animateLift(1, 520); }, 150); } else animateLift(1, 520);
 });
 setLift(0);
+})();
+/* the 3D can (top view → open → swing to front → pour), loaded when she gets near */
+(function () {
+var box = document.getElementById('can3d'); if (!box) return;
+function hasGL() { try { var c = document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl'))); } catch (e) { return false; } }
+if (!hasGL()) return;
+var canvas = document.getElementById('can-canvas'), msg = document.getElementById('can3d-msg'), pb = document.getElementById('pop'), game = null, visible = false, loading = false;
+function load() {
+  if (loading) return; loading = true;
+  import('./src/monster.js').then(function (mod) {
+    box.hidden = false; box.classList.add('on');
+    game = mod.createMonster(canvas, {
+      photo: 'assets/img/monster-can.webp',
+      onMessage: function (t) { msg.textContent = t; },
+      onPhase: function (p) {
+        pb.disabled = p === 'swing' || p === 'pour' || p === 'lifting';
+        if (p === 'done') pb.textContent = 'Crack open another 🥤';
+        if (p === 'top') pb.textContent = 'Crack it open 🥤';
+      }
+    });
+    window.__can3d = game;
+    if (visible) game.start();
+  }).catch(function () { box.hidden = true; box.classList.remove('on'); });
+}
+new IntersectionObserver(function (es) { if (es[0].isIntersecting) load(); }, { rootMargin: '900px 0px' }).observe(document.getElementById('canbox'));
+new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (game) { if (visible) game.start(); else game.stop(); } }, { threshold: 0.05 }).observe(box);
 })();
 (function () { var d = document.getElementById('drops'); for (var i = 0; i < 46; i++) { var s = document.createElement('span'), z = 2.5 + Math.random() * 6.5; s.className = 'dr'; s.style.cssText = 'left:' + (10 + Math.random() * 125) + 'px;top:' + (14 + Math.random() * 365) + 'px;width:' + z + 'px;height:' + (Math.random() < .35 ? z * 1.6 : z) + 'px'; d.appendChild(s); } })();
 

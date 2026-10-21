@@ -9,6 +9,7 @@ script.js           all behaviour (loading screen, cake gate, music, album, snac
 src/cake.js         the 3D birthday cake (Three.js): candles, flames, smoke, mic + swipe blowing
 src/breath.js       breath detection from the microphone (no pitch + louder than the room)
 src/latte.js        Barista Sagarika: build a Spanish latte in 3D (pour, ice, espresso, stir, sip)
+src/monster.js      the 3D Monster can: top view, pull the tab, crack, swing to front, pour into a glass
 src/topper-font.json  the two glyphs "3" and "0" for the gold topper (Gentilis, MAGENTA Ltd license)
 fonts/              self-hosted fonts (SIL Open Font License), bundled by Vite
 public/assets/      photos, album images, snack product photos, the song and the favicon (copied as-is)
