@@ -5,7 +5,9 @@ A one-page birthday surprise, built with [Vite](https://vitejs.dev) into a fast 
 ```
 index.html          the page
 styles.css          all styling
-script.js           all behaviour (loading screen, music, album, snack machine, game…)
+script.js           all behaviour (loading screen, cake gate, music, album, snack machine, game…)
+src/cake.js         the 3D birthday cake (Three.js): candles, flames, smoke, mic + swipe blowing
+src/topper-font.json  the two glyphs "3" and "0" for the gold topper (Gentilis, MAGENTA Ltd license)
 fonts/              self-hosted fonts (SIL Open Font License), bundled by Vite
 public/assets/      photos, album images, the song and the favicon (copied as-is)
 original/           the original single-file page, kept as a backup
@@ -31,6 +33,10 @@ cd dist && git init -q && git add -A && git commit -qm deploy \
 ```
 
 Live at https://maxsteal99-dev.github.io/Birthday-site/
+
+## The cake
+
+The page opens on a real-time 3D cake with 30 lit candles (Three.js, loaded as its own chunk while the loading screen shows). She can blow into the microphone, swipe across the flames, tap a candle or press Space; dragging spins the cake. One candle is a trick candle that relights once. When the last flame is out, confetti fires, the song starts and the site opens. Slow devices automatically get a lower resolution and no shadows. Browsers without WebGL skip straight to the site.
 
 ## The birthday song
 

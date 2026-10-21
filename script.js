@@ -12,6 +12,52 @@ document.documentElement.classList.add('js');
 try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
 
 
+/* ---------- The cake: blow out 30 candles to open the site ---------- */
+(function () {
+var gate = document.getElementById('gate'), root = document.documentElement;
+function finish() { window.__cakeDone = true; dispatchEvent(new Event('cakedone')); }
+function hasGL() { try { var c = document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl'))); } catch (e) { return false; } }
+if (!gate || !hasGL()) { finish(); return; }
+
+root.classList.add('gated'); gate.hidden = false;
+var canvas = document.getElementById('cake-canvas'), count = document.getElementById('gate-count'), toast = document.getElementById('gate-toast');
+var micBtn = document.getElementById('gate-mic'), cake = null, closed = false, tt = 0;
+function say(t, ms) { toast.textContent = t; toast.classList.add('show'); clearTimeout(tt); tt = setTimeout(function () { toast.classList.remove('show'); }, ms || 2200); }
+function progress(n) { count.textContent = n === 0 ? 'All out!' : n === 1 ? 'Just one left. Big breath!' : n + ' candles still burning'; }
+
+function close(celebrate) {
+  if (closed) return; closed = true;
+  if (cake) cake.stopMic();
+  // open the surprise underneath, then let the cake fade away
+  var main = document.querySelector('main'); main.classList.add('open'); document.body.classList.add('opened');
+  if (celebrate) { say('Your wish is on its way ✨', 2600); if (window.burst) { burst(); setTimeout(burst, 450); } }
+  finish();
+  setTimeout(function () {
+    gate.classList.add('leaving'); root.classList.remove('gated');
+    setTimeout(function () { if (cake) cake.dispose(); gate.remove(); }, 1400);
+  }, celebrate ? 1500 : 0);
+}
+
+window.__cakeReady = import('./src/cake.js').then(function (mod) {
+  cake = mod.createCake(canvas, {
+    onProgress: progress,
+    onTrick: function () { say('Trick candle! 😜 One more time…'); },
+    onAllOut: function () { close(true); }
+  });
+  cake.start();
+}).catch(function () { close(false); });
+
+micBtn.addEventListener('click', function () {
+  if (!cake) return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { micBtn.hidden = true; say('Swipe across the flames to blow them out.', 3000); return; }
+  micBtn.disabled = true; micBtn.textContent = 'Allow the microphone…';
+  cake.listen().then(function () { micBtn.textContent = 'Listening… now blow! 💨'; micBtn.classList.add('listening'); micBtn.disabled = false; })
+    .catch(function () { micBtn.hidden = true; say('No microphone? No problem. Swipe across the flames instead.', 3400); });
+});
+canvas.addEventListener('keydown', function (e) { if (cake && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); cake.puff(.3); } });
+document.getElementById('gate-skip').addEventListener('click', function () { close(false); });
+})();
+
 /* ---------- Loading screen: wait for fonts and the first photos, then begin ---------- */
 (function () {
 var root = document.documentElement, fill = document.getElementById('ld-fill'), t0 = performance.now(), done = 0;
@@ -21,7 +67,8 @@ var hero = document.getElementById('p1');
 var jobs = [document.fonts ? document.fonts.ready : Promise.resolve(), img(hero.currentSrc || hero.src)].concat(first);
 jobs.forEach(function (p) { p.then(function () { done++; if (fill) fill.style.setProperty('--p', Math.max(.05, done / jobs.length)); }); });
 function reveal() { setTimeout(function () { root.classList.remove('loading'); }, Math.max(0, 900 - (performance.now() - t0))); }
-Promise.race([Promise.all(jobs), new Promise(function (r) { setTimeout(r, 3500); })]).then(reveal, reveal);
+if (window.__cakeReady) { var cj = window.__cakeReady.catch(function () {}); jobs.push(cj); cj.then(function () { done++; if (fill) fill.style.setProperty('--p', Math.max(.05, done / jobs.length)); }); }
+Promise.race([Promise.all(jobs), new Promise(function (r) { setTimeout(r, 7000); })]).then(reveal, reveal);
 })();
 
 /* ---------- Confetti (gold foil) ---------- */
@@ -369,8 +416,9 @@ function bounds(b) {
   while (e > s && Math.abs(d[e]) < th && Math.abs(d2[e]) < th) e--;
   return [s / b.sampleRate, (e + 1) / b.sampleRate];
 }
+function held() { return !window.__cakeDone; } // the song waits until the candles are out
 function startBuffer() {
-  if (!buf || src || !cx || cx.state !== 'running' || document.hidden) return;
+  if (held() || !buf || src || !cx || cx.state !== 'running' || document.hidden) return;
   var lb = bounds(buf);
   src = cx.createBufferSource(); src.buffer = buf; src.loop = true; src.loopStart = lb[0]; src.loopEnd = lb[1];
   src.connect(out); src.start(0, lb[0]);
@@ -399,7 +447,7 @@ function musicBox() {
   dl.delayTime.value = .37; fb.gain.value = .3; lp.type = 'lowpass'; lp.frequency.value = 2800;
   mg.gain.value = .5; mg.connect(out); mg.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(out);
   nt = cx.currentTime + .1;
-  setInterval(function () { if (cx.state !== 'running') return; if (nt < cx.currentTime) nt = cx.currentTime + .05; while (nt < cx.currentTime + .3) { var e = step % 8, c = ch[Math.floor(step / 8) % 4]; if (e === 0) pad(c, nt, 2.1); bell(c[pat[e]] + (e === 7 ? 12 : 0), nt, .1, 1.4); if (e % 4 === 0) bell(c[0] - 12, nt, .08, 1.2); nt += .31; step++; } }, 100);
+  setInterval(function () { if (held() || cx.state !== 'running') return; if (nt < cx.currentTime) nt = cx.currentTime + .05; while (nt < cx.currentTime + .3) { var e = step % 8, c = ch[Math.floor(step / 8) % 4]; if (e === 0) pad(c, nt, 2.1); bell(c[pat[e]] + (e === 7 ? 12 : 0), nt, .1, 1.4); if (e % 4 === 0) bell(c[0] - 12, nt, .08, 1.2); nt += .31; step++; } }, 100);
   var t = cx.currentTime; out.gain.cancelScheduledValues(t); out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(1, t + 3);
   if (cx.state === 'running') stopListening();
 }
@@ -419,6 +467,7 @@ try { if (cx) cx.resume(); } catch (e) {}
 var G = ['pointerdown', 'mousedown', 'touchend', 'click', 'keydown'];
 function gesture() {
   if (document.hidden) return;
+  if (held()) { if (cx && cx.state !== 'running') cx.resume(); return; } // unlock sound now, play it later
   if (el === 'pending') { el = null; startElement(); return; }
   if (el && el.paused) { startElement(); return; }
   if (cx && cx.state !== 'running') cx.resume();
@@ -426,6 +475,10 @@ function gesture() {
 }
 function stopListening() { G.forEach(function (ev) { removeEventListener(ev, gesture, true); }); }
 G.forEach(function (ev) { addEventListener(ev, gesture, { capture: true, passive: true }); });
+addEventListener('cakedone', function () {
+  if (cx && cx.state !== 'running') cx.resume();
+  if (el === 'pending') { el = null; startElement(); } else startBuffer();
+});
 
 document.addEventListener('visibilitychange', function () {
   if (el && el !== 'pending') { if (document.hidden) el.pause(); else if (began || !el.paused) el.play().catch(function () {}); return; }
