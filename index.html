@@ -276,20 +276,36 @@
 </section>
 
 <section class="scene latte-scene" data-mood="coffee">
-  <div class="wrap split">
-    <div class="latte-stage reveal" aria-hidden="true">
-      <div class="latte-steam"><i></i><i></i><i></i></div>
-      <div class="latte" id="latte"></div>
-      <div class="saucer"></div>
-    </div>
-    <div class="split-text">
-      <div class="ornament left reveal" aria-hidden="true"></div>
-      <h2 class="reveal">Your official fuel</h2>
-      <p class="reveal" style="--d:.1s">One Spanish latte, espresso with sweet condensed milk, is the unofficial start of every great day. This week has a mission: find the best Spanish latte in Mauritius.</p>
-      <div class="tally reveal" style="--d:.2s">
-        <button id="tally" class="btn btn-ghost" type="button"><span aria-hidden="true">☕</span> Add a latte to the tally</button>
-        <p id="tn" aria-live="polite">Lattes enjoyed: <strong id="tn-n">0</strong></p>
+  <div class="wrap narrow center">
+    <div class="ornament reveal" aria-hidden="true"></div>
+    <p class="eyebrow reveal">Barista Sagarika</p>
+    <h2 class="reveal" style="--d:.06s">Your official fuel</h2>
+    <p class="reveal" style="--d:.1s">One Spanish latte, espresso with sweet condensed milk, is the unofficial start of every great day. This week has a mission: find the best Spanish latte in Mauritius.</p>
+    <p class="barista-how reveal" style="--d:.14s">But first, make your own. Tap each ingredient on the counter in order, then stir with your finger.</p>
+
+    <div class="barista reveal" style="--d:.18s" id="barista">
+      <div class="barista-stage">
+        <canvas id="latte-canvas" role="img" aria-label="A café counter with a can of condensed milk, a bowl of ice, a bottle of milk and an espresso next to a tall glass"></canvas>
+        <div class="latte-stage latte-fallback" aria-hidden="true">
+          <div class="latte-steam"><i></i><i></i><i></i></div>
+          <div class="latte" id="latte"></div>
+          <div class="saucer"></div>
+        </div>
+        <p class="barista-msg" id="barista-msg" aria-live="polite"></p>
       </div>
+      <ol class="recipe" id="recipe" aria-label="Spanish latte recipe">
+        <li><button type="button" class="step next" data-step="cm"><span class="n">1</span>Condensed milk</button></li>
+        <li><button type="button" class="step" data-step="ice"><span class="n">2</span>Ice</button></li>
+        <li><button type="button" class="step" data-step="milk"><span class="n">3</span>Milk</button></li>
+        <li><button type="button" class="step" data-step="esp"><span class="n">4</span>Espresso</button></li>
+        <li><button type="button" class="step" data-step="stir"><span class="n">5</span>Stir</button></li>
+      </ol>
+      <p class="barista-again"><button class="btn btn-lux" id="latte-again" type="button" hidden>Make another ☕</button></p>
+    </div>
+
+    <div class="tally reveal" style="--d:.2s">
+      <button id="tally" class="btn btn-ghost" type="button"><span aria-hidden="true">☕</span> Add a latte to the tally</button>
+      <p id="tn" aria-live="polite">Lattes enjoyed: <strong id="tn-n">0</strong></p>
     </div>
   </div>
 </section>
@@ -326,27 +342,9 @@
     <div class="vend reveal" style="--d:.2s" id="vend">
       <div class="vend-top"><span class="vend-sign">Sagarika’s Snack Machine</span><span class="vend-bulbs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
       <div class="vend-glass">
-        <button class="slot" type="button" data-snack="garlic" aria-label="Get garlic bread"><span class="snack"><svg viewBox="0 0 100 100" aria-hidden="true"><defs><radialGradient id="gbA" cx=".42" cy=".38" r=".75"><stop offset="0" stop-color="#fff0bf"/><stop offset=".55" stop-color="#f3c66e"/><stop offset="1" stop-color="#cf8a35"/></radialGradient></defs>
-<g transform="rotate(-12 50 60)"><ellipse cx="44" cy="66" rx="33" ry="20" fill="#9c531d"/><ellipse cx="44" cy="62" rx="29" ry="16" fill="url(#gbA)"/><ellipse cx="36" cy="57" rx="9" ry="3.5" fill="#fff8de" opacity=".6"/>
-<g fill="#4f7d25"><circle cx="30" cy="63" r="1.8"/><circle cx="44" cy="58" r="1.6"/><circle cx="52" cy="66" r="1.9"/><circle cx="38" cy="69" r="1.5"/><rect x="57" y="59" width="4" height="1.6" rx=".8"/><rect x="25" y="58" width="3.5" height="1.5" rx=".7"/></g></g>
-<g transform="rotate(14 60 40)"><ellipse cx="62" cy="42" rx="28" ry="17" fill="#a95c22"/><ellipse cx="62" cy="38.5" rx="24.5" ry="13.5" fill="url(#gbA)"/><ellipse cx="55" cy="34" rx="7" ry="3" fill="#fff8de" opacity=".6"/>
-<g fill="#4f7d25"><circle cx="52" cy="40" r="1.6"/><circle cx="64" cy="35" r="1.5"/><circle cx="70" cy="43" r="1.8"/><rect x="60" y="44" width="3.6" height="1.5" rx=".7"/></g></g></svg></span><span class="coil" aria-hidden="true"></span><span class="slot-tag"><b>A1</b> Garlic bread</span></button>
-        <button class="slot" type="button" data-snack="burger" aria-label="Get a McSpicy Paneer burger"><span class="snack"><svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="bnA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0b45e"/><stop offset="1" stop-color="#c97a2c"/></linearGradient><linearGradient id="ptA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6b54a"/><stop offset="1" stop-color="#c2701f"/></linearGradient></defs>
-<rect x="17" y="70" width="66" height="13" rx="6.5" fill="url(#bnA)"/>
-<rect x="15" y="57" width="70" height="14" rx="7" fill="url(#ptA)"/>
-<path d="M18 58 h64 l-3 6 q-3-3 -6 1 q-4-4 -7 2 q-4-5 -8 0 q-4-4 -8 1 q-3-4 -7 0 q-4-4 -8 1 q-4-4 -7-1 z" fill="#d84315"/>
-<path d="M14 53 q4 6 8 0 q4 6 8 0 q4 6 8 0 q4 6 8 0 q4 6 8 0 q4 6 8 0 q4 6 8 0 q4 6 8 0 q2 3 4 2 v-4 h-72 z" fill="#7cb342"/>
-<path d="M16 52 Q16 22 50 22 Q84 22 84 52 Z" fill="url(#bnA)"/>
-<path d="M26 36 Q34 27 46 26" stroke="#fff3d6" stroke-width="3" stroke-linecap="round" fill="none" opacity=".55"/>
-<g fill="#fff8e6"><ellipse cx="36" cy="38" rx="2.4" ry="1.3" transform="rotate(-20 36 38)"/><ellipse cx="50" cy="33" rx="2.4" ry="1.3"/><ellipse cx="62" cy="38" rx="2.4" ry="1.3" transform="rotate(20 62 38)"/><ellipse cx="44" cy="45" rx="2.2" ry="1.2" transform="rotate(10 44 45)"/><ellipse cx="70" cy="46" rx="2.2" ry="1.2" transform="rotate(30 70 46)"/><ellipse cx="29" cy="47" rx="2.2" ry="1.2" transform="rotate(-30 29 47)"/></g></svg></span><span class="coil" aria-hidden="true"></span><span class="slot-tag"><b>B2</b> McSpicy Paneer</span></button>
-        <button class="slot" type="button" data-snack="kurkure" aria-label="Get Kurkure Solid Masti Twisteez"><span class="snack"><svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="kkA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb300"/><stop offset=".55" stop-color="#ff6f00"/><stop offset="1" stop-color="#d84315"/></linearGradient></defs>
-<path d="M24 12 h52 l-2 4 l2 3 l-2 3 q4 30 0 60 l2 3 l-2 3 l2 4 h-52 l2-4 l-2-3 l2-3 q-4-30 0-60 l-2-3 l2-3 z" fill="url(#kkA)"/>
-<path d="M30 22 Q50 18 70 22" stroke="#fff3c4" stroke-width="2.5" fill="none" opacity=".6" stroke-linecap="round"/>
-<rect x="31" y="40" width="38" height="20" rx="4" fill="#7b1fa2"/>
-<text x="50" y="49" text-anchor="middle" font-family="DM Sans,Arial,sans-serif" font-weight="800" font-size="7.5" fill="#fff">SOLID</text>
-<text x="50" y="57" text-anchor="middle" font-family="DM Sans,Arial,sans-serif" font-weight="800" font-size="7.5" fill="#ffeb3b">MASTI</text>
-<g stroke="#f6a623" stroke-width="5" stroke-linecap="round" fill="none"><path d="M34 72 c3-5 6 5 9 0 s6 5 9 0"/><path d="M48 80 c3-5 6 5 9 0 s6 5 9 0"/></g>
-<g stroke="#c75b12" stroke-width="1" fill="none" opacity=".5"><path d="M34 72 c3-5 6 5 9 0 s6 5 9 0"/><path d="M48 80 c3-5 6 5 9 0 s6 5 9 0"/></g></svg></span><span class="coil" aria-hidden="true"></span><span class="slot-tag"><b>C3</b> Solid Masti Twisteez</span></button>
+        <button class="slot" type="button" data-snack="garlic" aria-label="Get garlic bread"><span class="snack"><img src="assets/img/snacks/garlic-bread.webp" alt="" width="440" height="251" loading="lazy" decoding="async" draggable="false"></span><span class="coil" aria-hidden="true"></span><span class="slot-tag"><b>A1</b> Garlic bread</span></button>
+        <button class="slot" type="button" data-snack="burger" aria-label="Get a McSpicy Paneer burger"><span class="snack"><img src="assets/img/snacks/mcspicy-paneer.webp" alt="" width="304" height="257" loading="lazy" decoding="async" draggable="false"></span><span class="coil" aria-hidden="true"></span><span class="slot-tag"><b>B2</b> McSpicy Paneer</span></button>
+        <button class="slot" type="button" data-snack="kurkure" aria-label="Get Kurkure Solid Masti Twisteez"><span class="snack"><img src="assets/img/snacks/kurkure-solid-masti.webp" alt="" width="249" height="400" loading="lazy" decoding="async" draggable="false"></span><span class="coil" aria-hidden="true"></span><span class="slot-tag"><b>C3</b> Solid Masti Twisteez</span></button>
       </div>
       <div class="vend-base">
         <div class="tray" id="tray" aria-hidden="true"><span class="tray-label">Push</span></div>

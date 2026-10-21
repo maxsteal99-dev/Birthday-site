@@ -409,7 +409,9 @@ h3{font-family:var(--serif);font-weight:600;font-size:clamp(1.45rem,1.2rem + 1vw
 .slot{-webkit-appearance:none;appearance:none;border:0;background:none;color:inherit;font:inherit;cursor:pointer;padding:6px 2px 0;border-radius:12px;
   display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .3s}
 .slot .snack{display:block;width:min(100%,128px);aspect-ratio:1;transition:transform .35s var(--ease-out),opacity .4s;filter:drop-shadow(0 10px 10px rgba(0,0,0,.5))}
-.slot .snack svg{display:block;width:100%;height:100%}
+.slot .snack{min-height:0;overflow:visible}
+.slot .snack svg,.slot .snack img{display:block;width:100%;height:100%;min-height:0;object-fit:contain}
+.slot[data-snack="kurkure"] .snack img{transform:rotate(-4deg)}
 .slot .coil{display:block;width:84%;height:12px;border-radius:6px;margin-top:-6px;
   background:repeating-linear-gradient(110deg,#cfd6dc 0 2px,#7d8790 2px 3px,transparent 3px 9px);opacity:.75;transition:background-position .9s var(--ease-out)}
 .slot.vending .coil{background-position:36px 0}
@@ -424,11 +426,11 @@ h3{font-family:var(--serif);font-weight:600;font-size:clamp(1.45rem,1.2rem + 1vw
   background:linear-gradient(180deg,#0c0609,#1e0f15);box-shadow:inset 0 0 0 1px rgba(236,215,178,.22),inset 0 14px 20px rgba(0,0,0,.8)}
 .tray-label{position:absolute;left:12px;top:8px;font:600 .58rem/1 var(--sans);letter-spacing:.3em;text-transform:uppercase;color:rgba(236,215,178,.4)}
 .tray .snack{position:absolute;bottom:4px;width:70px;height:70px;filter:drop-shadow(0 6px 6px rgba(0,0,0,.6))}
-.tray .snack svg{width:100%;height:100%;display:block}
+.tray .snack svg,.tray .snack img{width:100%;height:100%;display:block;object-fit:contain}
 .surprise{flex:none;min-height:48px;padding:12px 18px;font-size:.92rem}
 .vend-msg{min-height:3em;margin:18px auto 0;max-width:34ch;font:italic 500 1.3rem/1.4 var(--serif);color:var(--champagne)}
 .drop{position:absolute;z-index:5;pointer-events:none}
-.drop svg{width:100%;height:100%;display:block}
+.drop svg,.drop img{width:100%;height:100%;display:block;object-fit:contain}
 
 .coupons{display:grid;gap:14px;margin:10px auto 0;max-width:540px;text-align:left}
 .coupon{position:relative;display:grid;grid-template-columns:1fr auto;border-radius:12px;color:#2b1a14;overflow:hidden;
@@ -615,3 +617,37 @@ kbd{font:600 .75rem/1 var(--sans);padding:3px 6px;border-radius:5px;box-shadow:i
 html.gated,html.gated body{overflow:hidden}
 .js.gated .intro,.js.gated h1.intro span{animation-play-state:paused}
 @media (max-height:560px){.gate-title{font-size:2.2rem}.gate-hint{display:none}}
+
+/* =========================================================
+   Barista Sagarika: the Spanish latte game
+   ========================================================= */
+.latte-scene>.wrap>p{color:var(--muted);margin-left:auto;margin-right:auto;max-width:52ch}
+.barista-how{color:var(--champagne)!important;font:italic 500 1.2rem/1.4 var(--serif)}
+.barista{margin:26px auto 0;max-width:720px}
+.barista-stage{position:relative;width:100%;aspect-ratio:1/1.05;max-height:78vh;border-radius:24px;overflow:hidden;
+  background:radial-gradient(70% 60% at 50% 35%,rgba(255,214,160,.16),transparent 70%),radial-gradient(80% 50% at 50% 100%,rgba(0,0,0,.45),transparent 70%);
+  box-shadow:inset 0 0 0 1px rgba(236,215,178,.14)}
+@media (min-width:700px){.barista-stage{aspect-ratio:16/11}}
+#latte-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.barista.stirring #latte-canvas{touch-action:none}
+.latte-fallback{position:absolute;inset:0;display:none}
+.barista.no-gl .latte-fallback{display:grid}
+.barista.no-gl .recipe,.barista.no-gl .barista-msg{display:none}
+.barista-msg{position:absolute;left:12px;right:12px;top:12px;margin:0;padding:10px 16px;border-radius:14px;text-align:center;
+  font:italic 500 1.12rem/1.35 var(--serif);color:var(--ivory);background:rgba(20,12,10,.55);box-shadow:inset 0 0 0 1px rgba(236,215,178,.18);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);pointer-events:none;transition:opacity .3s}
+.barista-msg:empty{opacity:0}
+.recipe{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:16px 0 0;padding:0}
+.step{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px 8px 8px;border:0;border-radius:999px;cursor:pointer;
+  font:500 .92rem/1 var(--sans);color:var(--muted);background:rgba(255,246,235,.04);box-shadow:inset 0 0 0 1px rgba(236,215,178,.16);
+  transition:background .3s,color .3s,box-shadow .3s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.step .n{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;font:600 .8rem/1 var(--sans);background:rgba(236,215,178,.12);color:var(--champagne)}
+.step.next{color:var(--ivory);box-shadow:inset 0 0 0 1px var(--champagne),0 0 22px rgba(236,215,178,.25);animation:glowStep 2s ease-in-out infinite}
+.step.next .n{background:var(--champagne);color:#2a130c}
+.step.done{color:var(--champagne)}
+.step.done .n{background:transparent;box-shadow:inset 0 0 0 1px var(--champagne);font-size:0}
+.step.done .n::before{content:"✓";font-size:.9rem}
+@keyframes glowStep{50%{box-shadow:inset 0 0 0 1px var(--champagne),0 0 32px rgba(236,215,178,.45)}}
+.barista-again{margin:16px 0 0;text-align:center;min-height:0}
+#latte-again[hidden]{display:none}
+.latte-scene .tally{justify-content:center;margin-top:22px}

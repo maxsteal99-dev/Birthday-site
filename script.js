@@ -130,10 +130,45 @@ document.getElementById('again').onclick = burst;
 
 /* ---------- Latte tally ---------- */
 var n = 0, tnN = document.getElementById('tn-n'), latte = document.getElementById('latte');
-document.getElementById('tally').onclick = function () {
+function addLatte() {
   n++; tnN.textContent = n;
   [tnN, latte].forEach(function (el, i) { var k = i ? 'sip' : 'bump'; el.classList.remove(k); void el.offsetWidth; el.classList.add(k); });
-};
+}
+document.getElementById('tally').onclick = addLatte;
+
+/* ---------- Barista Sagarika: make your own Spanish latte (3D, loads when near) ---------- */
+(function () {
+var box = document.getElementById('barista'); if (!box) return;
+var canvas = document.getElementById('latte-canvas'), msg = document.getElementById('barista-msg'), again = document.getElementById('latte-again');
+var steps = [].slice.call(box.querySelectorAll('.step')), game = null, visible = false, loading = false;
+function hasGL() { try { var c = document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl'))); } catch (e) { return false; } }
+if (!hasGL()) { box.classList.add('no-gl'); return; }
+function mark(i, state) {
+  var b = steps[i]; if (!b) return;
+  if (state === 'done') { b.classList.remove('next', 'active'); b.classList.add('done'); }
+  else if (state === 'next') { b.classList.add('next'); }
+  else if (state === 'active') { b.classList.add('active'); }
+  box.classList.toggle('stirring', !!(game && game.step === 'stir') || (state === 'done' && i === 3));
+}
+function load() {
+  if (loading) return; loading = true;
+  import('./src/latte.js').then(function (mod) {
+    game = mod.createLatte(canvas, {
+      onStep: mark,
+      onMessage: function (t) { msg.textContent = t; },
+      onDone: function () { box.classList.remove('stirring'); addLatte(); again.hidden = false; if (window.burst) burst(); }
+    });
+    if (visible) game.start();
+  }).catch(function () { box.classList.add('no-gl'); });
+}
+new IntersectionObserver(function (es) { if (es[0].isIntersecting) load(); }, { rootMargin: '900px 0px' }).observe(box);
+new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (game) { if (visible) game.start(); else game.stop(); } }, { threshold: 0.05 }).observe(canvas);
+steps.forEach(function (b) { b.addEventListener('click', function () { if (game) game.doStep(b.getAttribute('data-step')); }); });
+again.addEventListener('click', function () {
+  if (!game) return; game.reset(); again.hidden = true;
+  steps.forEach(function (b, i) { b.classList.remove('done', 'active', 'next'); if (!i) b.classList.add('next'); });
+});
+})();
 
 /* ---------- Scene reveals + scene moods ---------- */
 var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: .15 });
