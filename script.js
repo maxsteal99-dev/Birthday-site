@@ -121,9 +121,12 @@ function frame(now) {
   if (st === 'fly') { p = (now - t0) / 1000 / T;
     if (side === 0) { if (p >= 1) fault('Missed it!'); else br.classList.toggle('on', p >= win0()); }
     else { br.classList.remove('on'); if (p >= .93) { if (rally >= failAt) botMiss(); else { tone(440, 700, .08, .1); hitT[0] = now; side = 0; t0 = now; T = Math.max(.7, 1.3 - .025 * rally); } } } }
-  draw(now); requestAnimationFrame(frame);
+  draw(now); if (onScreen) requestAnimationFrame(frame); else running = false;
 }
-upd(); requestAnimationFrame(frame);
+// only animate the court while it is on screen
+var onScreen = false, running = false;
+new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; if (onScreen && !running) { running = true; requestAnimationFrame(frame); } }).observe(cv);
+upd(); draw(performance.now());
 })();
 
 /* ---------- Her other fuel: the can ---------- */
@@ -159,12 +162,13 @@ var tilt = cards.map(function (c, i) { return [-4, 3, -2, 5, -3, 2][i % 6]; });
 function load(i) { var img = cards[i].querySelector('img'); if (img && !img.src) img.src = img.getAttribute('data-src'); }
 function layout() {
   order.forEach(function (ci, k) {
-    var c = cards[ci], vis = k < 4;
+    var c = cards[ci], vis = k < 3;
     c.classList.toggle('top', k === 0);
+    c.classList.toggle('off', !vis);
     c.style.zIndex = N - k;
     c.style.opacity = vis ? 1 : 0;
     c.style.pointerEvents = k === 0 ? 'auto' : 'none';
-    c.style.transform = 'translate3d(' + (k ? (k % 2 ? 1 : -1) * k * 7 : 0) + 'px,' + k * 9 + 'px,0) rotate(' + (k ? tilt[ci] : tilt[ci] * .35) + 'deg) scale(' + (1 - k * .04) + ')';
+    c.style.transform = vis ? 'translate3d(' + (k ? (k % 2 ? 1 : -1) * k * 7 : 0) + 'px,' + k * 9 + 'px,0) rotate(' + (k ? tilt[ci] : tilt[ci] * .35) + 'deg) scale(' + (1 - k * .04) + ')' : 'translate3d(0,18px,0) scale(.9)';
     c.setAttribute('aria-hidden', k === 0 ? 'false' : 'true');
     if (k > 0) c.classList.remove('flipped');
     if (k < 5) load(ci);
@@ -180,20 +184,20 @@ function go(dir, fromDx) {
     // send the top photo away, then tuck it under the pile
     top.style.transform = 'translate3d(' + (fromDx < 0 ? -1 : 1) * 130 + '%,-4%,0) rotate(' + (fromDx < 0 ? -18 : 18) + 'deg)';
     top.style.opacity = 0;
-    setTimeout(function () { order.push(order.shift()); top.classList.remove('flipped'); layout(); busy = false; }, rm ? 0 : 320);
+    setTimeout(function () { order.push(order.shift()); top.classList.remove('flipped'); layout(); busy = false; }, rm ? 0 : 260);
   } else {
     // pull the last photo back on top from the side
     var ci = order.pop(), c = cards[ci]; order.unshift(ci);
-    c.classList.add('dragging'); c.style.zIndex = N + 1; c.style.opacity = 0;
+    c.classList.remove('off'); c.classList.add('dragging'); c.style.zIndex = N + 1; c.style.opacity = 0;
     c.style.transform = 'translate3d(-130%,-4%,0) rotate(-18deg)';
     void c.offsetWidth; c.classList.remove('dragging');
-    layout(); setTimeout(function () { busy = false; }, rm ? 0 : 320);
+    layout(); setTimeout(function () { busy = false; }, rm ? 0 : 260);
   }
 }
 function flip() { cards[order[0]].classList.toggle('flipped'); }
 
 /* drag or swipe the top photo; a tap turns it over */
-var sx = 0, sy = 0, dx = 0, dragging = false, moved = false, pid = null;
+var sx = 0, sy = 0, dx = 0, dragging = false, moved = false, pid = null, raf = 0;
 stage.addEventListener('pointerdown', function (e) {
   var c = e.target.closest('.pc'); if (!c || !c.classList.contains('top') || busy) return;
   dragging = true; moved = false; sx = e.clientX; sy = e.clientY; dx = 0; pid = e.pointerId;
@@ -205,7 +209,7 @@ stage.addEventListener('pointermove', function (e) {
   if (!moved && Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
   if (!moved && Math.abs(dy) > Math.abs(dx)) { end(e, true); return; } // let her scroll the page
   moved = true;
-  cards[order[0]].style.transform = 'translate3d(' + dx + 'px,0,0) rotate(' + dx / 18 + 'deg)';
+  if (!raf) raf = requestAnimationFrame(function () { raf = 0; if (dragging) cards[order[0]].style.transform = 'translate3d(' + dx + 'px,0,0) rotate(' + dx / 18 + 'deg)'; });
 });
 function end(e, cancel) {
   if (!dragging) return; dragging = false;
