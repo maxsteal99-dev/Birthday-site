@@ -1,56 +1,42 @@
 # Happy 30th, Sagarika
 
-A one-page birthday surprise. It's a plain static website: HTML, CSS and JavaScript, with no build step, no server, no database and no tracking.
+A one-page birthday surprise, built with [Vite](https://vitejs.dev) into a fast static site (minified code, fingerprinted file names so phones always get the latest version). No server, no database, no tracking.
 
 ```
-index.html        the page
-styles.css        all styling
-script.js         all behaviour (song, confetti, game, can, latte tally…)
-assets/img/       photos and the can (JPG + WebP)
-assets/fonts/     self-hosted fonts (Cormorant Garamond, DM Sans, Great Vibes, all SIL Open Font License)
-assets/favicon.svg
-original/         the original single-file page, kept as a backup
-.nojekyll         tells GitHub Pages to serve files as they are
+index.html          the page
+styles.css          all styling
+script.js           all behaviour (loading screen, music, album, snack machine, game…)
+fonts/              self-hosted fonts (SIL Open Font License), bundled by Vite
+public/assets/      photos, album images, the song and the favicon (copied as-is)
+original/           the original single-file page, kept as a backup
+vite.config.js      build settings
 ```
 
-## Run it locally
-
-Double-clicking `index.html` mostly works. For an accurate preview, serve the folder instead:
+## Work on it locally
 
 ```
-cd Birthday-site
-python3 -m http.server 8000
+npm install
+npm run dev        # live preview at http://localhost:5173
+npm run build      # production build in dist/
 ```
 
-Then open http://localhost:8000.
+## Publish an update
+
+The live site is the `gh-pages` branch, which holds the contents of `dist/`:
+
+```
+npm run build
+cd dist && git init -q && git add -A && git commit -qm deploy \
+  && git push -f https://github.com/maxsteal99-dev/Birthday-site.git HEAD:gh-pages
+```
+
+Live at https://maxsteal99-dev.github.io/Birthday-site/
 
 ## The birthday song
 
 `assets/audio/him-and-i-instrumental.mp3` (a piano cover of "Him & I") plays in the background on a seamless loop, with no controls. The silence at the start and end of the file is trimmed in the browser, so the loop has no gap. It tries to start as soon as the page loads. Most phones only allow sound after a tap, so there it starts on her first tap (usually **Open your birthday box**). It pauses while the tab is hidden and resumes when she returns. If the file can't be played, the page falls back to its built-in music box.
 
 To change the song, replace the file or edit `SONG_FILE` at the top of `script.js`.
-
-## Publish it for free (recommended: GitHub Pages)
-
-The code already lives on GitHub, so GitHub Pages is the simplest option: free, no new account, and it updates every time you push.
-
-1. Merge the branch `claude/birthday-website-cinematic-yn9n3m` into `main` (open a pull request on GitHub and click **Merge**).
-2. On GitHub, open the repository → **Settings** → **Pages**.
-3. Under **Build and deployment**, set **Source** to **Deploy from a branch**, **Branch** to `main`, and **Folder** to `/ (root)`. Click **Save**.
-4. Wait 1–2 minutes and refresh. The address appears at the top of the page:
-   `https://maxsteal99-dev.github.io/Birthday-site/`
-5. Open the link on your phone and test it (sound on!) before sending it to her.
-
-> GitHub Pages on a free account requires the repository to be **public**. That means the code and photos can be seen on GitHub, not only on the website. If you'd rather keep the repository private, use Netlify Drop instead:
-
-### Alternative: Netlify Drop (no Git needed, works with a private repo)
-
-1. Download this folder (on GitHub: **Code → Download ZIP**, then unzip it).
-2. Go to https://app.netlify.com/drop and sign in (free).
-3. Drag the whole unzipped folder (the one containing `index.html`) onto the page.
-4. Netlify gives you a link like `https://random-name.netlify.app`. Under **Site configuration → Change site name**, you can rename it to something like `happy-30th-sagarika`.
-
-Cloudflare Pages ("Upload assets") and Vercel also work. Upload the same folder; no build command and no settings are needed.
 
 ## Privacy
 

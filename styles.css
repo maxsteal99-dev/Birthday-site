@@ -3,10 +3,10 @@
    Candlelight, burgundy, champagne and midnight.
    ========================================================= */
 
-@font-face{font-family:"Cormorant Garamond";src:url("assets/fonts/cormorant-garamond.woff2") format("woff2");font-weight:300 700;font-style:normal;font-display:swap}
-@font-face{font-family:"Cormorant Garamond";src:url("assets/fonts/cormorant-garamond-italic.woff2") format("woff2");font-weight:300 700;font-style:italic;font-display:swap}
-@font-face{font-family:"DM Sans";src:url("assets/fonts/dm-sans.woff2") format("woff2");font-weight:100 1000;font-style:normal;font-display:swap}
-@font-face{font-family:"Great Vibes";src:url("assets/fonts/great-vibes.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Cormorant Garamond";src:url("fonts/cormorant-garamond.woff2") format("woff2");font-weight:300 700;font-style:normal;font-display:swap}
+@font-face{font-family:"Cormorant Garamond";src:url("fonts/cormorant-garamond-italic.woff2") format("woff2");font-weight:300 700;font-style:italic;font-display:swap}
+@font-face{font-family:"DM Sans";src:url("fonts/dm-sans.woff2") format("woff2");font-weight:100 1000;font-style:normal;font-display:swap}
+@font-face{font-family:"Great Vibes";src:url("fonts/great-vibes.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
 
 :root{
   --night:#0b0710;
@@ -131,7 +131,7 @@ h3{font-family:var(--serif);font-weight:600;font-size:clamp(1.45rem,1.2rem + 1vw
 /* ---------- Layout ---------- */
 .scene{position:relative;padding:clamp(96px,16vh,170px) var(--gutter);isolation:isolate}
 .wrap{max-width:1080px;margin:0 auto;position:relative}
-.narrow{max-width:740px}
+.narrow{max-width:780px}
 
 /* ---------- Buttons ---------- */
 .btn{
@@ -208,7 +208,7 @@ h3{font-family:var(--serif);font-weight:600;font-size:clamp(1.45rem,1.2rem + 1vw
   -webkit-mask:radial-gradient(closest-side,transparent calc(100% - 1.5px),#000 calc(100% - 1px));mask:radial-gradient(closest-side,transparent calc(100% - 1.5px),#000 calc(100% - 1px));
   animation:rays 24s linear infinite}
 .portrait::after{content:"";position:absolute;inset:-60px;border-radius:50%;z-index:-1;background:radial-gradient(closest-side,rgba(232,170,110,.35),transparent 75%)}
-.pic{display:block;width:clamp(148px,36vw,208px);height:clamp(148px,36vw,208px);border-radius:50%;object-fit:cover;object-position:50% 40%;
+.pic{display:block;width:clamp(160px,42vw,240px);height:clamp(160px,42vw,240px);border-radius:50%;object-fit:cover;object-position:50% 40%;
   border:2px solid rgba(236,215,178,.85);
   box-shadow:0 0 0 6px rgba(236,215,178,.08),0 30px 60px -10px rgba(0,0,0,.7),0 0 50px rgba(232,170,110,.25);
   filter:saturate(1.04) contrast(1.03)}
@@ -288,7 +288,7 @@ h3{font-family:var(--serif);font-weight:600;font-size:clamp(1.45rem,1.2rem + 1vw
 /* =========================================================
    3. Memories: a stack of polaroids to swipe and flip
    ========================================================= */
-.album{--cw:min(76vw,340px);--paper:#f7f0e4;--paper-ink:#2b1a14;overflow:hidden}
+.album{--cw:min(86vw,420px);--paper:#f7f0e4;--paper-ink:#2b1a14;overflow:hidden}
 .album-hint{color:var(--muted);font-size:.98rem;margin-bottom:0}
 .album-stage{position:relative;height:calc(var(--cw) * 1.25 + 120px);margin:36px auto 0;max-width:100%;outline:none;touch-action:pan-y;-webkit-user-select:none;user-select:none}
 .album-stage:focus-visible .pc.top{box-shadow:0 0 0 2px var(--champagne),0 30px 60px -16px rgba(0,0,0,.85)}
@@ -393,7 +393,7 @@ h3{font-family:var(--serif);font-weight:600;font-size:clamp(1.45rem,1.2rem + 1vw
    6b. Snack machine
    ========================================================= */
 .snacks>.wrap>p{color:var(--muted)}
-.vend{position:relative;margin:34px auto 0;max-width:460px;padding:14px 14px 16px;border-radius:26px;
+.vend{position:relative;margin:34px auto 0;max-width:540px;padding:14px 14px 16px;border-radius:26px;
   background:linear-gradient(180deg,#7a1f36,#4a0f20 70%,#3a0b19);
   box-shadow:inset 0 0 0 1px rgba(236,215,178,.35),inset 0 2px 0 rgba(255,255,255,.15),0 40px 80px -24px rgba(0,0,0,.9),0 0 80px -20px rgba(200,60,90,.35)}
 .vend-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 8px 12px}
@@ -408,7 +408,7 @@ h3{font-family:var(--serif);font-weight:600;font-size:clamp(1.45rem,1.2rem + 1vw
   background:linear-gradient(115deg,rgba(255,255,255,.13) 0 18%,transparent 18% 30%,rgba(255,255,255,.06) 30% 36%,transparent 36%)}
 .slot{-webkit-appearance:none;appearance:none;border:0;background:none;color:inherit;font:inherit;cursor:pointer;padding:6px 2px 0;border-radius:12px;
   display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .3s}
-.slot .snack{display:block;width:min(100%,104px);aspect-ratio:1;transition:transform .35s var(--ease-out),opacity .4s;filter:drop-shadow(0 10px 10px rgba(0,0,0,.5))}
+.slot .snack{display:block;width:min(100%,128px);aspect-ratio:1;transition:transform .35s var(--ease-out),opacity .4s;filter:drop-shadow(0 10px 10px rgba(0,0,0,.5))}
 .slot .snack svg{display:block;width:100%;height:100%}
 .slot .coil{display:block;width:84%;height:12px;border-radius:6px;margin-top:-6px;
   background:repeating-linear-gradient(110deg,#cfd6dc 0 2px,#7d8790 2px 3px,transparent 3px 9px);opacity:.75;transition:background-position .9s var(--ease-out)}
@@ -430,7 +430,7 @@ h3{font-family:var(--serif);font-weight:600;font-size:clamp(1.45rem,1.2rem + 1vw
 .drop{position:absolute;z-index:5;pointer-events:none}
 .drop svg{width:100%;height:100%;display:block}
 
-.coupons{display:grid;gap:14px;margin:10px auto 0;max-width:460px;text-align:left}
+.coupons{display:grid;gap:14px;margin:10px auto 0;max-width:540px;text-align:left}
 .coupon{position:relative;display:grid;grid-template-columns:1fr auto;border-radius:12px;color:#2b1a14;overflow:hidden;
   background:linear-gradient(135deg,#fbf3e3,#f1dfbd);box-shadow:0 20px 40px -18px rgba(0,0,0,.8),0 2px 0 rgba(255,255,255,.6) inset;
   animation:print .9s var(--ease-out) both;transform-origin:top center}
@@ -561,3 +561,21 @@ kbd{font:600 .75rem/1 var(--sans);padding:3px 6px;border-radius:5px;box-shadow:i
   .hero-inner{transform:none;opacity:1}
   .btn-lux::after{display:none}
 }
+
+/* =========================================================
+   Loading screen + rendering performance
+   ========================================================= */
+.loader{display:none}
+.js .loader{display:flex;position:fixed;inset:0;z-index:100;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  background:var(--night);transition:opacity .9s var(--ease),visibility 0s linear .9s;padding:24px}
+.js:not(.loading) .loader{opacity:0;visibility:hidden;pointer-events:none}
+.ld-glow{position:absolute;left:50%;top:50%;width:min(120vw,900px);aspect-ratio:1;transform:translate(-50%,-50%);
+  background:radial-gradient(closest-side,rgba(232,160,90,.22),rgba(110,26,48,.12) 50%,transparent 75%);animation:flicker 4s ease-in-out infinite}
+.ld-name{position:relative;margin:0;font:400 clamp(3.4rem,14vw,5.5rem)/1.2 var(--script);
+  background:linear-gradient(180deg,#fff8ec 10%,#f1dcb5 45%,#d4ae72 70%);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .2em}
+.ld-text{position:relative;margin:0;font:500 .68rem/1.4 var(--sans);letter-spacing:.36em;text-transform:uppercase;color:var(--champagne);opacity:.8}
+.ld-bar{position:relative;width:min(220px,60vw);height:1px;background:rgba(236,215,178,.18);overflow:hidden;margin-top:6px}
+.ld-bar i{position:absolute;inset:0;background:linear-gradient(90deg,var(--gold),var(--champagne));transform-origin:left;transform:scaleX(var(--p,.05));transition:transform .5s var(--ease)}
+.js.loading .intro,.js.loading h1.intro span{animation-play-state:paused}
+/* skip rendering scenes that are far off screen; they render as she scrolls near */
+.scene{content-visibility:auto;contain-intrinsic-size:auto 1100px}

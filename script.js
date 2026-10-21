@@ -11,6 +11,19 @@ var SONG_LOOP = true;
 document.documentElement.classList.add('js');
 try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
 
+
+/* ---------- Loading screen: wait for fonts and the first photos, then begin ---------- */
+(function () {
+var root = document.documentElement, fill = document.getElementById('ld-fill'), t0 = performance.now(), done = 0;
+function img(src, srcset) { return new Promise(function (ok) { var i = new Image(); if (srcset) { i.sizes = '(max-width: 520px) 86vw, 420px'; i.srcset = srcset; } i.src = src; (i.decode ? i.decode() : Promise.reject()).then(ok, function () { i.onload = i.onerror = ok; if (i.complete) ok(); }); }); }
+var first = [].slice.call(document.querySelectorAll('.pc img')).slice(0, 2).map(function (i) { return img(i.getAttribute('data-src'), i.getAttribute('data-srcset')); });
+var hero = document.getElementById('p1');
+var jobs = [document.fonts ? document.fonts.ready : Promise.resolve(), img(hero.currentSrc || hero.src)].concat(first);
+jobs.forEach(function (p) { p.then(function () { done++; if (fill) fill.style.setProperty('--p', Math.max(.05, done / jobs.length)); }); });
+function reveal() { setTimeout(function () { root.classList.remove('loading'); }, Math.max(0, 900 - (performance.now() - t0))); }
+Promise.race([Promise.all(jobs), new Promise(function (r) { setTimeout(r, 3500); })]).then(reveal, reveal);
+})();
+
 /* ---------- Confetti (gold foil) ---------- */
 var m = document.querySelector('main'), c = document.getElementById('cf'), x = c.getContext('2d'), P = [];
 var H = [[43, 78, 62], [38, 60, 78], [350, 45, 70], [20, 55, 64], [40, 30, 92]];
@@ -28,6 +41,7 @@ function tick() {
   });
   if (P.length) requestAnimationFrame(tick);
 }
+window.burst = burst;
 function burst() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var was = P.length;
@@ -159,7 +173,7 @@ var cards = [].slice.call(stage.querySelectorAll('.pc')), N = cards.length, orde
 var count = document.getElementById('al-count'), rm = matchMedia('(prefers-reduced-motion: reduce)').matches, celebrated = false, busy = false;
 var tilt = cards.map(function (c, i) { return [-4, 3, -2, 5, -3, 2][i % 6]; });
 
-function load(i) { var img = cards[i].querySelector('img'); if (img && !img.src) img.src = img.getAttribute('data-src'); }
+function load(i) { var img = cards[i].querySelector('img'); if (img && !img.getAttribute('src')) { img.srcset = img.getAttribute('data-srcset'); img.src = img.getAttribute('data-src'); } }
 function layout() {
   order.forEach(function (ci, k) {
     var c = cards[ci], vis = k < 3;
