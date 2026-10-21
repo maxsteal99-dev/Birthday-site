@@ -242,26 +242,94 @@ new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; if (on
 upd(); draw(performance.now());
 })();
 
-/* ---------- Her other fuel: the can ---------- */
+/* ---------- Her other fuel: the can ----------
+   Pull the ring tab up with a finger (or press the button): it clicks, the seal
+   cracks with a hiss, droplets spray, and the drink fizzes. All sounds are
+   synthesized live. */
 (function () {
-var w = document.getElementById('canbox'), fx = document.getElementById('fx'), pb = document.getElementById('pop'), cm = document.getElementById('cmsg'), ac = null;
-function noise(d) { var n = ac.createBuffer(1, Math.floor(ac.sampleRate * d), ac.sampleRate), a = n.getChannelData(0); for (var i = 0; i < a.length; i++) a[i] = Math.random() * 2 - 1; var s = ac.createBufferSource(); s.buffer = n; return s; }
-function snd() { try {
-  ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') ac.resume(); var t = ac.currentTime;
-  var c = noise(.05), bp = ac.createBiquadFilter(), cg = ac.createGain(); bp.type = 'bandpass'; bp.frequency.value = 2200; bp.Q.value = 1.2; cg.gain.setValueAtTime(.9, t); cg.gain.exponentialRampToValueAtTime(.001, t + .05); c.connect(bp); bp.connect(cg); cg.connect(ac.destination); c.start(t);
-  var o = ac.createOscillator(), og = ac.createGain(); o.frequency.setValueAtTime(220, t + .02); o.frequency.exponentialRampToValueAtTime(70, t + .12); og.gain.setValueAtTime(.5, t + .02); og.gain.exponentialRampToValueAtTime(.001, t + .14); o.connect(og); og.connect(ac.destination); o.start(t + .02); o.stop(t + .16);
-  var f = noise(2), hp = ac.createBiquadFilter(), fg = ac.createGain(); hp.type = 'highpass'; hp.frequency.value = 3500; fg.gain.setValueAtTime(.0001, t + .08); fg.gain.exponentialRampToValueAtTime(.45, t + .15); fg.gain.exponentialRampToValueAtTime(.001, t + 2); f.connect(hp); hp.connect(fg); fg.connect(ac.destination); f.start(t + .08);
-} catch (e) {} }
+var w = document.getElementById('canbox'), fx = document.getElementById('fx'), pb = document.getElementById('pop'), cm = document.getElementById('cmsg');
+var tab = document.getElementById('tab'), grab = document.getElementById('can-grab'), spray = document.getElementById('spray'), ac = null;
+var lift = 0, opened = false, clicked = false, drag = null, raf = 0;
+var rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function audio() { try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') ac.resume(); return ac; } catch (e) { return null; } }
+function noise(d) { var n = ac.createBuffer(1, Math.max(1, Math.floor(ac.sampleRate * d)), ac.sampleRate), a = n.getChannelData(0); for (var i = 0; i < a.length; i++) a[i] = Math.random() * 2 - 1; var s = ac.createBufferSource(); s.buffer = n; return s; }
+function burstAt(t, dur, type, freq, q, gain, decay) {
+  var s = noise(dur), f = ac.createBiquadFilter(), g = ac.createGain();
+  f.type = type; f.frequency.value = freq; f.Q.value = q;
+  g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+  s.connect(f); f.connect(g); g.connect(ac.destination); s.start(t); s.stop(t + dur + 0.02);
+}
+function ping(t, freq, gain, decay) { var o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = freq; g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.0001, t + decay); o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + decay + 0.02); }
+
+/* the little metallic click as the tab lever starts to bite */
+function clickSound() { if (!audio()) return; var t = ac.currentTime; burstAt(t, 0.008, 'bandpass', 3800, 3, 0.5, 0.03); ping(t, 2900, 0.05, 0.05); ping(t, 5200, 0.025, 0.03); }
+/* the crack of the seal, the hiss of gas, then the fizz */
+function openSound() {
+  if (!audio()) return; var t = ac.currentTime;
+  // seal snaps: two sharp transients and a small body thump
+  burstAt(t, 0.004, 'highpass', 1500, 0.7, 1.0, 0.02);
+  burstAt(t + 0.013, 0.006, 'bandpass', 2200, 1.2, 0.8, 0.04);
+  var o = ac.createOscillator(), og = ac.createGain(); o.frequency.setValueAtTime(170, t); o.frequency.exponentialRampToValueAtTime(60, t + 0.09); og.gain.setValueAtTime(0.35, t); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.11); o.connect(og); og.connect(ac.destination); o.start(t); o.stop(t + 0.13);
+  // pressurised hiss: bright noise that falls in pitch and fades
+  var h = noise(1.3), hp = ac.createBiquadFilter(), pk = ac.createBiquadFilter(), hg = ac.createGain();
+  hp.type = 'highpass'; hp.frequency.setValueAtTime(2600, t); hp.frequency.exponentialRampToValueAtTime(1300, t + 1.1);
+  pk.type = 'peaking'; pk.frequency.setValueAtTime(7200, t); pk.frequency.exponentialRampToValueAtTime(3600, t + 1.0); pk.gain.value = 9; pk.Q.value = 0.9;
+  hg.gain.setValueAtTime(0.0001, t + 0.008); hg.gain.exponentialRampToValueAtTime(0.42, t + 0.03); hg.gain.exponentialRampToValueAtTime(0.12, t + 0.35); hg.gain.exponentialRampToValueAtTime(0.0001, t + 1.25);
+  h.connect(hp); hp.connect(pk); pk.connect(hg); hg.connect(ac.destination); h.start(t + 0.008); h.stop(t + 1.3);
+  // fizz: hundreds of tiny bubble pops that slowly thin out
+  for (var i = 0; i < 260; i++) { var tt = t + 0.12 + Math.pow(Math.random(), 1.8) * 3.2; burstAt(tt, 0.0015, 'highpass', 3500 + Math.random() * 4000, 0.7, 0.04 + Math.random() * 0.12 * (1 - (tt - t) / 3.4), 0.006 + Math.random() * 0.01); }
+}
+function buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+
+function setLift(v) {
+  lift = Math.max(0, Math.min(1, v));
+  // the tab is seen edge-on lying flat; it rises into view as it is lifted
+  var s = 0.2 + 0.8 * Math.sin(lift * Math.PI / 2);
+  tab.setAttribute('transform', 'translate(0 ' + (-lift * 0.6).toFixed(2) + ') scale(1 ' + s.toFixed(3) + ')');
+  if (!clicked && lift > 0.18) { clicked = true; clickSound(); buzz(8); }
+  if (!opened && lift >= 0.82) crack();
+}
+function animateLift(to, ms, done) {
+  cancelAnimationFrame(raf); var from = lift, t0 = performance.now();
+  (function step(now) { var e = Math.min(1, (now - t0) / ms); setLift(from + (to - from) * (1 - Math.pow(1 - e, 3))); if (e < 1) raf = requestAnimationFrame(step); else if (done) done(); })(t0);
+}
+
+function sprayDrops() {
+  if (rm) return;
+  for (var i = 0; i < 18; i++) {
+    var d = document.createElement('i'), s = 2 + Math.random() * 5; d.style.width = d.style.height = s + 'px'; spray.appendChild(d);
+    var x0 = 100 + (Math.random() - .5) * 14, y0 = 144, vx = (Math.random() - .5) * 180, vy = -(160 + Math.random() * 240), T = 0.9 + Math.random() * 0.5, frames = [];
+    for (var k = 0; k <= 10; k++) { var t = k / 10 * T; frames.push({ transform: 'translate(' + (x0 + vx * t).toFixed(1) + 'px,' + (y0 + vy * t + 420 * t * t).toFixed(1) + 'px)', opacity: k < 8 ? 1 : (10 - k) / 3 }); }
+    d.animate(frames, { duration: T * 1000, easing: 'linear', fill: 'forwards' }).onfinish = function () { this.effect.target.remove(); };
+  }
+}
 function fizz() {
   for (var i = 0; i < 26; i++) { var b = document.createElement('span'); b.className = 'b';
     b.style.setProperty('--x', (Math.random() * 40 - 20) + 'px'); b.style.setProperty('--dx', (Math.random() * 90 - 45) + 'px'); b.style.setProperty('--h', (80 + Math.random() * 150) + 'px');
     b.style.setProperty('--s', (5 + Math.random() * 10) + 'px'); b.style.setProperty('--d', (Math.random() * .5) + 's'); fx.appendChild(b); }
   setTimeout(function () { fx.innerHTML = ''; }, 2600);
 }
-function go() { snd(); w.classList.add('open'); fizz(); cm.classList.add('show'); pb.textContent = 'Crack open another 🥤'; }
+function crack() {
+  opened = true; openSound(); buzz([18, 30, 12]);
+  w.classList.add('open'); w.classList.remove('jolt'); void w.offsetWidth; w.classList.add('jolt');
+  sprayDrops(); fizz(); cm.classList.add('show'); pb.textContent = 'Crack open another 🥤';
+  // like a real can: the tab drops back down after the seal breaks
+  setTimeout(function () { if (!drag) animateLift(0.3, 380); }, 260);
+}
+function reset() { opened = false; clicked = false; w.classList.remove('open', 'jolt'); cm.classList.remove('show'); setLift(0); }
+
+/* finger: drag up on the top of the can */
+grab.addEventListener('pointerdown', function (e) { if (opened) reset(); drag = { y: e.clientY, l: lift }; w.classList.add('pulling'); try { grab.setPointerCapture(e.pointerId); } catch (er) {} cancelAnimationFrame(raf); audio(); });
+grab.addEventListener('pointermove', function (e) { if (!drag) return; setLift(drag.l + (drag.y - e.clientY) / 75); });
+function release() { if (!drag) return; drag = null; w.classList.remove('pulling'); if (opened) animateLift(0.3, 380); else animateLift(0, 300, function () { clicked = false; }); }
+grab.addEventListener('pointerup', release); grab.addEventListener('pointercancel', release);
+
+/* button (and keyboard): plays the whole opening */
 pb.addEventListener('click', function () {
-  if (w.classList.contains('open')) { w.classList.remove('open'); cm.classList.remove('show'); setTimeout(go, 120); } else go();
+  if (opened) { reset(); setTimeout(function () { animateLift(1, 520); }, 150); } else animateLift(1, 520);
 });
+setLift(0);
 })();
 (function () { var d = document.getElementById('drops'); for (var i = 0; i < 46; i++) { var s = document.createElement('span'), z = 2.5 + Math.random() * 6.5; s.className = 'dr'; s.style.cssText = 'left:' + (10 + Math.random() * 125) + 'px;top:' + (14 + Math.random() * 365) + 'px;width:' + z + 'px;height:' + (Math.random() < .35 ? z * 1.6 : z) + 'px'; d.appendChild(s); } })();
 

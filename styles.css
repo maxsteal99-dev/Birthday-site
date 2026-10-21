@@ -381,9 +381,22 @@ h3{font-family:var(--serif);font-weight:600;font-size:clamp(1.45rem,1.2rem + 1vw
 @keyframes mist{0%{opacity:0;transform:scale(.3)}25%{opacity:.95}100%{opacity:0;transform:scale(1.7) translateY(-30px)}}
 .open svg{animation:wob .5s}
 @keyframes wob{30%{transform:rotate(-3deg)}60%{transform:rotate(2deg)}}
-#tab{transform-box:fill-box;transform-origin:25% 50%;transition:transform .25s}
-.open #tab{transform:rotate(-55deg)}
-.open #hole{fill:#2a3238}
+#hole{transition:opacity .15s}
+.open #hole{opacity:1}
+.can-grab{position:absolute;left:-40px;right:-40px;top:70px;height:190px;cursor:grab;touch-action:none;z-index:3}
+.can-grab:active{cursor:grabbing}
+.pull-hint{position:absolute;left:50%;top:6px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;white-space:nowrap;padding:6px 12px;border-radius:999px;
+  font:500 .78rem/1 var(--sans);letter-spacing:.06em;color:var(--ivory);background:rgba(10,12,16,.55);box-shadow:inset 0 0 0 1px rgba(220,230,245,.25);transition:opacity .4s;pointer-events:none}
+.pull-hint i{width:10px;height:14px;position:relative}
+.pull-hint i::before{content:"";position:absolute;left:50%;bottom:0;width:2px;height:12px;margin-left:-1px;background:currentColor;border-radius:1px}
+.pull-hint i::after{content:"";position:absolute;left:50%;top:0;width:7px;height:7px;margin-left:-3.5px;border-left:2px solid currentColor;border-top:2px solid currentColor;transform:rotate(45deg)}
+.pull-hint{animation:hintUp 1.8s ease-in-out infinite}
+@keyframes hintUp{0%,100%{translate:0 4px}50%{translate:0 -4px}}
+.canbox.open .pull-hint,.canbox.pulling .pull-hint{opacity:0}
+.spray{position:absolute;left:0;top:0;width:200px;height:300px;pointer-events:none;overflow:visible;z-index:2}
+.spray i{position:absolute;left:0;top:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,rgba(220,235,250,.55) 60%,rgba(200,220,240,0));will-change:transform,opacity}
+.canbox.jolt svg{animation:jolt .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes jolt{20%{transform:translateY(5px) rotate(-1.5deg)}55%{transform:translateY(-3px) rotate(1deg)}}
 .drops{position:absolute;left:25px;top:140px;width:150px;height:397px;pointer-events:none}
 .dr{position:absolute;border-radius:50% 50% 50% 50%/55% 55% 45% 45%;background:radial-gradient(circle at 32% 26%,rgba(255,255,255,.95) 0 12%,rgba(255,255,255,.12) 40%,rgba(90,120,140,.28) 78%,rgba(0,0,0,.3));box-shadow:0 1px 1.5px rgba(0,0,0,.4),inset 0 -1px 1px rgba(255,255,255,.4);opacity:.9}
 #cmsg{opacity:0;transform:translateY(8px);transition:opacity .6s,transform .6s var(--ease-out);font:italic 500 clamp(1.5rem,1.2rem + 1.2vw,2rem)/1.3 var(--serif);color:var(--ivory);min-height:2.6em;margin:6px 0 18px;text-shadow:0 0 30px rgba(200,220,255,.4)}
