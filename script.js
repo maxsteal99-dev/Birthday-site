@@ -45,6 +45,7 @@ window.__cakeReady = import('./src/cake.js').then(function (mod) {
     onAllOut: function () { close(true); }
   });
   cake.start();
+  window.__micDebug = function () { return cake && cake.micDebug; };
 }).catch(function () { close(false); });
 
 /* the microphone is the main way: ask for it as soon as the cake is on screen */

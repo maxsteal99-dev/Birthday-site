@@ -359,7 +359,7 @@ export function createCake(canvas, { onProgress, onTrick, onAllOut } = {}) {
     if (m.level > 0.05 && !s) windTarget.x += (Math.sin(t * 23) * 0.5) * m.level * 0.6;
     if (s > 0) {
       windTarget.set((Math.sin(t * 9) * 0.4 + 0.7) * (0.7 + s), 0);
-      for (let i = 0; i < CANDLES; i++) if (lit[i]) { const z = flameScreen(i).z; const front = 1.4 - (z - 0.97) * 30; if (Math.random() < s * dt * 7 * THREE.MathUtils.clamp(front, 0.45, 1.6)) out(i); }
+      for (let i = 0; i < CANDLES; i++) if (lit[i]) { const z = flameScreen(i).z; const front = 1.4 - (z - 0.97) * 30; if (Math.random() < s * dt * 11 * THREE.MathUtils.clamp(front, 0.6, 1.6)) out(i); }
     }
     uniforms.uWind.value.lerp(windTarget, 1 - Math.pow(0.002, dt));
     windTarget.multiplyScalar(Math.pow(0.04, dt));
