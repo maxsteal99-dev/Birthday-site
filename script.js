@@ -700,3 +700,20 @@ for (var i = 0; i < 3; i++) setTimeout(balloon, i * 900); setInterval(balloon, 2
 var last = 0, E = ['♥', '✦', '✧', '♡', '✦'];
 addEventListener('scroll', function () { var y = scrollY; if (Math.abs(y - last) < 140) return; last = y; var e = document.createElement('b'); e.className = 'hrt'; e.setAttribute('aria-hidden', 'true'); e.textContent = E[Math.floor(Math.random() * E.length)]; e.style.setProperty('--fs', (14 + Math.random() * 10) + 'px'); e.style.left = (Math.random() < .5 ? 3 + Math.random() * 12 : 84 + Math.random() * 12) + '%'; e.style.top = (40 + Math.random() * 45) + 'vh'; document.body.appendChild(e); setTimeout(function () { e.remove(); }, 1850); }, { passive: true });
 })();
+
+/* ---------- Liquid glass ---------- */
+(function () {
+var SURFACES = '.pill,.btn-ghost,.card,.chips span,.nav-btn,.step,.barista-msg,.can3d-msg,.gate-mic,.gate-skip,.gate-toast,.game';
+var REFRACT = '.card,.game,.gate-mic,.barista-msg,.can3d-msg,.gate-toast,.pill';
+var ua = navigator.userAgent, chromium = (!!navigator.userAgentData || !!window.chrome) && !/iPhone|iPad|iPod/.test(ua) && !/Firefox\//.test(ua);
+function dress(root) {
+  [].forEach.call((root || document).querySelectorAll(SURFACES), function (el) { el.classList.add('lg'); });
+  if (chromium) [].forEach.call((root || document).querySelectorAll(REFRACT), function (el) { el.classList.add('lg-refract'); });
+}
+dress();
+// coupons and other bits added later get dressed too
+new MutationObserver(function (ms) { ms.forEach(function (m) { [].forEach.call(m.addedNodes, function (n) { if (n.nodeType === 1) { if (n.matches && n.matches(SURFACES)) { n.classList.add('lg'); if (chromium && n.matches(REFRACT)) n.classList.add('lg-refract'); } dress(n); } }); }); }).observe(document.body, { childList: true, subtree: true });
+// the highlight follows the finger or mouse across the glass
+function light(e) { var g = e.target && e.target.closest && e.target.closest('.lg'); if (!g) return; var r = g.getBoundingClientRect(); g.style.setProperty('--lx', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%'); g.style.setProperty('--ly', ((e.clientY - r.top) / r.height * 100).toFixed(1) + '%'); }
+addEventListener('pointermove', light, { passive: true }); addEventListener('pointerdown', light, { passive: true });
+})();
