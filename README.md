@@ -44,7 +44,7 @@ The page opens on a real-time 3D cake with 30 lit candles (Three.js, loaded as i
 
 ## The birthday song
 
-`assets/audio/him-and-i-instrumental.mp3` (a piano cover of "Him & I") plays in the background on a seamless loop, with no controls. The silence at the start and end of the file is trimmed in the browser, so the loop has no gap. It tries to start as soon as the page loads. Most phones only allow sound after a tap, so there it starts on her first tap (usually **Open your birthday box**). It pauses while the tab is hidden and resumes when she returns. If the file can't be played, the page falls back to its built-in music box.
+`assets/audio/him-and-i-instrumental.mp3` (a piano cover of "Him & I") plays in the background on a seamless loop, with no controls. The silence at the start and end of the file is trimmed in the browser, so the loop has no gap. It tries to start as soon as the page loads. Most phones only allow sound after a tap, so there it starts once the candles are out. It pauses while the tab is hidden and resumes when she returns. If the file can't be played, the page falls back to its built-in music box.
 
 To change the song, replace the file or edit `SONG_FILE` at the top of `script.js`.
 

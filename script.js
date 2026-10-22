@@ -127,10 +127,10 @@ function tick() {
   if (P.length) requestAnimationFrame(tick);
 }
 window.burst = burst;
-function burst() {
+function burst(ox, oy) {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var was = P.length;
-  for (var i = 0; i < 140; i++) P.push({ x: innerWidth / 2, y: innerHeight * .6, vx: (Math.random() - .5) * 14, vy: -Math.random() * 15 - 4, s: 5 + Math.random() * 6, r: Math.random() * 6, h: H[i % 5] });
+  var was = P.length, bx = typeof ox === 'number' ? ox : innerWidth / 2, by = typeof oy === 'number' ? oy : innerHeight * .6;
+  for (var i = 0; i < 140; i++) P.push({ x: bx, y: by, vx: (Math.random() - .5) * 14, vy: -Math.random() * 15 - 4, s: 5 + Math.random() * 6, r: Math.random() * 6, h: H[i % 5] });
   if (!was) tick();
 }
 
@@ -141,12 +141,38 @@ try {
 } catch (e) {}
 
 /* ---------- Open the birthday box ---------- */
-document.getElementById('open').onclick = function () {
-  m.classList.add('open'); document.body.classList.add('opened'); burst();
-  setTimeout(function () {
-    document.getElementById('hello').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-  }, 500);
-};
+/* ---------- The birthday box: tap, tap… and it bursts open ---------- */
+(function () {
+var gift = document.getElementById('open'), label = document.getElementById('gift-label'), taps = 0, ac = null;
+var LINES = ['Hmm… something rattles inside 👀', 'It’s heavy with love. One more tap!'];
+function snd(kind) { try {
+  ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') ac.resume(); var t = ac.currentTime;
+  if (kind === 'tap') { // a muffled thump and a little rattle
+    var o = ac.createOscillator(), g = ac.createGain(); o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(60, t + .12); g.gain.setValueAtTime(.35, t); g.gain.exponentialRampToValueAtTime(.001, t + .15); o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + .16);
+    for (var i = 0; i < 4; i++) { var r = ac.createOscillator(), rg = ac.createGain(), tt = t + .05 + i * .045; r.type = 'triangle'; r.frequency.value = 1800 + Math.random() * 900; rg.gain.setValueAtTime(.04, tt); rg.gain.exponentialRampToValueAtTime(.001, tt + .04); r.connect(rg); rg.connect(ac.destination); r.start(tt); r.stop(tt + .05); }
+  } else { // a soft pop and a sparkling chime
+    var p = ac.createOscillator(), pg = ac.createGain(); p.frequency.setValueAtTime(420, t); p.frequency.exponentialRampToValueAtTime(90, t + .1); pg.gain.setValueAtTime(.4, t); pg.gain.exponentialRampToValueAtTime(.001, t + .12); p.connect(pg); pg.connect(ac.destination); p.start(t); p.stop(t + .13);
+    [1046, 1318, 1568, 2093, 2637].forEach(function (f, k) { var c = ac.createOscillator(), cg = ac.createGain(), ct = t + .08 + k * .07; c.frequency.value = f; cg.gain.setValueAtTime(.0001, ct); cg.gain.linearRampToValueAtTime(.07, ct + .01); cg.gain.exponentialRampToValueAtTime(.0001, ct + .9); c.connect(cg); cg.connect(ac.destination); c.start(ct); c.stop(ct + 1); });
+  }
+} catch (e) {} }
+function goToSurprise() {
+  m.classList.add('open'); document.body.classList.add('opened');
+  setTimeout(function () { document.getElementById('hello').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }, 1300);
+}
+function confettiFromBox() { var r = gift.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height * 0.45); setTimeout(function () { burst(r.left + r.width / 2, r.top + r.height * 0.45); }, 260); }
+gift.addEventListener('click', function () {
+  if (gift.classList.contains('opened')) { confettiFromBox(); snd('open'); goToSurprise(); return; }
+  taps++;
+  if (taps < 3) {
+    gift.classList.remove('shake', 'shake2'); void gift.offsetWidth; gift.classList.add(taps === 1 ? 'shake' : 'shake2');
+    snd('tap'); label.textContent = LINES[taps - 1];
+    return;
+  }
+  gift.classList.remove('shake', 'shake2'); gift.classList.add('opened'); document.body.classList.add('gift-done'); snd('open');
+  label.textContent = 'Happy birthday, Sagarika! ✨';
+  confettiFromBox(); goToSurprise();
+});
+})();
 document.getElementById('again').onclick = burst;
 
 /* ---------- Latte tally ---------- */

@@ -90,7 +90,16 @@
       </svg>
     </div>
     <p class="eyebrow date-line intro" style="--i:5">4 November 2026</p>
-    <button id="open" class="btn btn-lux intro" style="--i:6" type="button">Open your birthday box <span aria-hidden="true">🎁</span></button>
+    <div class="intro gift-wrap" style="--i:6">
+      <button id="open" class="gift" type="button" aria-label="Open your birthday box">
+        <span class="gift-glow" aria-hidden="true"></span>
+        <span class="gift-rays" aria-hidden="true"></span>
+        <span class="gift-inside" aria-hidden="true"></span>
+        <span class="gift-body" aria-hidden="true"></span>
+        <span class="gift-lid" aria-hidden="true"><span class="bow"><i></i><i></i><em></em><em></em><b></b></span></span>
+      </button>
+      <p class="gift-label" id="gift-label" aria-live="polite"><span class="tap">Tap</span> to open your birthday box</p>
+    </div>
   </div>
 
   <a class="scroll-cue" href="#hello" aria-label="Scroll to your birthday message"><span>Scroll</span><i></i></a>
