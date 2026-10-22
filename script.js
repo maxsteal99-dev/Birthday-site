@@ -1,3 +1,4 @@
+import { tick as buzzTick, rumble, vibrate } from './src/haptics.js';
 /* Happy 30th, Sagarika */
 
 /* ---------------------------------------------------------
@@ -44,8 +45,11 @@ function close(celebrate) {
 window.__cakeReady = import('./src/cake.js').then(function (mod) {
   cake = mod.createCake(canvas, {
     onProgress: progress,
-    onTrick: function () { say('Trick candle! 😜 One more time…'); },
-    onAllOut: function () { close(true); }
+    onTrick: function () { say('Trick candle! 😜 One more time…'); vibrate([60, 60, 60]); },
+    // vibration: a buzz for every candle, a rumble for as long as she blows, a big one at the end
+    onCandleOut: function () { buzzTick(); },
+    onBlowing: function () { rumble(170); },
+    onAllOut: function () { vibrate([380, 90, 380, 90, 750]); close(true); }
   });
   cake.start();
   window.__micDebug = function () { return cake && cake.micDebug; };
@@ -73,9 +77,19 @@ function whenVisible(fn) {
   var mo = new MutationObserver(function () { if (!root.classList.contains('loading')) { mo.disconnect(); setTimeout(fn, 500); } });
   mo.observe(root, { attributes: true, attributeFilter: ['class'] });
 }
-window.__cakeReady.then(function () { whenVisible(startMic); });
+/* one tap to begin: it lets the phone vibrate, play sound and use the mic */
+var beginBox = document.getElementById('gate-begin');
+function begin() {
+  if (root.classList.contains('begun')) return;
+  root.classList.add('begun'); beginBox.classList.add('gone');
+  vibrate(40);
+  startMic();
+}
+document.getElementById('begin-btn').addEventListener('click', begin);
+beginBox.addEventListener('click', begin);
+window.__cakeReady.then(function () { whenVisible(function () { try { document.getElementById('begin-btn').focus({ preventScroll: true }); } catch (e) {} }); });
 canvas.addEventListener('keydown', function (e) { if (cake && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); cake.puff(.3); } });
-document.getElementById('gate-skip').addEventListener('click', function () { close(false); });
+document.getElementById('gate-skip').addEventListener('click', function () { root.classList.add('begun'); close(false); });
 })();
 
 /* ---------- Loading screen: wait for fonts and the first photos, then begin ---------- */

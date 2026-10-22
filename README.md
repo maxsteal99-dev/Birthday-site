@@ -8,6 +8,7 @@ styles.css          all styling
 script.js           all behaviour (loading screen, cake gate, music, album, snack machine, game…)
 src/cake.js         the 3D birthday cake (Three.js): candles, flames, smoke, mic + swipe blowing
 src/breath.js       breath detection from the microphone (no pitch + louder than the room)
+src/haptics.js      vibration: Android Vibration API; light haptic ticks on iPhone (iOS 18+)
 src/latte.js        Barista Sagarika: build a Spanish latte in 3D (pour, ice, espresso, stir, sip)
 src/monster.js      the 3D Monster can: top view, pull the tab, crack, swing to front, pour into a glass
 src/topper-font.json  the two glyphs "3" and "0" for the gold topper (Gentilis, MAGENTA Ltd license)
@@ -39,7 +40,7 @@ Live at https://maxsteal99-dev.github.io/Birthday-site/
 
 ## The cake
 
-The page opens on a real-time 3D cake with 30 lit candles (Three.js, loaded as its own chunk while the loading screen shows). The microphone is the main way: the page asks for it as soon as the cake appears, then `src/breath.js` listens for a real breath (loud, broadband, flat-spectrum noise), so talking, laughing or music do not blow the candles out. She can also swipe across the flames, tap a candle or press Space; dragging spins the cake. One candle is a trick candle that relights once. When the last flame is out, confetti fires, the song starts and the site opens. Slow devices automatically get a lower resolution and no shadows. Browsers without WebGL skip straight to the site.
+The page opens on a real-time 3D cake with 30 lit candles behind a "Tap to begin" button (one tap lets the phone vibrate, play sound and use the mic) (Three.js, loaded as its own chunk while the loading screen shows). The microphone is the main way: the page asks for it as soon as the cake appears, then `src/breath.js` listens for a real breath (loud, broadband, flat-spectrum noise), so talking, laughing or music do not blow the candles out. She can also swipe across the flames, tap a candle or press Space; dragging spins the cake. One candle is a trick candle that relights once. Phones vibrate as she blows: a rumble while she blows, a buzz per candle and a big celebration buzz at the end (Android; iPhones only allow light haptic ticks, on iOS 18+). When the last flame is out, confetti fires, the song starts and the site opens. Slow devices automatically get a lower resolution and no shadows. Browsers without WebGL skip straight to the site.
 
 ## The birthday song
 

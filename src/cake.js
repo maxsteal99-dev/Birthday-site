@@ -10,7 +10,7 @@ import { createBreathDetector } from './breath.js';
 const CANDLES = 30;
 const V2 = THREE.Vector2;
 
-export function createCake(canvas, { onProgress, onTrick, onAllOut } = {}) {
+export function createCake(canvas, { onProgress, onTrick, onAllOut, onCandleOut, onBlowing } = {}) {
   /* ---------- renderer, scene, camera ---------- */
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -240,7 +240,7 @@ export function createCake(canvas, { onProgress, onTrick, onAllOut } = {}) {
   let left = CANDLES, finished = false, trick = Math.floor(Math.random() * CANDLES), trickUsed = false;
   function out(i) {
     if (!lit[i] || finished) return false;
-    lit[i] = false; target01[i] = 0; ember[i] = 1; left--; puffSmoke(i, 26);
+    lit[i] = false; target01[i] = 0; ember[i] = 1; left--; puffSmoke(i, 26); onCandleOut && onCandleOut(left);
     if (i === trick && !trickUsed && left > 3) {
       trickUsed = true;
       setTimeout(() => { if (finished) return; lit[i] = true; target01[i] = 1; left++; onTrick && onTrick(); onProgress && onProgress(left); }, 1400);
@@ -360,6 +360,7 @@ export function createCake(canvas, { onProgress, onTrick, onAllOut } = {}) {
     // any sound makes the flames flutter a little, so she can see the mic is listening
     if (m.level > 0.05 && !s) windTarget.x += (Math.sin(t * 23) * 0.5) * m.level * 0.6;
     if (s > 0) {
+      onBlowing && !finished && onBlowing(s);
       windTarget.set((Math.sin(t * 9) * 0.4 + 0.7) * (0.7 + s), 0);
       for (let i = 0; i < CANDLES; i++) if (lit[i]) { const z = flameScreen(i).z; const front = 1.4 - (z - 0.97) * 30; if (Math.random() < s * dt * 11 * THREE.MathUtils.clamp(front, 0.6, 1.6)) out(i); }
     }
