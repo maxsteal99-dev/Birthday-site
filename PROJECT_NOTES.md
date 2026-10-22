@@ -1,0 +1,179 @@
+# Project notes: "Happy 30th, Sagarika" birthday website
+
+> **Living memory for this project.** Read this whole file before doing anything.
+> After finishing **every** request, update it: add the request and what was done
+> to the **Change log**, and fix any section that is no longer true.
+> Last updated: 2026-10-22 (after request #23).
+
+---
+
+## 1. Who / what
+
+- **Owner:** Mani (GitHub `maxsteal99-dev`, email maxsteal99@gmail.com). Building a birthday gift for his wife.
+- **Recipient:** **Sagarika Sharma**, turning **30** on **4 November 2026**. She is called "Saga" (see the graffiti photo "Saga ♥ Mani").
+- **The trip in the site:** Mauritius, Rama Villas (Pointe aux Biches / Trou aux Biches), 1–8 November 2026.
+- **Her favourites (used on the site):** Spanish latte; Monster Energy **Ultra** (white can); garlic bread (Domino's garlic breadsticks); McDonald's **McSpicy Paneer**; **Kurkure Solid Masti Twisteez** (Masala); the song **"Him & I"** (G-Eazy & Halsey), piano instrumental.
+- **Owner tests on an iPhone.** Talks casually ("bro"), gives voice-to-text instructions; read intent, not literal words.
+
+## 2. Live site, repo, branches, deploy
+
+- **Live URL:** https://maxsteal99-dev.github.io/Birthday-site/ (GitHub Pages, repo is **public**).
+- **Repo:** `maxsteal99-dev/Birthday-site`. Working dir `/home/user/Birthday-site`.
+- **Source branch (develop here, always push here):** `claude/birthday-website-cinematic-yn9n3m` (also the repo's default branch).
+- **Deploy branch:** `gh-pages` = the **built `dist/` output only**. GitHub Pages auto-enabled when it was first pushed. Owner explicitly asked us to host it (request #11), so force-pushing built output to `gh-pages` is authorised.
+- Earlier, a claude.ai Artifact was also published (https://claude.ai/artifact/KY1mhzJCirinVvWgUZNe3h); the owner didn't want a Claude link, so **GitHub Pages is the real link**. Don't update the artifact unless asked.
+
+### Build + deploy recipe (used after every change)
+```bash
+cd /home/user/Birthday-site
+npm install            # only if node_modules is missing (vite 5.4.10, three 0.169.0)
+npx vite build         # -> dist/
+git add -A && git -c user.email=maxsteal99@gmail.com -c user.name=maxsteal99-dev commit -m "...
+
+Co-Authored-By: <model line from the session's attribution reminder>
+Claude-Session: <session link from the attribution reminder>"
+git push -u origin claude/birthday-website-cinematic-yn9n3m
+rm -rf /tmp/claude-0/deploy && cp -r dist /tmp/claude-0/deploy && cd /tmp/claude-0/deploy \
+  && git init -q && git add -A && git -c user.email=maxsteal99@gmail.com -c user.name=maxsteal99-dev commit -qm "Deploy built site" \
+  && git remote add origin "$(git -C /home/user/Birthday-site remote get-url origin)" && git push -q -f origin HEAD:gh-pages
+# then poll the live URL (add ?v=N to bust cache) until the new marker appears, and re-run a test against it
+```
+- The push sometimes prints `fatal: expected 'acknowledgments'…push negotiation failed`. It still succeeds. Verify with `git ls-remote origin gh-pages`.
+- **Never put the model name in commits or code.** Commit trailers come from the system's attribution reminder.
+- `*.zip`, `node_modules/` and `dist/` are git-ignored.
+
+## 3. Ground rules from the owner (keep honouring these)
+
+From the original brief (request #1) and later messages:
+- Preserve all of her content, photos and features. Never replace personal content with placeholders. Don't silently change how things work.
+- Premium, cinematic, romantic, **not** childish or overly pink. Palette: night plum/black, burgundy, champagne/gold, ivory, rose. Fonts: Cormorant Garamond (display), DM Sans (body), Great Vibes (script), all self-hosted in `fonts/`.
+- Single page, natural scrolling, no scroll hijacking. Must look great on **iPhone** first, and also on desktop.
+- Free static hosting, no backend, no tracking or analytics, `noindex`. A public link means anyone with it can see it; say so honestly.
+- Test for real before claiming anything works; never fabricate URLs or results.
+- He loves "hyper-realistic", interactive, fun, creative. The tech stack is open ("use any language/tool").
+- The Monster can must keep looking like the **real can photo**.
+- **Liquid glass** is wanted on UI surfaces, with the **theme colours unchanged**.
+- **No "Tap to begin" screen** (he asked for it to be removed, request #21).
+- **No song section or player buttons**: the music plays in the background only (request #6).
+
+## 4. Architecture (current state)
+
+Static site built with **Vite** (`vite.config.js`: `base: './'`, `assetsInlineLimit: 0`). `index.html` loads `styles.css` and `script.js` as a module. 3D scenes are lazy-loaded chunks sharing one `three` chunk.
+
+```
+index.html          page markup (all sections)
+styles.css          all styling (sections are marked with big comment headers)
+script.js           all behaviour (ES module): loader, cake gate, confetti, gift box, album, latte UI,
+                    badminton, Monster can (2D fallback + 3D loader), snack machine, scroll/parallax,
+                    background music, balloons/sparkles, liquid glass
+src/cake.js         3D cake gate (Three.js)
+src/breath.js       mic breath detector
+src/haptics.js      vibration helpers (Android vibrate; iOS switch-tick, which only works on iOS 17.4–26.4)
+src/latte.js        3D Spanish latte barista game
+src/monster.js      3D Monster can: top view → tab → crack → swing to front → pour into glass
+src/topper-font.json  only the glyphs "3" and "0" of Three's gentilis_bold font (for the gold "30" topper)
+fonts/              woff2 fonts (bundled by Vite)
+public/assets/      copied as-is: img/sagarika.(jpg|webp) portrait, img/monster-can.webp (real can photo, 300x795 RGBA),
+                    img/memories/*.webp (+ -600 phone sizes), img/snacks/*.webp, audio/him-and-i-instrumental.mp3,
+                    favicon.svg, .nojekyll
+original/Happy_30th_Sagarika.html   the owner's original single-file page (backup; never delete)
+tools/tests/        Playwright + Python test scripts (see §7)
+```
+
+### Page flow, top to bottom
+1. **Loader**: "Sagarika / Preparing your surprise" with a progress line; waits for fonts, the portrait, the first album photos and the cake chunk (max 7 s; the head script falls back at 9 s).
+2. **Cake gate** (`#gate`, `src/cake.js`): full-screen 3D cake with a gold stand, two cream tiers, burgundy drip glaze, rosettes, raspberries, gold pearls, a gold "30" topper and **30 candles** with shader flames, a point light and smoke. Title "Make a wish, Sagarika / Blow out your candles", plus a candle counter.
+   - The **mic auto-starts** when the cake is visible (no button, no tap). Status pill `#gate-mic`: "Listening… blow on your phone 🌬️". If denied, it falls back to "Swipe across the flames…". If the phone needs a touch first, it shows "Tap the cake once, then blow".
+   - Blowing (via `src/breath.js`) puts candles out, front ones first. Swipe across flames, tap a flame, or Space also work. Drag spins the cake. One **trick candle** relights once.
+   - **Feedback while blowing:** the screen shakes (`shake()` in script.js, works on every phone); Android vibrates (`rumble` while blowing, `buzzTick` per candle, a finale pattern). iPhone can't vibrate from the web (see §6).
+   - All out → after 250 ms: confetti ×2, "Your wish is on its way ✨", `main` opens, the song starts, and the gate fades and is disposed. "Skip" button top-right. No WebGL → gate skipped.
+3. **Hero**: portrait (gold border + glow; the rotating ring was **removed** in #22), "A surprise for / Sagarika / is turning 30", a steaming-cup SVG (hidden on short screens), "4 November 2026", and the **gift box** (`#open`): 2 taps wobble with rattle sounds and lines ("Hmm… something rattles inside 👀", "It's heavy with love. One more tap!"); the 3rd tap makes the lid and bow fly off, golden rays and a chime play, confetti shoots from the box, then it scrolls to `#hello`. Balloons with parallax. The "Scroll" cue shows only after the box is opened.
+4. **Letter** (`#hello`): "N days until paradise" countdown pill (to 1 Nov 2026), the letter, signed "With all my love, Mani".
+5. **Memory album** (`#memories`): "A few of my favourite chapters". **17 polaroids**: swipe/drag, ‹ › buttons, arrow keys, tap to flip for a note on the back signed "with love, Mani". Only the top 3 are rendered. Confetti at the last photo (the kiss). Captions and notes are listed in §5.
+6. **Spanish latte** ("Barista Sagarika / Your official fuel"): 3D counter (`src/latte.js`) with a can of condensed milk, a bowl of ice, a milk bottle, an espresso cup and a tall glass. Recipe chips 1–5 (Condensed milk → Ice → Milk → Espresso → Stir) double as buttons; tapping props works too; a wrong order gives a hint. Pours have streams and sounds; the ice clinks and the glass fogs; the espresso cascades; stir by drawing circles (or tap Stir). Done → confetti, +1 to "Lattes enjoyed", tap the glass to sip, "Make another". The "Add a latte to the tally" button is kept. No WebGL → the old CSS latte.
+7. **Monster can** ("Her other fuel"): 3D (`src/monster.js`). The real photo is wrapped on a can whose lathe profile is **traced from the photo silhouette** (u = sin-mapping, so the front view equals the photo). Top view → drag up lifts the ring-pull (click) → at 85% the seal cracks (snap, hiss, fizz), the flap folds in, droplets spray and bead on the lid, mist → camera swings top→front while the can spins 360° → a glass slides in → the can tilts and pours (stream, pale sparkling drink, bubbles, foam) → sets down: "Cheers! One ice-cold Monster Ultra, poured just for you. ⚡". The "Crack it open 🥤" button autoplays; "Crack open another" resets. The 2D fallback (SVG can with a pull-tab, `#canbox`) is used without WebGL.
+8. **Snack machine** ("Snack break / And for the cravings"): "Sagarika's Snack Machine" with **real product images** (Domino's garlic breadsticks cut-out, McDonald's India McSpicy Paneer meal PNG, Kurkure Solid Masti Twisteez packet). Tap → drop into the tray (clunk) and a **coupon No. 0411-A1/B2/C3** "Redeem with Mani · Valid forever"; all three → gold "Snack trifecta" combo coupon plus confetti; "Surprise me 🎲" picks at random.
+9. **Paradise** (Mauritius card with chips, check-in/out, Open in Maps) and **the week** timeline (8 days; the birthday day is highlighted).
+10. **Chidi Shika** badminton canvas game (original logic kept; its canvas only animates while on screen).
+11. **Finale**: portrait, "Happy 30th, Sagarika", "Celebrate again 🎉" (confetti).
+
+### Global systems in script.js
+- **Music:** `SONG_FILE='assets/audio/him-and-i-instrumental.mp3'`, loop, decoded with Web Audio, silence trimmed for a gapless loop (~2.05 s to 265.86 s). It is **held until the cake is done** (`window.__cakeDone`), then starts within about 0.25 s. If the page's own AudioContext isn't unlocked (no tap), it plays through the **mic's still-running AudioContext** (passed in the `cakedone` event detail). 1 s fade-in. Pauses when the tab is hidden. Falls back to an `<audio>` element, then a synthesized music box.
+- **Confetti:** `burst(x?, y?)` with gold-foil confetti on a canvas; `window.burst` is exported for other modules.
+- **Scene moods:** `body[data-mood]` cross-fades the fixed lighting layers (candle, rose, coffee, silver, lagoon, court).
+- **Liquid glass:** JS adds `.lg` to `.pill, .btn-ghost, .card, .chips span, .nav-btn, .step, .barista-msg, .can3d-msg, .gate-mic, .gate-skip, .gate-toast, .game`, including elements added later (MutationObserver). Chromium (not iOS) also gets `.lg-refract` (an SVG `#lg-distort` displacement in `backdrop-filter`) on `.card, .game, .gate-mic, .barista-msg, .can3d-msg, .gate-toast, .pill`. The specular highlight follows the pointer (`--lx/--ly`). Gold `.btn-lux` buttons keep their gold with an added top gloss.
+- Performance: `content-visibility:auto` on `.scene`; adaptive quality in the 3D scenes (lower pixel ratio, then no shadows); animations use wall-clock time (`tdt`).
+
+## 5. Content reference
+
+**Album (order → file, front caption, back note):**
+1. coffee-laugh: "Coffee o'clock / This laugh is my favourite song." / "The cup says slow down to wake up. With you, I never want to rush a single moment."
+2. golden-temple (the AI-enhanced Golden Temple photo): "Golden Temple · Amritsar / Golden hour, golden you."
+3. saqqara: "Saqqara · Egypt / You, smiling under that hat."
+4. sphinx: "The Sphinx · Giza / Even the Sphinx gave us a moment."
+5. giza: "Giza · Egypt / Looking at the same horizon."
+6. pyramid-tunnel: "Inside a pyramid / Tight squeeze, big smiles."
+7. temple-bar: "Temple Bar · Dublin / A million lights, and you leaned on me."
+8. saga-mani: "Our names on the wall / Saga ♥ Mani. Written in ink."
+9. the-alley: "The alley / The one with the foot pop."
+10. city-walk (the sideways photo, rotated upright): "City walk / Cheek to cheek, any street."
+11. by-the-sea: "By the sea / Wind, sea and my whole world."
+12. coffee-and-flowers: "Coffee & flowers / Flowers for my favourite flower."
+13. cat-cafe: "Cat café / Two kittens and one very happy girl."
+14. marigolds: "Under the marigolds / A thousand flowers, and you laughing."
+15. gondola: "Gondola ride / Our own little Venice."
+16. rooftop (tilted on purpose): "City lights / Top of the city, top of my world."
+17. the-kiss: "My favourite one / And then you did this." / "…Happy 30th, my love."
+- **Removed:** "Photo by Sagarika" (Mani at the pyramids) in request #13. Four accidental Golden Temple duplicates were discarded in #12.
+- Real place names are used only where obvious; the owner never supplied the other locations.
+
+**Coupons:** garlic bread "…extra cheesy. I won't steal the last piece. (Probably.)"; McSpicy "…with fries, at any hour. Even midnight. Especially midnight."; Kurkure "…all to yourself. I'll buy my own this time."; combo "All three, a movie, a blanket and me on the couch."
+
+## 6. Known limitations / honest facts (don't promise otherwise)
+
+- **iPhone cannot vibrate from any website.** The `<input type=checkbox switch>` haptic trick works only on iOS 17.4–26.4 (Apple patched it in 26.5). The screen shake is the substitute. Android vibrates, but only after some user activation (e.g. a swipe).
+- Phones block audio until a gesture. This is solved for the cake by the mic-context trick; elsewhere sounds play on tap anyway.
+- Liquid-glass refraction (`backdrop-filter: url()`) works in Chromium only; Safari gets blur, rim and highlight only.
+- The song is copyrighted (the owner supplied the MP3). It's publicly downloadable from the public repo and site; the owner was told.
+- Product images (Kurkure, McDonald's, Domino's) were taken from the brands' and retailers' sites at the owner's explicit request, for a personal gift.
+- The test browser renders 3D in software at about 2–4 fps; real phones run at 30–60 fps. Mic detection is decoupled (33 Hz timer) and tweens use wall-clock time because of this.
+
+## 7. Testing toolkit (`tools/tests/`)
+
+- Serve the build: `cd dist && python3 -m http.server 8766` (restart it after each `vite build`, because the build replaces `dist/`).
+- Run Playwright scripts with `NODE_PATH=/opt/node22/lib/node_modules node tools/tests/<script>.js …`. Chromium is at /opt/pw-browsers; launch with `--use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader` for WebGL.
+- Many scripts take `(outDir, baseUrl)` or `(baseUrl, outDir)`; check the `process.argv` usage at the top. Most press `#gate-skip` first.
+- Fake mic: generate WAVs with `python3 tools/tests/gen_audio.py <dir>`, then launch Chromium with `--use-fake-ui-for-media-stream --use-fake-device-for-media-stream --use-file-for-fake-audio-capture=<wav>`.
+- Scripts: `album.js` (swipe/flip/nav/confetti), `snack.js` (coupons/combo), `lattetest.js` (full recipe + sip), `mtest.js` (Monster phases), `cake-flow.js` (gate end-to-end), `blowtest.js`/`blowtest2.js` (mic breath vs non-breath; candle counts per second, with debug), `musictest.js` (ms from last candle to song start, under a gesture-required autoplay policy), `vibtest2.js` (records `navigator.vibrate` calls / iOS ticks / shake frames), `gifttest.js` (gift box), `lgshot.js` (liquid glass screenshots), `perf.js` (frame times under 4× CPU throttle), `vendshot.js`, `ltshot.js`, `cakeshot.js` (screenshots), `det.py` (periodicity per window of a WAV), `sim.py` (simulates the breath detector at given fps: `python3 sim.py 60,30 files…`).
+- Expected results: talking, music, laughter and claps → 0 candles out; soft, rumbly and hard breaths → all out; song starts about 0.26 s after the last candle.
+
+## 8. Change log (every request, in order)
+
+1. **Original brief:** transform the basic single-file HTML into a cinematic, premium one-page site, preserving everything, with free hosting. → Rebuilt (index.html / styles.css / script.js / assets), with a candlelight burgundy/champagne theme, scene moods, a reveal system and a README. The song at the time was a generated Web Audio music box.
+2. "Change music to 'Him & I' by Halsey instrumental" → set up `SONG_FILE`. I declined to download copyrighted audio and asked the owner to supply it.
+3. "Host this, give me a public URL" → published as a claude.ai Artifact.
+4. Remove the floating play button and the "Your birthday song" section; music only in the background; find a "non-copyright" version → removed both. I declined to download from YouTube or other sites.
+5. The owner uploaded the MP3 (Chrispi24 piano cover, KLICKAUD). → Gapless loop via Web Audio with trimmed silence; no buttons.
+6. Wants a non-Claude link. → The repo was private, so I sent a zip with Netlify Drop steps.
+7. The owner made the repo public. → Pushed `gh-pages`, Pages went live at github.io.
+8. Sent many photos; asked to replace the first photo with an interactive memory album with cute captions. (Later sends: removed 4 accidental photos, added 6.)
+9. Built the polaroid album (it replaced the pink light-room "us" photo; the portrait was kept).
+10. Asked for something fun with garlic bread, McSpicy Paneer and Kurkure. → Snack vending machine with coupons.
+11. Remove the "Photo by Sagarika" card; the album is laggy. → Removed it; render only the top 3 cards, smaller images, and stopped the badminton canvas when off-screen.
+12. "Make it bigger, not a basic HTML site, faster, seamless" → Vite build, loading screen, content-visibility, srcset, bigger layout.
+13. Hyper-realistic interactive cake to blow out before the site opens. → Three.js cake gate (mic button + swipe).
+14. Make the mic primary with no button; swipe second. → Auto mic plus the breath detector.
+15. The mic needed very hard blowing; a "make your own Spanish latte" game; real snack images; keep the Monster can. → Periodicity-based breath detector (tested with synthetic audio and simulation), 33 Hz mic timer, the latte game, real product images.
+16. Monster can interactive opening with a realistic noise. → Pull-tab with synthesized click, snap, hiss and fizz.
+17. Monster: top view → open by gesture → droplets → rotate to front in 3D → pour into a glass. → `src/monster.js`.
+18. The music started late after the candles. → Start the song on the mic's AudioContext, 250 ms delay, 1 s fade.
+19. Strong phone vibration when blowing. → Added haptics plus a "Tap to begin" step; explained the iPhone limits.
+20. Vibration not happening on his iPhone; remove "Tap to begin". → Removed it; Apple patched the haptic trick in iOS 26.5; added the **screen shake** substitute; Android still vibrates.
+21. The ring behind the portrait was misaligned; make "Open your birthday box" more fun. → Removed the ring; built the 3-tap gift box with lid pop, rays, chime and confetti; tighter hero on short phones.
+22. Add "liquid glass" with the theme unchanged. → `.lg` glass surfaces, Chromium refraction, pointer highlight, press squish.
+23. Create this .md memory file, update it after every prompt, and read it every time. → Created `PROJECT_NOTES.md` and `CLAUDE.md` (auto-loaded), and saved the test scripts to `tools/tests/`.
+
+## 9. Ideas mentioned but not done / open questions
+
+- The owner never said where most album photos were taken (only obvious places are named). He can send places or edits for the captions.
+- The pour, latte and shake strengths can be tuned on request.
