@@ -24,6 +24,20 @@ root.classList.add('gated'); gate.hidden = false;
 var canvas = document.getElementById('cake-canvas'), count = document.getElementById('gate-count'), toast = document.getElementById('gate-toast');
 var micBtn = document.getElementById('gate-mic'), cake = null, closed = false, tt = 0;
 function say(t, ms) { toast.textContent = t; toast.classList.add('show'); clearTimeout(tt); tt = setTimeout(function () { toast.classList.remove('show'); }, ms || 2200); }
+/* the screen shakes as she blows: the "vibration" every phone can show, iPhones included */
+var quake = 0, quakeRaf = 0, rmq = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function shake(amount) {
+  if (rmq) return;
+  quake = Math.min(2.2, Math.max(quake, amount));
+  if (quakeRaf) return;
+  (function step() {
+    quake *= 0.86;
+    if (quake < 0.02) { quake = 0; quakeRaf = 0; canvas.style.transform = ''; gate.style.transform = ''; return; }
+    var px = quake * 9, x = (Math.random() - 0.5) * px, y = (Math.random() - 0.5) * px, r = (Math.random() - 0.5) * quake * 1.2;
+    canvas.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) rotate(' + r.toFixed(2) + 'deg)';
+    quakeRaf = requestAnimationFrame(step);
+  })();
+}
 function progress(n) { count.textContent = n === 0 ? 'All out!' : n === 1 ? 'Just one left. Big breath!' : n + ' candles still burning'; }
 
 function close(celebrate) {
@@ -47,9 +61,9 @@ window.__cakeReady = import('./src/cake.js').then(function (mod) {
     onProgress: progress,
     onTrick: function () { say('Trick candle! 😜 One more time…'); vibrate([60, 60, 60]); },
     // vibration: a buzz for every candle, a rumble for as long as she blows, a big one at the end
-    onCandleOut: function () { buzzTick(); },
-    onBlowing: function () { rumble(170); },
-    onAllOut: function () { vibrate([380, 90, 380, 90, 750]); close(true); }
+    onCandleOut: function () { buzzTick(); shake(0.5); },
+    onBlowing: function (s) { rumble(170); shake(0.25 + s * 0.35); },
+    onAllOut: function () { vibrate([380, 90, 380, 90, 750]); shake(1.6); close(true); }
   });
   cake.start();
   window.__micDebug = function () { return cake && cake.micDebug; };
@@ -77,19 +91,9 @@ function whenVisible(fn) {
   var mo = new MutationObserver(function () { if (!root.classList.contains('loading')) { mo.disconnect(); setTimeout(fn, 500); } });
   mo.observe(root, { attributes: true, attributeFilter: ['class'] });
 }
-/* one tap to begin: it lets the phone vibrate, play sound and use the mic */
-var beginBox = document.getElementById('gate-begin');
-function begin() {
-  if (root.classList.contains('begun')) return;
-  root.classList.add('begun'); beginBox.classList.add('gone');
-  vibrate(40);
-  startMic();
-}
-document.getElementById('begin-btn').addEventListener('click', begin);
-beginBox.addEventListener('click', begin);
-window.__cakeReady.then(function () { whenVisible(function () { try { document.getElementById('begin-btn').focus({ preventScroll: true }); } catch (e) {} }); });
+window.__cakeReady.then(function () { whenVisible(startMic); });
 canvas.addEventListener('keydown', function (e) { if (cake && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); cake.puff(.3); } });
-document.getElementById('gate-skip').addEventListener('click', function () { root.classList.add('begun'); close(false); });
+document.getElementById('gate-skip').addEventListener('click', function () { close(false); });
 })();
 
 /* ---------- Loading screen: wait for fonts and the first photos, then begin ---------- */
