@@ -3,7 +3,7 @@
 > **Living memory for this project.** Read this whole file before doing anything.
 > After finishing **every** request, update it: add the request and what was done
 > to the **Change log**, and fix any section that is no longer true.
-> Last updated: 2026-10-23 (after request #25).
+> Last updated: 2026-10-23 (after request #26).
 
 ---
 
@@ -178,8 +178,11 @@ tools/tests/        Playwright + Python test scripts (see §7)
 
 24. Fun gag for her hygiene OCD: after blowing out the cake she must clean the screen with sanitizer and wipes before the site is fully visible. → Added `src/germs.js` (see §4, step 2b), hooked from `close(true)` in script.js; CSS at the end of styles.css; test `tools/tests/germtest.js` passes on iPhone 13 and desktop.
 25. Replace "Dr. Sagarika" with "Mrs. Sagarika". → Changed the germ gag's opening line (and code comments/notes).
+26. She also loves **Stitch** (Lilo & Stitch). The owner asked for ideas first and will pick one. → Gave 8 ideas (see §9); nothing built yet.
 
 ## 9. Ideas mentioned but not done / open questions
+
+- **Stitch ideas (#26), waiting for the owner's pick:** 1) Stitch crashes the site (pod lands, he causes chaos, she catches him); 2) hidden Stitch hunt across sections; 3) Experiment 626 adoption certificate; 4) "Ohana" message with a Stitch letter; 5) feed Stitch; 6) Stitch steals a candle; 7) Stitch sings/plays ukulele at the finale; 8) Stitch pet/scratch toy. Draw him as original fan art (no official Disney images).
 
 - The owner never said where most album photos were taken (only obvious places are named). He can send places or edits for the captions.
 - The pour, latte and shake strengths can be tuned on request.
