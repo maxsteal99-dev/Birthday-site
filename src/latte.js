@@ -11,6 +11,7 @@ export const STEPS = ['cm', 'ice', 'milk', 'esp', 'stir'];
 export function createLatte(canvas, { onStep, onMessage, onDone } = {}) {
   /* ---------- renderer / scene / camera ---------- */
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+  const adapt = makeQuality(renderer, () => resize()); // final resolution before the first sizing: the canvas buffer is allocated once
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
@@ -343,11 +344,10 @@ export function createLatte(canvas, { onStep, onMessage, onDone } = {}) {
   }
   resize();
   const ro = new ResizeObserver(resize); ro.observe(canvas);
-  renderer.compile(scene, camera); // compile shaders now (page is still), not on the first visible frame
 
   /* ---------- loop ---------- */
   const clock = new THREE.Clock(); let raf = 0, running = false;
-  const adapt = makeQuality(renderer, resize), shadowsTick = smartShadows(renderer, scene);
+  const shadowsTick = smartShadows(renderer, scene);
   function frame(now) {
     raf = requestAnimationFrame(frame);
     adapt(now || performance.now());
@@ -365,13 +365,16 @@ export function createLatte(canvas, { onStep, onMessage, onDone } = {}) {
     });
     L.swirl *= Math.pow(0.4, dt);
     liqU.uLevel.value = Math.max(0.0001, L.level); liqU.uB1.value = L.b1; liqU.uB2.value = L.b2; liqU.uSoft.value = L.soft; liqU.uMix.value = L.mix; liqU.uTime.value = L.time; liqU.uSwirl.value = L.swirl;
+    if (!ready) return;
     shadowsTick(tweens.length > 0 || L.swirl > 0.01);
     renderer.render(scene, camera);
   }
   function start() { if (running) return; running = true; clock.getDelta(); frame(); }
   function stop() { running = false; cancelAnimationFrame(raf); raf = 0; }
 
-  renderer.compile(scene, camera); renderer.render(scene, camera);
+  // compile shaders in the background (parallel compile where supported) instead of blocking the page
+  let ready = false;
+  renderer.compileAsync(scene, camera).catch(() => {}).then(() => { ready = true; renderer.render(scene, camera); });
   say('Your café is open, Barista Sagarika. Start with the condensed milk.');
   return { start, stop, doStep, reset, sip, autoStir, get step() { return STEPS[step]; }, get done() { return done; } };
 }

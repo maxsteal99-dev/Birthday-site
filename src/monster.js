@@ -12,6 +12,7 @@ const V2 = THREE.Vector2, V3 = THREE.Vector3;
 export function createMonster(canvas, { photo, onPhase, onMessage } = {}) {
   /* ---------- renderer / scene ---------- */
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+  const adapt = makeQuality(renderer, () => resize()); // final resolution before the first sizing: the canvas buffer is allocated once
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -254,7 +255,7 @@ export function createMonster(canvas, { photo, onPhase, onMessage } = {}) {
 
   /* ---------- loop ---------- */
   const clock = new THREE.Clock(); let raf = 0, running = false;
-  const adapt = makeQuality(renderer, resize), shadowsTick = smartShadows(renderer, scene);
+  const shadowsTick = smartShadows(renderer, scene);
   function frame(now) {
     raf = requestAnimationFrame(frame);
     adapt(now || performance.now());
@@ -282,6 +283,7 @@ export function createMonster(canvas, { photo, onPhase, onMessage } = {}) {
     foam.position.y = GB + fillLevel + 0.002; foam.scale.setScalar(rTopL - 0.006); foam.material.opacity = 0.25 + foamH * 9;
     if (bubbles.visible) for (let i = 0; i < NB; i++) { const b = bub[i]; b.y += b.v * dt / Math.max(0.2, fillLevel + 0.01) * 0.25; if (b.y > 1) { b.y = 0; b.a = Math.random() * 6.28; } const yy = GB + 0.01 + b.y * fillLevel * 0.96, rr = (GR0 + (GR1 - GR0) * yy / GH - 0.02) * b.r; M4.compose(S3.set(Math.cos(b.a) * rr, yy, Math.sin(b.a) * rr), Q, new V3(b.s, b.s, b.s)); bubbles.setMatrixAt(i, M4); }
     bubbles.instanceMatrix.needsUpdate = true;
+    if (!ready) return;
     shadowsTick(tweens.length > 0 || !!drag);
     renderer.render(scene, camera);
   }
@@ -290,9 +292,10 @@ export function createMonster(canvas, { photo, onPhase, onMessage } = {}) {
 
   glass.visible = false;
   resize(); new ResizeObserver(resize).observe(canvas);
-  renderer.compile(scene, camera); // compile shaders now (page is still), not on the first visible frame
   setLift(0); clicked = false;
-  renderer.compile(scene, camera);
+  // compile shaders in the background (parallel compile where supported) instead of blocking the page
+  let ready = false;
+  renderer.compileAsync(scene, camera).catch(() => {}).then(() => { ready = true; });
   say('Lift the tab with your finger ↑');
   return { start, stop, reset, autoOpen, get phase() { return phase; }, ready: new Promise(r => { if (photoTex.image) r(); else photoTex.onUpdate = r; const iv = setInterval(() => { if (photoTex.image && photoTex.image.complete) { clearInterval(iv); r(); } }, 50); }) };
 }
