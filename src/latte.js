@@ -1,6 +1,7 @@
 /* Barista Sagarika: build a Spanish latte in a real-time 3D café scene.
    Condensed milk → ice → milk → espresso → stir, then take a sip. */
 import * as THREE from 'three';
+import { makeQuality, smartShadows } from './quality.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 
@@ -10,7 +11,6 @@ export const STEPS = ['cm', 'ice', 'milk', 'esp', 'stir'];
 export function createLatte(canvas, { onStep, onMessage, onDone } = {}) {
   /* ---------- renderer / scene / camera ---------- */
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
@@ -33,7 +33,9 @@ export function createLatte(canvas, { onStep, onMessage, onDone } = {}) {
   function tex(w, h, draw, srgb = true) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; }
   const woodTex = tex(1024, 512, (g, w, h) => {
     const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#3a2318'); gr.addColorStop(1, '#2a170f'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
-    for (let i = 0; i < 260; i++) { g.strokeStyle = `rgba(${90 + Math.random() * 60},${50 + Math.random() * 30},${30 + Math.random() * 20},${0.05 + Math.random() * 0.12})`; g.lineWidth = 0.5 + Math.random() * 2.5; g.beginPath(); let y = Math.random() * h; g.moveTo(0, y); for (let x = 0; x <= w; x += 32) { y += (Math.random() - .5) * 3; g.lineTo(x, y); } g.stroke(); }
+    for (let i = 0; i < 260; i++) { g.strokeStyle = `rgba(${90 + Math.random() * 60},${50 + Math.random() * 30},${30 + Math.random() * 20},${0.05 + Math.random() * 0.12})`; g.lineWidth = 0.5 + Math.random() * 2.5; g.beginPath(); // grain lines wave with whole-number periods across the width, so the texture tiles with no seam
+      const y0 = Math.random() * h, a1 = Math.random() * 3.5, k1 = 1 + (Math.random() * 3 | 0), p1 = Math.random() * 6.28, a2 = Math.random() * 1.5, k2 = 4 + (Math.random() * 5 | 0), p2 = Math.random() * 6.28;
+      for (let x = 0; x <= w; x += 8) { const u = x / w * Math.PI * 2, y = y0 + a1 * Math.sin(u * k1 + p1) + a2 * Math.sin(u * k2 + p2); x ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); }
   });
   woodTex.wrapS = woodTex.wrapT = THREE.RepeatWrapping; woodTex.repeat.set(2, 1);
   const fade = tex(256, 256, (g) => { const r = g.createRadialGradient(128, 128, 20, 128, 128, 128); r.addColorStop(0, '#fff'); r.addColorStop(.6, '#ccc'); r.addColorStop(1, '#000'); g.fillStyle = r; g.fillRect(0, 0, 256, 256); }, false);
@@ -344,11 +346,10 @@ export function createLatte(canvas, { onStep, onMessage, onDone } = {}) {
   renderer.compile(scene, camera); // compile shaders now (page is still), not on the first visible frame
 
   /* ---------- loop ---------- */
-  const clock = new THREE.Clock(); let raf = 0, running = false, slow = 0, level = 0, lastWall = 0;
-  function adapt(now) { const ms = lastWall ? now - lastWall : 16; lastWall = now; if (level >= 2) return; slow = ms > 45 ? slow + 1 : Math.max(0, slow - 1); if (slow < 8) return; slow = 0; level++; if (level === 1) renderer.setPixelRatio(Math.min(renderer.getPixelRatio(), 1.25)); else { renderer.setPixelRatio(1); renderer.shadowMap.enabled = false; key.castShadow = false; scene.traverse(o => { if (o.material) o.material.needsUpdate = true; }); } resize(); }
+  const clock = new THREE.Clock(); let raf = 0, running = false;
+  const adapt = makeQuality(renderer, resize), shadowsTick = smartShadows(renderer, scene);
   function frame(now) {
     raf = requestAnimationFrame(frame);
-    if (window.__scrolling && window.__scrolling()) { clock.getDelta(); lastWall = 0; return; } // hold the last frame while the page scrolls
     adapt(now || performance.now());
     const rawDt = clock.getDelta(), dt = Math.min(rawDt, 0.05), tdt = Math.min(rawDt, 0.25); L.time += dt;
     for (let i = tweens.length - 1; i >= 0; i--) { const tw = tweens[i]; tw.t = Math.min(1, tw.t + tdt / tw.dur); tw.fn(tw.ease(tw.t)); if (tw.t >= 1) { tweens.splice(i, 1); tw.res(); } }
@@ -364,6 +365,7 @@ export function createLatte(canvas, { onStep, onMessage, onDone } = {}) {
     });
     L.swirl *= Math.pow(0.4, dt);
     liqU.uLevel.value = Math.max(0.0001, L.level); liqU.uB1.value = L.b1; liqU.uB2.value = L.b2; liqU.uSoft.value = L.soft; liqU.uMix.value = L.mix; liqU.uTime.value = L.time; liqU.uSwirl.value = L.swirl;
+    shadowsTick(tweens.length > 0 || L.swirl > 0.01);
     renderer.render(scene, camera);
   }
   function start() { if (running) return; running = true; clock.getDelta(); frame(); }

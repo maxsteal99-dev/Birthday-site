@@ -3,7 +3,7 @@
 > **Living memory for this project.** Read this whole file before doing anything.
 > After finishing **every** request, update it: add the request and what was done
 > to the **Change log**, and fix any section that is no longer true.
-> Last updated: 2026-10-23 (after request #30).
+> Last updated: 2026-10-23 (after request #31).
 
 ---
 
@@ -55,6 +55,7 @@ From the original brief (request #1) and later messages:
 - **Liquid glass** is wanted on UI surfaces, with the **theme colours unchanged**.
 - **No "Tap to begin" screen** (he asked for it to be removed, request #21).
 - **No song section or player buttons**: the music plays in the background only (request #6).
+- **Highest quality, no compromises** (request #31): any technology or size is fine; never reduce visual quality (resolution, blur, shadows, animation) to gain speed. Make it smooth with better techniques instead. The site must also be smooth (request #30).
 
 ## 4. Architecture (current state)
 
@@ -114,14 +115,14 @@ tools/tests/        Playwright + Python test scripts (see §7)
 - **Confetti:** `burst(x?, y?)` with gold-foil confetti on a canvas; `window.burst` is exported for other modules.
 - **Scene moods:** `body[data-mood]` cross-fades the fixed lighting layers (candle, rose, coffee, silver, lagoon, court).
 - **Liquid glass:** JS adds `.lg` to `.pill, .btn-ghost, .card, .chips span, .nav-btn, .step, .barista-msg, .can3d-msg, .gate-mic, .gate-skip, .gate-toast, .game`, including elements added later (MutationObserver). Chromium (not iOS) also gets `.lg-refract` (an SVG `#lg-distort` displacement in `backdrop-filter`) on `.card, .game, .gate-mic, .barista-msg, .can3d-msg, .gate-toast, .pill`. The specular highlight follows the pointer (`--lx/--ly`). Gold `.btn-lux` buttons keep their gold with an added top gloss.
-- **Performance rules (request #30; keep them when adding features):**
-  - While she scrolls (`window.__scrolling()`, true for 160 ms after any scroll event, defined at the top of script.js) the 3D scenes (latte, Monster) and the idle badminton court **skip rendering and hold their last frame**; their clocks are drained so animations pause instead of jumping.
-  - 3D scenes are built with `__whenStill(load)` (only after scrolling stops), call `renderer.compile(scene, camera)` right after building, and set `renderer.debug.checkShaderErrors = false` (also the cake); synchronous shader log reads were ~10 s of the profile.
-  - The scroll handler reads layout once, then writes **only transforms/opacity directly** (`translate`, `transform`, `opacity`); never set inherited CSS custom properties per frame (they restyled whole sections).
-  - **Live `backdrop-filter` only on floating glass** (`.gate-mic, .gate-skip, .gate-toast, .barista-msg, .can3d-msg, .g-msg, .g-dock, .g-skip`); in-flow `.lg` surfaces keep the glass gradient, rim and pointer highlight but no blur, and the infinite `lgSheen` shimmer is gone. Chromium refraction only on `.gate-mic, .barista-msg, .can3d-msg, .gate-toast`.
-  - Mood layers: `will-change:opacity`, and faded-out layers become `visibility:hidden` after 1.8 s, so at most two are composited.
-  - No animated `box-shadow` (glows animate the opacity of a pseudo-element), no canvas `shadowBlur`, no per-frame `createRadialGradient` in loops (germ game uses pre-drawn sprites), no CSS `filter` on full-screen canvases. Max 6 floating balloons.
-  - Measured with `tools/tests/scrollperf.js` (iPhone 13 viewport, 4× CPU throttle, software GPU): average frame **136 ms → ~35 ms**, p95 500 → ~80 ms, script time 14.6 s → 0.5 s. Real phones are much faster than this software renderer; the numbers are for comparison.
+- **Quality first, then smoothness (owner's rule from #31: "I don't want any compromise in quality"; never trade visible quality for speed, find a cheaper technique instead).** Current state:
+  - **3D (`src/quality.js`):** `makeQuality(renderer, resize)` renders at the full screen resolution, **up to 3×** (iPhone), shadows always on; only if frames stay >40 ms for ~60 frames (scrolling ignored) does it step down by 0.5, **never below 2×**. `smartShadows(renderer, scene)` sets `shadowMap.autoUpdate=false` and re-renders the shadow map only when a caster's matrix/visibility changed, an animation runs (`busy`), or every 30th frame: identical pixels, less GPU work. Used by cake, latte, Monster. `renderer.debug.checkShaderErrors=false`; `renderer.compile()` at build.
+  - 3D scenes **animate every frame, also while scrolling** (the #30 "hold last frame while scrolling" was removed in #31). They are built ahead of time: `__whenStill(load)` when 2600 px away (the page is still), or immediately at 250 px if she got there first.
+  - **Liquid glass at full quality everywhere:** `backdrop-filter: blur(14px) saturate(175%) brightness(1.06)` on every `.lg`. The light sweep is a separate GPU-only layer: JS adds `<i class="lg-sheen">` (a skewed, horizontally-faded band animated with `transform` only). Surfaces whose text is rewritten by script or hidden with `:empty` (`DYN = .pill, .barista-msg, .can3d-msg, .gate-toast, .gate-mic, .gate-skip, .g-msg, .stitch-bubble`) get `.lg-dyn` and the painted sweep in `::before` instead. Chromium refraction on `.card, .game, .gate-mic, .gate-toast, .pill` but **not on messages over WebGL canvases** (Chrome then composited the latte canvas in two visibly different halves).
+  - Kept from #30 because they change no pixels: scroll handler writes transforms directly after one layout read; mood layers `will-change:opacity` + `visibility:hidden` once faded; germ game sprites (now with a pre-blurred soft shadow sprite, and the 0.4 px dirt blur baked into the canvas once).
+  - 8 floating balloons; latte "next step" glow and vending bulbs animate their box-shadow as originally.
+  - Latte counter wood texture is now seamless (grain waves with whole-number periods); the old random-walk grain showed a seam down the middle of the counter.
+  - **Stitch** layers are upscaled 4× with the **EDSR super-resolution network** (opencv-contrib dnn_superres, model `EDSR_x4.pb` from github.com/Saafke/EDSR_Tensorflow) → 1076×1488 webp, crisp outlines (`tools/stitch/layers.py src out [model]`).
 - Performance: `content-visibility:auto` on `.scene`; adaptive quality in the 3D scenes (lower pixel ratio, then no shadows); animations use wall-clock time (`tdt`).
 
 ## 5. Content reference
@@ -201,6 +202,7 @@ tools/tests/        Playwright + Python test scripts (see §7)
 28. "That doesn't look like Stitch at all" + sent the real Stitch picture. → Replaced the hand-drawn SVG with his picture (layered: body + wiggling ears), ukulele across the lap with SVG paws (one on the neck, one strumming); song/behaviour unchanged. Disney artwork used because the owner supplied it for this personal gift.
 29. Sent a Booking.com screenshot (The Residence Resort Villa 1bdr Private Pool, Choeng Thale, Phuket, 1–5 Nov): research and build an accurate, creative itinerary. → Researched (resort location, Lard Yai hours, Phang Nga/Phi Phi, early-Nov weather, Big Buddha, Chillva, PRU, Loy Krathong = 24 Nov 2026 so not during the trip). Replaced the Mauritius villa card and 8-day plan with the Phuket card + 5-day interactive itinerary (plans, Plan B, map links, live today, passport stamps); letter and latte lines now say Phuket / five days.
 30. "The website is very laggy, make it very smooth." → Profiled a full scroll (see §4 "Performance rules"): paused 3D/badminton rendering during scroll, deferred 3D builds until still + precompiled shaders + no shader-error checks, rewrote the scroll handler (direct transforms, one layout read), live glass blur only on floating surfaces and no infinite shimmer, GPU-composited mood fades with hidden inactive layers, cheaper glows, germ game sprites instead of per-frame gradients/shadows/CSS blur. Avg frame 136 → ~35 ms in the throttled test; all feature tests pass (album test now scrolls the card into view before clicking).
+31. "Quality feels compromised compared to before; use any technology, no compromise in anything." → Restored everything #30 had cut (glass blur on all surfaces, the shimmer, refraction, 8 balloons, original glows, 3D animating while scrolling, soft germ shadows, dirt softness) using cheaper techniques that keep the pixels identical (GPU-layer shimmer, smart shadow updates, preloading). Raised quality beyond the original: 3D renders at up to 3× (was capped at 2× and could drop to 1× without shadows), Stitch upscaled with an AI super-resolution model, seamless latte wood, no refraction seam over the latte canvas.
 
 ## 9. Ideas mentioned but not done / open questions
 

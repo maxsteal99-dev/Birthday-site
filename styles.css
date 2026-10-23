@@ -411,7 +411,7 @@ h3{font-family:var(--serif);font-weight:600;font-size:clamp(1.45rem,1.2rem + 1vw
 .vend-bulbs{display:flex;gap:6px}
 .vend-bulbs i{width:7px;height:7px;border-radius:50%;background:#ffe2a8;box-shadow:0 0 8px #ffcf70;animation:bulb 1.8s ease-in-out infinite}
 .vend-bulbs i:nth-child(2){animation-delay:.3s}.vend-bulbs i:nth-child(3){animation-delay:.6s}.vend-bulbs i:nth-child(4){animation-delay:.9s}.vend-bulbs i:nth-child(5){animation-delay:1.2s}
-@keyframes bulb{50%{opacity:.35}}
+@keyframes bulb{50%{opacity:.35;box-shadow:none}}
 .vend-glass{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:12px 10px 8px;border-radius:16px;
   background:linear-gradient(180deg,#1b1018,#120a10);box-shadow:inset 0 0 0 1px rgba(236,215,178,.18),inset 0 12px 30px rgba(0,0,0,.6)}
 .vend-glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
@@ -652,13 +652,12 @@ html.gated,html.gated body{overflow:hidden}
   font:500 .92rem/1 var(--sans);color:var(--muted);background:rgba(255,246,235,.04);box-shadow:inset 0 0 0 1px rgba(236,215,178,.16);
   transition:background .3s,color .3s,box-shadow .3s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .step .n{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;font:600 .8rem/1 var(--sans);background:rgba(236,215,178,.12);color:var(--champagne)}
-.step.next{position:relative;color:var(--ivory);box-shadow:inset 0 0 0 1px var(--champagne),0 0 22px rgba(236,215,178,.25)}
-.step.next::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:0 0 32px rgba(236,215,178,.45);opacity:0;animation:glowStep 2s ease-in-out infinite}
+.step.next{color:var(--ivory);box-shadow:inset 0 0 0 1px var(--champagne),0 0 22px rgba(236,215,178,.25);animation:glowStep 2s ease-in-out infinite}
 .step.next .n{background:var(--champagne);color:#2a130c}
 .step.done{color:var(--champagne)}
 .step.done .n{background:transparent;box-shadow:inset 0 0 0 1px var(--champagne);font-size:0}
 .step.done .n::before{content:"✓";font-size:.9rem}
-@keyframes glowStep{50%{opacity:1}}
+@keyframes glowStep{50%{box-shadow:inset 0 0 0 1px var(--champagne),0 0 32px rgba(236,215,178,.45)}}
 .barista-again{margin:16px 0 0;text-align:center;min-height:0}
 #latte-again[hidden]{display:none}
 .latte-scene .tally{justify-content:center;margin-top:22px}
@@ -744,21 +743,24 @@ html.gated,html.gated body{overflow:hidden}
    and a drifting specular highlight. Colours stay the theme's own.
    ========================================================= */
 .lg{isolation:isolate;
+  -webkit-backdrop-filter:blur(14px) saturate(175%) brightness(1.06);backdrop-filter:blur(14px) saturate(175%) brightness(1.06);
   background:linear-gradient(135deg,rgba(255,244,228,.15),rgba(255,244,228,.045) 38%,rgba(255,244,228,.02) 62%,rgba(255,244,228,.08)) !important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.42),inset 0 -1px 1px rgba(255,255,255,.1),inset 1px 0 0 rgba(255,255,255,.1),inset -1px 0 0 rgba(255,255,255,.05),
     inset 0 0 22px rgba(255,248,235,.05),0 14px 34px -14px rgba(0,0,0,.75) !important}
 .lg::before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;
-  background:radial-gradient(120% 85% at var(--lx,22%) var(--ly,-12%),rgba(255,255,255,.24),rgba(255,255,255,0) 46%),
-             linear-gradient(112deg,transparent 32%,rgba(255,255,255,.11) 46%,transparent 58%);
-  background-size:100% 100%,260% 100%;background-repeat:no-repeat;background-position:0 0,40% 0}
-/* a live blur only where the glass floats over moving content; in-flow surfaces keep the same glass look without it
-   (re-blurring dozens of cards on every scroll frame was the main cause of lag on iPhone) */
-.gate-mic.lg,.gate-skip.lg,.gate-toast.lg,.barista-msg.lg,.can3d-msg.lg,.g-msg.lg,.g-dock.lg,.g-skip.lg{
-  -webkit-backdrop-filter:blur(14px) saturate(175%) brightness(1.06);backdrop-filter:blur(14px) saturate(175%) brightness(1.06)}
+  background:radial-gradient(120% 85% at var(--lx,22%) var(--ly,-12%),rgba(255,255,255,.24),rgba(255,255,255,0) 46%);
+  background-size:100% 100%;background-repeat:no-repeat}
+/* the slow light sweep across the glass: its own GPU layer (transform only), so it never repaints the glass */
+.lg-sheen{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:-1}
+.lg-sheen::before{content:"";position:absolute;top:-10%;bottom:-10%;left:0;width:70%;will-change:transform;
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.11) 50%,rgba(255,255,255,0));transform:translateX(-160%) skewX(-22deg);animation:lgSweep 9s ease-in-out infinite}
+@keyframes lgSweep{0%,100%{transform:translateX(-160%) skewX(-22deg)}50%{transform:translateX(200%) skewX(-22deg)}}
+.lg.lg-dyn::before{background:radial-gradient(120% 85% at var(--lx,22%) var(--ly,-12%),rgba(255,255,255,.24),rgba(255,255,255,0) 46%),
+  linear-gradient(112deg,transparent 32%,rgba(255,255,255,.11) 46%,transparent 58%);background-size:100% 100%,260% 100%;animation:lgSheen 9s ease-in-out infinite}
+@keyframes lgSheen{0%,100%{background-position:0 0,130% 0}50%{background-position:0 0,-30% 0}}
 .lg::after{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;padding:1px;
   background:linear-gradient(140deg,rgba(255,255,255,.6),rgba(255,255,255,.1) 28%,rgba(255,255,255,0) 50%,rgba(236,215,178,.22) 78%,rgba(255,255,255,.38));
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
-@keyframes lgSheen{0%,100%{background-position:0 0,130% 0}50%{background-position:0 0,-30% 0}}
 /* these sit in normal flow, so give their glass layers something to hold on to */
 .pill.lg,.chips span.lg,.step.lg,.nav-btn.lg,.gate-mic.lg,.game.lg,.card.lg,.btn-ghost.lg{position:relative}
 .card.lg,.game.lg{overflow:hidden}
@@ -775,7 +777,7 @@ html.gated,html.gated body{overflow:hidden}
 .btn-lux{background:linear-gradient(180deg,rgba(255,250,238,.95) 0%,#ecd3a6 46%,#d2ad72 100%)}
 .btn-lux::before{content:"";position:absolute;left:8%;right:8%;top:2px;height:46%;border-radius:999px;pointer-events:none;
   background:linear-gradient(rgba(255,255,255,.75),rgba(255,255,255,0))}
-@media (prefers-reduced-motion:reduce){.lg::before{animation:none}}
+@media (prefers-reduced-motion:reduce){.lg-sheen::before,.lg.lg-dyn::before{animation:none}}
 
 /* ---------- "Mrs. Sagarika" germ-cleaning gag (src/germs.js) ---------- */
 html.cleaning,html.cleaning body{overflow:hidden;overscroll-behavior:none}

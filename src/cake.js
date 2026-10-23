@@ -1,6 +1,7 @@
 /* The birthday cake: a real-time 3D scene she has to blow out to open the site.
    Blow into the microphone, swipe across the flames, or tap a candle. Drag to spin the cake. */
 import * as THREE from 'three';
+import { makeQuality, smartShadows } from './quality.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
@@ -14,7 +15,6 @@ export function createCake(canvas, { onProgress, onTrick, onAllOut, onCandleOut,
   /* ---------- renderer, scene, camera ---------- */
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   renderer.debug.checkShaderErrors = false;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
@@ -336,19 +336,8 @@ export function createCake(canvas, { onProgress, onTrick, onAllOut, onCandleOut,
   /* ---------- the loop ---------- */
   const clock = new THREE.Clock(); let raf = 0, running = false, intro = 0;
   const rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  /* adaptive quality: if frames are slow, lower resolution, then drop shadows */
-  let slow = 0, level = 0, lastWall = 0;
-  function adapt(now) {
-    const ms = lastWall ? now - lastWall : 16; lastWall = now;
-    if (level >= 3) return;
-    slow = ms > 45 ? slow + 1 : Math.max(0, slow - 1);
-    if (slow < 6) return;
-    slow = 0; level++;
-    if (level === 1) renderer.setPixelRatio(Math.min(renderer.getPixelRatio(), 1.25));
-    if (level === 2) { renderer.setPixelRatio(1); renderer.shadowMap.enabled = false; key.castShadow = false; scene.traverse(o => { if (o.material) o.material.needsUpdate = true; }); }
-    if (level === 3) renderer.setPixelRatio(0.7);
-    resize();
-  }
+  /* full resolution and shadows; see quality.js */
+  const adapt = makeQuality(renderer, resize), shadowsTick = smartShadows(renderer, scene);
   function frame(now) {
     raf = requestAnimationFrame(frame);
     adapt(now || performance.now());
@@ -395,6 +384,7 @@ export function createCake(canvas, { onProgress, onTrick, onAllOut, onCandleOut,
     if (!drag) { spinV *= Math.pow(0.08, dt); spin += spinV + (rm ? 0 : dt * 0.09); }
     cake.rotation.y = spin;
     cake.position.y = (1 - easeOut(intro)) * -0.6;
+    shadowsTick(!!drag);
     renderer.render(scene, camera);
   }
   function easeOut(x) { return 1 - Math.pow(1 - x, 3); }

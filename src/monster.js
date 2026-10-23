@@ -4,6 +4,7 @@
    Top view → lift the tab with a finger → seal cracks, droplets spray →
    the camera swings round to the front → the can pours into a glass. */
 import * as THREE from 'three';
+import { makeQuality, smartShadows } from './quality.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 const V2 = THREE.Vector2, V3 = THREE.Vector3;
@@ -11,7 +12,6 @@ const V2 = THREE.Vector2, V3 = THREE.Vector3;
 export function createMonster(canvas, { photo, onPhase, onMessage } = {}) {
   /* ---------- renderer / scene ---------- */
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -253,11 +253,10 @@ export function createMonster(canvas, { photo, onPhase, onMessage } = {}) {
   canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
 
   /* ---------- loop ---------- */
-  const clock = new THREE.Clock(); let raf = 0, running = false, slow = 0, qlevel = 0, last = 0;
-  function adapt(now) { const ms = last ? now - last : 16; last = now; if (qlevel >= 2) return; slow = ms > 45 ? slow + 1 : Math.max(0, slow - 1); if (slow < 8) return; slow = 0; qlevel++; if (qlevel === 1) renderer.setPixelRatio(Math.min(renderer.getPixelRatio(), 1.25)); else { renderer.setPixelRatio(1); renderer.shadowMap.enabled = false; key.castShadow = false; scene.traverse(o => { if (o.material) o.material.needsUpdate = true; }); } resize(); }
+  const clock = new THREE.Clock(); let raf = 0, running = false;
+  const adapt = makeQuality(renderer, resize), shadowsTick = smartShadows(renderer, scene);
   function frame(now) {
     raf = requestAnimationFrame(frame);
-    if (window.__scrolling && window.__scrolling()) { clock.getDelta(); last = 0; return; } // hold the last frame while the page scrolls
     adapt(now || performance.now());
     const rawDt = clock.getDelta(), dt = Math.min(rawDt, 0.05), tdt = Math.min(rawDt, 0.25), t = clock.elapsedTime;
     for (let i = tweens.length - 1; i >= 0; i--) { const tw = tweens[i]; tw.t = Math.min(1, tw.t + tdt / tw.dur); tw.fn(tw.ez(tw.t)); if (tw.t >= 1) { tweens.splice(i, 1); tw.res(); } }
@@ -283,6 +282,7 @@ export function createMonster(canvas, { photo, onPhase, onMessage } = {}) {
     foam.position.y = GB + fillLevel + 0.002; foam.scale.setScalar(rTopL - 0.006); foam.material.opacity = 0.25 + foamH * 9;
     if (bubbles.visible) for (let i = 0; i < NB; i++) { const b = bub[i]; b.y += b.v * dt / Math.max(0.2, fillLevel + 0.01) * 0.25; if (b.y > 1) { b.y = 0; b.a = Math.random() * 6.28; } const yy = GB + 0.01 + b.y * fillLevel * 0.96, rr = (GR0 + (GR1 - GR0) * yy / GH - 0.02) * b.r; M4.compose(S3.set(Math.cos(b.a) * rr, yy, Math.sin(b.a) * rr), Q, new V3(b.s, b.s, b.s)); bubbles.setMatrixAt(i, M4); }
     bubbles.instanceMatrix.needsUpdate = true;
+    shadowsTick(tweens.length > 0 || !!drag);
     renderer.render(scene, camera);
   }
   function start() { if (running) return; running = true; clock.getDelta(); frame(); }

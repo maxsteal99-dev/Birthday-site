@@ -67,6 +67,8 @@ export function startGermGame({ onDone, buzz } = {}) {
       for (let k = 0; k < 7; k++) { const a = k / 7 * Math.PI * 2, rr = r * (0.7 + Math.random() * 0.5); k ? g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr) : g.moveTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
       g.closePath(); g.fill();
     }
+    // a whisper of softness, baked in once (was a CSS blur that re-filtered the whole screen on every wipe)
+    if ('filter' in g) { const c = document.createElement('canvas'); c.width = W; c.height = H; c.getContext('2d').drawImage(dirt, 0, 0); g.clearRect(0, 0, W, H); g.filter = 'blur(0.4px)'; g.drawImage(c, 0, 0); g.filter = 'none'; }
     grid = new Uint8Array(GX * GY); cleaned = 0;
   }
   /* soft round sprites drawn once and stamped with drawImage (much cheaper on phones than a new gradient per stamp) */
@@ -74,7 +76,7 @@ export function startGermGame({ onDone, buzz } = {}) {
     const c = document.createElement('canvas'); c.width = c.height = Math.ceil(r * 2); const x = c.getContext('2d'), gr = x.createRadialGradient(r, r, r * inner, r, r, r);
     gr.addColorStop(0, color); gr.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = gr; x.fillRect(0, 0, r * 2, r * 2); return c;
   }
-  let brush = null, brushR = 0; const mistImg = sprite(32, 0, 'rgba(220,240,255,0.5)');
+  let brush = null, brushR = 0; const mistImg = sprite(32, 0, 'rgba(220,240,255,0.5)'), shadowImg = sprite(32, 0.45, 'rgba(0,0,0,0.38)');
   function wipeAt(x, y, px, py) {
     const g = dg; g.save(); g.globalCompositeOperation = 'destination-out';
     const r = Math.max(34, Math.min(W, H) * 0.09), dist = Math.hypot(x - px, y - py), steps = Math.max(1, dist / (r * 0.22) | 0);
@@ -104,7 +106,7 @@ export function startGermGame({ onDone, buzz } = {}) {
     g.save(); g.translate(o.x, o.y); g.globalAlpha = a;
     const gr = g.createRadialGradient(-s * 0.3, -s * 0.35, 1, 0, 0, s * 1.2); gr.addColorStop(0, o.c[0]); gr.addColorStop(1, o.c[1]);
     // soft drop shadow, then the body with wobbly spikes
-    g.fillStyle = 'rgba(0,0,0,0.22)'; g.beginPath(); g.ellipse(0, s * 0.18 + 3, s * 1.02, s * 0.92, 0, 0, 7); g.fill(); // (no shadowBlur: slow on phones)
+    const sr = s * 1.3; g.drawImage(shadowImg, -sr, -sr * 0.92 + 3, sr * 2, sr * 1.84); // pre-blurred soft shadow (same look as shadowBlur, far cheaper)
     g.beginPath();
     for (let k = 0; k <= 48; k++) { const ang = k / 48 * Math.PI * 2, sp = 1 + 0.18 * Math.max(0, Math.sin(ang * o.spikes + t * 3 + o.ph)) + wob * Math.sin(ang * 3); const r = s * sp; k ? g.lineTo(Math.cos(ang) * r, Math.sin(ang) * r * 0.92) : g.moveTo(Math.cos(ang) * r, Math.sin(ang) * r * 0.92); }
     g.fillStyle = gr; g.fill();
