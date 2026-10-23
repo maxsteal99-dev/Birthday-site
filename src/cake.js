@@ -13,6 +13,7 @@ const V2 = THREE.Vector2;
 export function createCake(canvas, { onProgress, onTrick, onAllOut, onCandleOut, onBlowing } = {}) {
   /* ---------- renderer, scene, camera ---------- */
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+  renderer.debug.checkShaderErrors = false;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;

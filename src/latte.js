@@ -15,6 +15,7 @@ export function createLatte(canvas, { onStep, onMessage, onDone } = {}) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.debug.checkShaderErrors = false; // the checks read shader logs synchronously and stall the page
   const scene = new THREE.Scene();
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
@@ -340,12 +341,15 @@ export function createLatte(canvas, { onStep, onMessage, onDone } = {}) {
   }
   resize();
   const ro = new ResizeObserver(resize); ro.observe(canvas);
+  renderer.compile(scene, camera); // compile shaders now (page is still), not on the first visible frame
 
   /* ---------- loop ---------- */
   const clock = new THREE.Clock(); let raf = 0, running = false, slow = 0, level = 0, lastWall = 0;
   function adapt(now) { const ms = lastWall ? now - lastWall : 16; lastWall = now; if (level >= 2) return; slow = ms > 45 ? slow + 1 : Math.max(0, slow - 1); if (slow < 8) return; slow = 0; level++; if (level === 1) renderer.setPixelRatio(Math.min(renderer.getPixelRatio(), 1.25)); else { renderer.setPixelRatio(1); renderer.shadowMap.enabled = false; key.castShadow = false; scene.traverse(o => { if (o.material) o.material.needsUpdate = true; }); } resize(); }
   function frame(now) {
-    raf = requestAnimationFrame(frame); adapt(now || performance.now());
+    raf = requestAnimationFrame(frame);
+    if (window.__scrolling && window.__scrolling()) { clock.getDelta(); lastWall = 0; return; } // hold the last frame while the page scrolls
+    adapt(now || performance.now());
     const rawDt = clock.getDelta(), dt = Math.min(rawDt, 0.05), tdt = Math.min(rawDt, 0.25); L.time += dt;
     for (let i = tweens.length - 1; i >= 0; i--) { const tw = tweens[i]; tw.t = Math.min(1, tw.t + tdt / tw.dur); tw.fn(tw.ease(tw.t)); if (tw.t >= 1) { tweens.splice(i, 1); tw.res(); } }
     // ice: fall, bounce, then float near the surface once there is milk

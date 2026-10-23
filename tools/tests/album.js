@@ -14,7 +14,7 @@ const { chromium, devices } = require('playwright');
     r.afterSwipe = await c();
     await p.click('#al-next'); await p.waitForTimeout(450); r.afterNext = await c();
     await p.click('#al-prev'); await p.waitForTimeout(450); r.afterPrev = await c();
-    const b2 = await p.locator('.pc.top').boundingBox(); await p.mouse.click(b2.x + b2.width / 2, b2.y + b2.height / 2); await p.waitForTimeout(900);
+    await p.locator('.pc.top').scrollIntoViewIfNeeded(); await p.waitForTimeout(700); const b2 = await p.locator('.pc.top').boundingBox(); await p.mouse.click(b2.x + b2.width / 2, b2.y + b2.height / 2); await p.waitForTimeout(900);
     r.flipped = await p.$eval('.pc.top', e => e.classList.contains('flipped'));
     await p.screenshot({ path: `${process.argv[2]}/al-${name}-flip.png` });
     await p.focus('#album'); await p.keyboard.press('ArrowRight'); await p.waitForTimeout(400); r.afterKey = await c();

@@ -69,12 +69,19 @@ export function startGermGame({ onDone, buzz } = {}) {
     }
     grid = new Uint8Array(GX * GY); cleaned = 0;
   }
+  /* soft round sprites drawn once and stamped with drawImage (much cheaper on phones than a new gradient per stamp) */
+  function sprite(r, inner, color) {
+    const c = document.createElement('canvas'); c.width = c.height = Math.ceil(r * 2); const x = c.getContext('2d'), gr = x.createRadialGradient(r, r, r * inner, r, r, r);
+    gr.addColorStop(0, color); gr.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = gr; x.fillRect(0, 0, r * 2, r * 2); return c;
+  }
+  let brush = null, brushR = 0; const mistImg = sprite(32, 0, 'rgba(220,240,255,0.5)');
   function wipeAt(x, y, px, py) {
     const g = dg; g.save(); g.globalCompositeOperation = 'destination-out';
-    const r = Math.max(34, Math.min(W, H) * 0.09), dist = Math.hypot(x - px, y - py), steps = Math.max(1, dist / 8 | 0);
+    const r = Math.max(34, Math.min(W, H) * 0.09), dist = Math.hypot(x - px, y - py), steps = Math.max(1, dist / (r * 0.22) | 0);
+    if (!brush || brushR !== r) { brush = sprite(r, 0.35, 'rgba(0,0,0,0.9)'); brushR = r; }
     for (let i = 0; i <= steps; i++) {
-      const sx = px + (x - px) * i / steps, sy = py + (y - py) * i / steps, gr = g.createRadialGradient(sx, sy, r * 0.35, sx, sy, r);
-      gr.addColorStop(0, 'rgba(0,0,0,0.9)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(sx - r, sy - r, r * 2, r * 2);
+      const sx = px + (x - px) * i / steps, sy = py + (y - py) * i / steps;
+      g.drawImage(brush, sx - r, sy - r);
       const cx0 = Math.floor((sx - r * 0.7) / W * GX), cx1 = Math.floor((sx + r * 0.7) / W * GX), cy0 = Math.floor((sy - r * 0.7) / H * GY), cy1 = Math.floor((sy + r * 0.7) / H * GY);
       for (let cy = Math.max(0, cy0); cy <= Math.min(GY - 1, cy1); cy++) for (let cx = Math.max(0, cx0); cx <= Math.min(GX - 1, cx1); cx++) { const k = cy * GX + cx; if (!grid[k]) { grid[k] = 1; cleaned++; } }
     }
@@ -95,11 +102,12 @@ export function startGermGame({ onDone, buzz } = {}) {
   function drawGerm(g, o, t) {
     const wob = Math.sin(t * 6 + o.ph) * 0.08, s = o.s * (o.dead ? 1 + o.dead * 0.6 : 1), a = o.dead ? Math.max(0, 1 - o.dead) : 1;
     g.save(); g.translate(o.x, o.y); g.globalAlpha = a;
-    // body with wobbly spikes
+    const gr = g.createRadialGradient(-s * 0.3, -s * 0.35, 1, 0, 0, s * 1.2); gr.addColorStop(0, o.c[0]); gr.addColorStop(1, o.c[1]);
+    // soft drop shadow, then the body with wobbly spikes
+    g.fillStyle = 'rgba(0,0,0,0.22)'; g.beginPath(); g.ellipse(0, s * 0.18 + 3, s * 1.02, s * 0.92, 0, 0, 7); g.fill(); // (no shadowBlur: slow on phones)
     g.beginPath();
     for (let k = 0; k <= 48; k++) { const ang = k / 48 * Math.PI * 2, sp = 1 + 0.18 * Math.max(0, Math.sin(ang * o.spikes + t * 3 + o.ph)) + wob * Math.sin(ang * 3); const r = s * sp; k ? g.lineTo(Math.cos(ang) * r, Math.sin(ang) * r * 0.92) : g.moveTo(Math.cos(ang) * r, Math.sin(ang) * r * 0.92); }
-    const gr = g.createRadialGradient(-s * 0.3, -s * 0.35, 1, 0, 0, s * 1.2); gr.addColorStop(0, o.c[0]); gr.addColorStop(1, o.c[1]);
-    g.fillStyle = gr; g.shadowColor = 'rgba(0,0,0,0.35)'; g.shadowBlur = 8; g.shadowOffsetY = 3; g.fill(); g.shadowColor = 'transparent';
+    g.fillStyle = gr; g.fill();
     // spots
     g.fillStyle = 'rgba(255,255,255,0.18)'; g.beginPath(); g.arc(s * 0.35, s * 0.3, s * 0.14, 0, 7); g.arc(-s * 0.4, s * 0.15, s * 0.09, 0, 7); g.fill();
     // eyes that look at her finger
@@ -200,8 +208,7 @@ export function startGermGame({ onDone, buzz } = {}) {
     for (let i = mist.length - 1; i >= 0; i--) {
       const p = mist[i]; p.life -= dt * 1.6; if (p.life <= 0) { mist.splice(i, 1); continue; }
       p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.92; p.vy *= 0.92;
-      const gr = lg.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * (2 - p.life));
-      gr.addColorStop(0, `rgba(220,240,255,${0.5 * p.life})`); gr.addColorStop(1, 'rgba(220,240,255,0)'); lg.fillStyle = gr; lg.beginPath(); lg.arc(p.x, p.y, p.r * (2 - p.life), 0, 7); lg.fill();
+      const rr = p.r * (2 - p.life); lg.globalAlpha = p.life; lg.drawImage(mistImg, p.x - rr, p.y - rr, rr * 2, rr * 2); lg.globalAlpha = 1;
     }
   }
   function resize() {

@@ -15,6 +15,7 @@ export function createMonster(canvas, { photo, onPhase, onMessage } = {}) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.debug.checkShaderErrors = false; // the checks read shader logs synchronously and stall the page
   const scene = new THREE.Scene();
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.03).texture; scene.environmentIntensity = 0.8;
@@ -255,7 +256,9 @@ export function createMonster(canvas, { photo, onPhase, onMessage } = {}) {
   const clock = new THREE.Clock(); let raf = 0, running = false, slow = 0, qlevel = 0, last = 0;
   function adapt(now) { const ms = last ? now - last : 16; last = now; if (qlevel >= 2) return; slow = ms > 45 ? slow + 1 : Math.max(0, slow - 1); if (slow < 8) return; slow = 0; qlevel++; if (qlevel === 1) renderer.setPixelRatio(Math.min(renderer.getPixelRatio(), 1.25)); else { renderer.setPixelRatio(1); renderer.shadowMap.enabled = false; key.castShadow = false; scene.traverse(o => { if (o.material) o.material.needsUpdate = true; }); } resize(); }
   function frame(now) {
-    raf = requestAnimationFrame(frame); adapt(now || performance.now());
+    raf = requestAnimationFrame(frame);
+    if (window.__scrolling && window.__scrolling()) { clock.getDelta(); last = 0; return; } // hold the last frame while the page scrolls
+    adapt(now || performance.now());
     const rawDt = clock.getDelta(), dt = Math.min(rawDt, 0.05), tdt = Math.min(rawDt, 0.25), t = clock.elapsedTime;
     for (let i = tweens.length - 1; i >= 0; i--) { const tw = tweens[i]; tw.t = Math.min(1, tw.t + tdt / tw.dur); tw.fn(tw.ez(tw.t)); if (tw.t >= 1) { tweens.splice(i, 1); tw.res(); } }
     can.rotation.y = spin;
@@ -287,6 +290,7 @@ export function createMonster(canvas, { photo, onPhase, onMessage } = {}) {
 
   glass.visible = false;
   resize(); new ResizeObserver(resize).observe(canvas);
+  renderer.compile(scene, camera); // compile shaders now (page is still), not on the first visible frame
   setLift(0); clicked = false;
   renderer.compile(scene, camera);
   say('Lift the tab with your finger ↑');

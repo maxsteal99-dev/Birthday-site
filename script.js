@@ -1,4 +1,11 @@
 import { tick as buzzTick, rumble, vibrate } from './src/haptics.js';
+
+/* While she is scrolling, the heavy canvases (3D scenes, badminton court) hold their last frame,
+   and new 3D scenes are only built once the page is still: that keeps scrolling smooth on phones. */
+var lastScroll = 0;
+addEventListener('scroll', function () { lastScroll = performance.now(); }, { passive: true });
+window.__scrolling = function () { return performance.now() - lastScroll < 160; };
+window.__whenStill = function (fn) { (function check() { if (window.__scrolling()) setTimeout(check, 120); else setTimeout(fn, 30); })(); };
 /* Happy 30th, Sagarika */
 
 /* ---------------------------------------------------------
@@ -212,7 +219,7 @@ function load() {
     if (visible) game.start();
   }).catch(function () { box.classList.add('no-gl'); });
 }
-new IntersectionObserver(function (es) { if (es[0].isIntersecting) load(); }, { rootMargin: '900px 0px' }).observe(box);
+new IntersectionObserver(function (es) { if (es[0].isIntersecting) __whenStill(load); }, { rootMargin: '900px 0px' }).observe(box);
 new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (game) { if (visible) game.start(); else game.stop(); } }, { threshold: 0.05 }).observe(canvas);
 steps.forEach(function (b) { b.addEventListener('click', function () { if (game) game.doStep(b.getAttribute('data-step')); }); });
 again.addEventListener('click', function () {
@@ -285,7 +292,8 @@ function frame(now) {
   if (st === 'fly') { p = (now - t0) / 1000 / T;
     if (side === 0) { if (p >= 1) fault('Missed it!'); else br.classList.toggle('on', p >= win0()); }
     else { br.classList.remove('on'); if (p >= .93) { if (rally >= failAt) botMiss(); else { tone(440, 700, .08, .1); hitT[0] = now; side = 0; t0 = now; T = Math.max(.7, 1.3 - .025 * rally); } } } }
-  draw(now); if (onScreen) requestAnimationFrame(frame); else running = false;
+  if (st === 'fly' || !__scrolling()) draw(now); // idle court holds still while she scrolls past
+  if (onScreen) requestAnimationFrame(frame); else running = false;
 }
 // only animate the court while it is on screen
 var onScreen = false, running = false;
@@ -406,7 +414,7 @@ function load() {
     if (visible) game.start();
   }).catch(function () { box.hidden = true; box.classList.remove('on'); });
 }
-new IntersectionObserver(function (es) { if (es[0].isIntersecting) load(); }, { rootMargin: '900px 0px' }).observe(document.getElementById('canbox'));
+new IntersectionObserver(function (es) { if (es[0].isIntersecting) __whenStill(load); }, { rootMargin: '900px 0px' }).observe(document.getElementById('canbox'));
 new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (game) { if (visible) game.start(); else game.stop(); } }, { threshold: 0.05 }).observe(box);
 })();
 (function () { var d = document.getElementById('drops'); for (var i = 0; i < 46; i++) { var s = document.createElement('span'), z = 2.5 + Math.random() * 6.5; s.className = 'dr'; s.style.cssText = 'left:' + (10 + Math.random() * 125) + 'px;top:' + (14 + Math.random() * 365) + 'px;width:' + z + 'px;height:' + (Math.random() < .35 ? z * 1.6 : z) + 'px'; d.appendChild(s); } })();
@@ -576,16 +584,20 @@ document.getElementById('surprise').addEventListener('click', function () {
 var rm = matchMedia('(prefers-reduced-motion: reduce)').matches, bar = document.getElementById('bar'), pe = [].slice.call(document.querySelectorAll('[data-p]')), tk = false;
 var heroIn = document.querySelector('.hero-inner'), days = document.getElementById('days'), rail = document.getElementById('rail');
 function sc() {
+  // read layout once, then write only transforms/opacity (no inherited CSS variables: those restyled whole sections every frame)
   tk = false; var y = scrollY, vh = innerHeight, mx = document.documentElement.scrollHeight - vh;
+  var r = !rm && days.offsetParent ? days.getBoundingClientRect() : null;
   bar.style.transform = 'scaleX(' + (mx > 0 ? Math.min(1, y / mx) : 0) + ')';
   if (rm) return;
-  pe.forEach(function (e) { e.style.setProperty('--py', (y * e.getAttribute('data-p')) + 'px'); });
-  if (y < vh * 1.2) { heroIn.style.setProperty('--hy', (y * .28) + 'px'); heroIn.style.setProperty('--ho', Math.max(0, 1 - y / (vh * .85)).toFixed(3)); }
-  if (days.offsetParent) { var r = days.getBoundingClientRect(); rail.style.setProperty('--rail', Math.min(1, Math.max(0, (vh * .6 - r.top) / r.height)).toFixed(3)); }
+  if (y < vh * 1.6) {
+    pe.forEach(function (e) { e.style.translate = '0 ' + (y * e.getAttribute('data-p')).toFixed(1) + 'px'; });
+    heroIn.style.transform = 'translate3d(0,' + (Math.min(y, vh * 1.2) * .28).toFixed(1) + 'px,0)'; heroIn.style.opacity = Math.max(0, 1 - y / (vh * .85)).toFixed(3);
+  }
+  if (r && r.top < vh && r.bottom > 0) rail.style.transform = 'scaleY(' + Math.min(1, Math.max(0, (vh * .6 - r.top) / r.height)).toFixed(3) + ')';
 }
 addEventListener('scroll', function () { if (!tk) { tk = true; requestAnimationFrame(sc); } }, { passive: true });
 addEventListener('resize', sc); sc();
-if (rm) rail.style.setProperty('--rail', 1);
+if (rm) rail.style.transform = 'none';
 })();
 
 /* ---------- Background music ----------
@@ -708,7 +720,7 @@ document.addEventListener('visibilitychange', function () {
 if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 var sky = document.createElement('div'); sky.className = 'sky'; sky.setAttribute('aria-hidden', 'true'); document.body.appendChild(sky);
 var C = [['#f6e7cc', '#d9b77e', '#8a6434'], ['#f3d3d6', '#c98a95', '#6e2638'], ['#e6a3ae', '#8e2a42', '#3e0a19'], ['#ffffff', '#e9dccb', '#9f8b74'], ['#f2c9a8', '#b8744a', '#5a2c14']];
-function balloon() { if (document.hidden || sky.childElementCount > 8) return; var b = document.createElement('i'), c = C[Math.floor(Math.random() * C.length)], w = 30 + Math.random() * 40, d = 14 + Math.random() * 10;
+function balloon() { if (document.hidden || sky.childElementCount > 5) return; var b = document.createElement('i'), c = C[Math.floor(Math.random() * C.length)], w = 30 + Math.random() * 40, d = 14 + Math.random() * 10;
   b.style.cssText = '--w:' + w + 'px;--c1:' + c[0] + ';--c2:' + c[1] + ';--c3:' + c[2] + ';left:' + (Math.random() * 92) + '%;animation-duration:' + d + 's,' + (3 + Math.random() * 2) + 's;opacity:' + (.3 + Math.random() * .35);
   sky.appendChild(b); setTimeout(function () { b.remove(); }, d * 1000 + 300); }
 for (var i = 0; i < 3; i++) setTimeout(balloon, i * 900); setInterval(balloon, 2600);
@@ -719,7 +731,7 @@ addEventListener('scroll', function () { var y = scrollY; if (Math.abs(y - last)
 /* ---------- Liquid glass ---------- */
 (function () {
 var SURFACES = '.pill,.btn-ghost,.card,.chips span,.nav-btn,.step,.barista-msg,.can3d-msg,.gate-mic,.gate-skip,.gate-toast,.game';
-var REFRACT = '.card,.game,.gate-mic,.barista-msg,.can3d-msg,.gate-toast,.pill';
+var REFRACT = '.gate-mic,.barista-msg,.can3d-msg,.gate-toast';
 var ua = navigator.userAgent, chromium = (!!navigator.userAgentData || !!window.chrome) && !/iPhone|iPad|iPod/.test(ua) && !/Firefox\//.test(ua);
 function dress(root) {
   [].forEach.call((root || document).querySelectorAll(SURFACES), function (el) { el.classList.add('lg'); });
