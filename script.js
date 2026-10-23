@@ -54,6 +54,10 @@ function close(celebrate) {
     gate.classList.add('leaving'); root.classList.remove('gated');
     setTimeout(function () { if (cake) cake.dispose(); gate.remove(); }, 1400);
   }, celebrate ? 1500 : 0);
+  // she just blew all over the screen… time to sanitize (germ gag)
+  if (celebrate) setTimeout(function () {
+    import('./src/germs.js').then(function (m) { m.startGermGame({ buzz: vibrate }); }).catch(function () {});
+  }, 1700);
 }
 
 window.__cakeReady = import('./src/cake.js').then(function (mod) {

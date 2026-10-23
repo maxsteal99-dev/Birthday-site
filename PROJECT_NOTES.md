@@ -3,7 +3,7 @@
 > **Living memory for this project.** Read this whole file before doing anything.
 > After finishing **every** request, update it: add the request and what was done
 > to the **Change log**, and fix any section that is no longer true.
-> Last updated: 2026-10-22 (after request #23).
+> Last updated: 2026-10-23 (after request #24).
 
 ---
 
@@ -68,6 +68,7 @@ script.js           all behaviour (ES module): loader, cake gate, confetti, gift
                     background music, balloons/sparkles, liquid glass
 src/cake.js         3D cake gate (Three.js)
 src/breath.js       mic breath detector
+src/germs.js        "Dr. Sagarika" germ-cleaning gag shown after the candles are blown out (lazy chunk)
 src/haptics.js      vibration helpers (Android vibrate; iOS switch-tick, which only works on iOS 17.4–26.4)
 src/latte.js        3D Spanish latte barista game
 src/monster.js      3D Monster can: top view → tab → crack → swing to front → pour into glass
@@ -86,7 +87,8 @@ tools/tests/        Playwright + Python test scripts (see §7)
    - The **mic auto-starts** when the cake is visible (no button, no tap). Status pill `#gate-mic`: "Listening… blow on your phone 🌬️". If denied, it falls back to "Swipe across the flames…". If the phone needs a touch first, it shows "Tap the cake once, then blow".
    - Blowing (via `src/breath.js`) puts candles out, front ones first. Swipe across flames, tap a flame, or Space also work. Drag spins the cake. One **trick candle** relights once.
    - **Feedback while blowing:** the screen shakes (`shake()` in script.js, works on every phone); Android vibrates (`rumble` while blowing, `buzzTick` per candle, a finale pattern). iPhone can't vibrate from the web (see §6).
-   - All out → after 250 ms: confetti ×2, "Your wish is on its way ✨", `main` opens, the song starts, and the gate fades and is disposed. "Skip" button top-right. No WebGL → gate skipped.
+   - All out → after 250 ms: confetti ×2, "Your wish is on its way ✨", `main` opens, the song starts, and the gate fades and is disposed. **Only when the candles were really blown out** (not Skip / no WebGL), 1.7 s later the germ gag starts (step 2b). "Skip" button top-right. No WebGL → gate skipped.
+2b. **Germ gag** (`src/germs.js`, `startGermGame({ buzz })`, request #24; she has a hygiene/sanitizer OCD): a full-screen overlay (`.germs`, z-index 9000, `html.cleaning` locks scroll) covers the site with the "mess she blew on the screen": grimy haze, breath fog, fingerprint whorls, frosting smears, spit droplets and red-velvet crumbs (one canvas, `.g-dirt`) plus 10 (phone) / 14 (desktop) wobbling cartoon germs with googly eyes that follow her finger (`.g-live`). Message bubble: "Oops! You blew all over the screen 😷 Grab the sanitizer, Dr. Sagarika." Glass dock: **🧴 Sanitizer** (tap, or hold for repeat sprays every 260 ms; mist plus a *psst* sound; germs inside the radius pop with x_x eyes) and **🧻 Wipes** (drag to erase the mess with soft destination-out brush stamps and squeaks). Wiping while germs live makes them dodge: "They're dodging! Sanitize them first 🧴". The last germ auto-switches to Wipes: "Germs gone! Now wipe the screen squeaky clean 🧻". Stats pill: "🦠 N germs left · ✨ X% clean" (24×40 grid of wiped cells; shown % = raw/0.9). Win = 0 germs and ≥90% of cells wiped → chime, sparkle sweep, "Squeaky clean ✨ 99.9% germ-free. Now it's safe to open your birthday box!", fades and is removed after 2.7 s. "Skip" button above the dock. Reduced motion: germs don't wander.
 3. **Hero**: portrait (gold border + glow; the rotating ring was **removed** in #22), "A surprise for / Sagarika / is turning 30", a steaming-cup SVG (hidden on short screens), "4 November 2026", and the **gift box** (`#open`): 2 taps wobble with rattle sounds and lines ("Hmm… something rattles inside 👀", "It's heavy with love. One more tap!"); the 3rd tap makes the lid and bow fly off, golden rays and a chime play, confetti shoots from the box, then it scrolls to `#hello`. Balloons with parallax. The "Scroll" cue shows only after the box is opened.
 4. **Letter** (`#hello`): "N days until paradise" countdown pill (to 1 Nov 2026), the letter, signed "With all my love, Mani".
 5. **Memory album** (`#memories`): "A few of my favourite chapters". **17 polaroids**: swipe/drag, ‹ › buttons, arrow keys, tap to flip for a note on the back signed "with love, Mani". Only the top 3 are rendered. Confetti at the last photo (the kiss). Captions and notes are listed in §5.
@@ -144,7 +146,8 @@ tools/tests/        Playwright + Python test scripts (see §7)
 - Run Playwright scripts with `NODE_PATH=/opt/node22/lib/node_modules node tools/tests/<script>.js …`. Chromium is at /opt/pw-browsers; launch with `--use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader` for WebGL.
 - Many scripts take `(outDir, baseUrl)` or `(baseUrl, outDir)`; check the `process.argv` usage at the top. Most press `#gate-skip` first.
 - Fake mic: generate WAVs with `python3 tools/tests/gen_audio.py <dir>`, then launch Chromium with `--use-fake-ui-for-media-stream --use-fake-device-for-media-stream --use-file-for-fake-audio-capture=<wav>`.
-- Scripts: `album.js` (swipe/flip/nav/confetti), `snack.js` (coupons/combo), `lattetest.js` (full recipe + sip), `mtest.js` (Monster phases), `cake-flow.js` (gate end-to-end), `blowtest.js`/`blowtest2.js` (mic breath vs non-breath; candle counts per second, with debug), `musictest.js` (ms from last candle to song start, under a gesture-required autoplay policy), `vibtest2.js` (records `navigator.vibrate` calls / iOS ticks / shake frames), `gifttest.js` (gift box), `lgshot.js` (liquid glass screenshots), `perf.js` (frame times under 4× CPU throttle), `vendshot.js`, `ltshot.js`, `cakeshot.js` (screenshots), `det.py` (periodicity per window of a WAV), `sim.py` (simulates the breath detector at given fps: `python3 sim.py 60,30 files…`).
+- `package.json` has `"type":"module"`, so the CommonJS test scripts must be **copied to the scratchpad as `.cjs`** before running (e.g. `cp tools/tests/germtest.js $S/germtest.cjs`).
+- Scripts: `germtest.js` (base, outDir, [device|desktop]: blows the cake out by swiping, then nag check, sprays a grid, wipes rows; expects the overlay gone, scroll unlocked), `album.js` (swipe/flip/nav/confetti), `snack.js` (coupons/combo), `lattetest.js` (full recipe + sip), `mtest.js` (Monster phases), `cake-flow.js` (gate end-to-end), `blowtest.js`/`blowtest2.js` (mic breath vs non-breath; candle counts per second, with debug), `musictest.js` (ms from last candle to song start, under a gesture-required autoplay policy), `vibtest2.js` (records `navigator.vibrate` calls / iOS ticks / shake frames), `gifttest.js` (gift box), `lgshot.js` (liquid glass screenshots), `perf.js` (frame times under 4× CPU throttle), `vendshot.js`, `ltshot.js`, `cakeshot.js` (screenshots), `det.py` (periodicity per window of a WAV), `sim.py` (simulates the breath detector at given fps: `python3 sim.py 60,30 files…`).
 - Expected results: talking, music, laughter and claps → 0 candles out; soft, rumbly and hard breaths → all out; song starts about 0.26 s after the last candle.
 
 ## 8. Change log (every request, in order)
@@ -172,6 +175,8 @@ tools/tests/        Playwright + Python test scripts (see §7)
 21. The ring behind the portrait was misaligned; make "Open your birthday box" more fun. → Removed the ring; built the 3-tap gift box with lid pop, rays, chime and confetti; tighter hero on short phones.
 22. Add "liquid glass" with the theme unchanged. → `.lg` glass surfaces, Chromium refraction, pointer highlight, press squish.
 23. Create this .md memory file, update it after every prompt, and read it every time. → Created `PROJECT_NOTES.md` and `CLAUDE.md` (auto-loaded), and saved the test scripts to `tools/tests/`.
+
+24. Fun gag for her hygiene OCD: after blowing out the cake she must clean the screen with sanitizer and wipes before the site is fully visible. → Added `src/germs.js` (see §4, step 2b), hooked from `close(true)` in script.js; CSS at the end of styles.css; test `tools/tests/germtest.js` passes on iPhone 13 and desktop.
 
 ## 9. Ideas mentioned but not done / open questions
 
