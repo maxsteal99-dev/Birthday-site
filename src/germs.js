@@ -1,4 +1,4 @@
-/* "Dr. Sagarika": after she blows out the candles, the screen is covered in
+/* "Mrs. Sagarika": after she blows out the candles, the screen is covered in
    spit droplets, breath fog, fingerprints, cake crumbs and germs. Sanitizer
    kills the germs (they dodge the wipe until then), wipes clean the grime.
    Clean enough → the overlay sparkles away and the site is fully visible. */
@@ -211,7 +211,7 @@ export function startGermGame({ onDone, buzz } = {}) {
   }
   resize(); paintDirt(); makeGerms(); setTool('spray'); stats();
   addEventListener('resize', resize);
-  say('Oops! You blew all over the screen 😷 Grab the sanitizer, Dr. Sagarika.');
+  say('Oops! You blew all over the screen 😷 Grab the sanitizer, Mrs. Sagarika.');
   requestAnimationFrame(t => { last = t; frame(t); });
   return { finish };
 }

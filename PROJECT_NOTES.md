@@ -3,7 +3,7 @@
 > **Living memory for this project.** Read this whole file before doing anything.
 > After finishing **every** request, update it: add the request and what was done
 > to the **Change log**, and fix any section that is no longer true.
-> Last updated: 2026-10-23 (after request #24).
+> Last updated: 2026-10-23 (after request #25).
 
 ---
 
@@ -68,7 +68,7 @@ script.js           all behaviour (ES module): loader, cake gate, confetti, gift
                     background music, balloons/sparkles, liquid glass
 src/cake.js         3D cake gate (Three.js)
 src/breath.js       mic breath detector
-src/germs.js        "Dr. Sagarika" germ-cleaning gag shown after the candles are blown out (lazy chunk)
+src/germs.js        "Mrs. Sagarika" germ-cleaning gag shown after the candles are blown out (lazy chunk)
 src/haptics.js      vibration helpers (Android vibrate; iOS switch-tick, which only works on iOS 17.4–26.4)
 src/latte.js        3D Spanish latte barista game
 src/monster.js      3D Monster can: top view → tab → crack → swing to front → pour into glass
@@ -88,7 +88,7 @@ tools/tests/        Playwright + Python test scripts (see §7)
    - Blowing (via `src/breath.js`) puts candles out, front ones first. Swipe across flames, tap a flame, or Space also work. Drag spins the cake. One **trick candle** relights once.
    - **Feedback while blowing:** the screen shakes (`shake()` in script.js, works on every phone); Android vibrates (`rumble` while blowing, `buzzTick` per candle, a finale pattern). iPhone can't vibrate from the web (see §6).
    - All out → after 250 ms: confetti ×2, "Your wish is on its way ✨", `main` opens, the song starts, and the gate fades and is disposed. **Only when the candles were really blown out** (not Skip / no WebGL), 1.7 s later the germ gag starts (step 2b). "Skip" button top-right. No WebGL → gate skipped.
-2b. **Germ gag** (`src/germs.js`, `startGermGame({ buzz })`, request #24; she has a hygiene/sanitizer OCD): a full-screen overlay (`.germs`, z-index 9000, `html.cleaning` locks scroll) covers the site with the "mess she blew on the screen": grimy haze, breath fog, fingerprint whorls, frosting smears, spit droplets and red-velvet crumbs (one canvas, `.g-dirt`) plus 10 (phone) / 14 (desktop) wobbling cartoon germs with googly eyes that follow her finger (`.g-live`). Message bubble: "Oops! You blew all over the screen 😷 Grab the sanitizer, Dr. Sagarika." Glass dock: **🧴 Sanitizer** (tap, or hold for repeat sprays every 260 ms; mist plus a *psst* sound; germs inside the radius pop with x_x eyes) and **🧻 Wipes** (drag to erase the mess with soft destination-out brush stamps and squeaks). Wiping while germs live makes them dodge: "They're dodging! Sanitize them first 🧴". The last germ auto-switches to Wipes: "Germs gone! Now wipe the screen squeaky clean 🧻". Stats pill: "🦠 N germs left · ✨ X% clean" (24×40 grid of wiped cells; shown % = raw/0.9). Win = 0 germs and ≥90% of cells wiped → chime, sparkle sweep, "Squeaky clean ✨ 99.9% germ-free. Now it's safe to open your birthday box!", fades and is removed after 2.7 s. "Skip" button above the dock. Reduced motion: germs don't wander.
+2b. **Germ gag** (`src/germs.js`, `startGermGame({ buzz })`, request #24; she has a hygiene/sanitizer OCD): a full-screen overlay (`.germs`, z-index 9000, `html.cleaning` locks scroll) covers the site with the "mess she blew on the screen": grimy haze, breath fog, fingerprint whorls, frosting smears, spit droplets and red-velvet crumbs (one canvas, `.g-dirt`) plus 10 (phone) / 14 (desktop) wobbling cartoon germs with googly eyes that follow her finger (`.g-live`). Message bubble: "Oops! You blew all over the screen 😷 Grab the sanitizer, Mrs. Sagarika." Glass dock: **🧴 Sanitizer** (tap, or hold for repeat sprays every 260 ms; mist plus a *psst* sound; germs inside the radius pop with x_x eyes) and **🧻 Wipes** (drag to erase the mess with soft destination-out brush stamps and squeaks). Wiping while germs live makes them dodge: "They're dodging! Sanitize them first 🧴". The last germ auto-switches to Wipes: "Germs gone! Now wipe the screen squeaky clean 🧻". Stats pill: "🦠 N germs left · ✨ X% clean" (24×40 grid of wiped cells; shown % = raw/0.9). Win = 0 germs and ≥90% of cells wiped → chime, sparkle sweep, "Squeaky clean ✨ 99.9% germ-free. Now it's safe to open your birthday box!", fades and is removed after 2.7 s. "Skip" button above the dock. Reduced motion: germs don't wander.
 3. **Hero**: portrait (gold border + glow; the rotating ring was **removed** in #22), "A surprise for / Sagarika / is turning 30", a steaming-cup SVG (hidden on short screens), "4 November 2026", and the **gift box** (`#open`): 2 taps wobble with rattle sounds and lines ("Hmm… something rattles inside 👀", "It's heavy with love. One more tap!"); the 3rd tap makes the lid and bow fly off, golden rays and a chime play, confetti shoots from the box, then it scrolls to `#hello`. Balloons with parallax. The "Scroll" cue shows only after the box is opened.
 4. **Letter** (`#hello`): "N days until paradise" countdown pill (to 1 Nov 2026), the letter, signed "With all my love, Mani".
 5. **Memory album** (`#memories`): "A few of my favourite chapters". **17 polaroids**: swipe/drag, ‹ › buttons, arrow keys, tap to flip for a note on the back signed "with love, Mani". Only the top 3 are rendered. Confetti at the last photo (the kiss). Captions and notes are listed in §5.
@@ -177,6 +177,7 @@ tools/tests/        Playwright + Python test scripts (see §7)
 23. Create this .md memory file, update it after every prompt, and read it every time. → Created `PROJECT_NOTES.md` and `CLAUDE.md` (auto-loaded), and saved the test scripts to `tools/tests/`.
 
 24. Fun gag for her hygiene OCD: after blowing out the cake she must clean the screen with sanitizer and wipes before the site is fully visible. → Added `src/germs.js` (see §4, step 2b), hooked from `close(true)` in script.js; CSS at the end of styles.css; test `tools/tests/germtest.js` passes on iPhone 13 and desktop.
+25. Replace "Dr. Sagarika" with "Mrs. Sagarika". → Changed the germ gag's opening line (and code comments/notes).
 
 ## 9. Ideas mentioned but not done / open questions
 

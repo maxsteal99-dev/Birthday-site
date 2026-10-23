@@ -772,7 +772,7 @@ html.gated,html.gated body{overflow:hidden}
   background:linear-gradient(rgba(255,255,255,.75),rgba(255,255,255,0))}
 @media (prefers-reduced-motion:reduce){.lg::before{animation:none}}
 
-/* ---------- "Dr. Sagarika" germ-cleaning gag (src/germs.js) ---------- */
+/* ---------- "Mrs. Sagarika" germ-cleaning gag (src/germs.js) ---------- */
 html.cleaning,html.cleaning body{overflow:hidden;overscroll-behavior:none}
 .germs{position:fixed;inset:0;z-index:9000;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
   animation:gIn .6s ease both}
