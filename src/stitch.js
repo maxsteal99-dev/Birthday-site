@@ -1,4 +1,4 @@
-/* Stitch at the finale: he strums a ukulele (plucked-string synth) and
+/* Stitch at the finale (the owner's Stitch picture, layered): he strums a ukulele (plucked-string synth) and
    "sings" Happy Birthday to her, bobbing to the beat, with lyrics in his
    speech bubble and hearts and notes floating up. The background song is
    turned down while he plays. Tap him when he's not playing for a giggle. */

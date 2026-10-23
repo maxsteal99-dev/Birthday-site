@@ -3,7 +3,7 @@
 > **Living memory for this project.** Read this whole file before doing anything.
 > After finishing **every** request, update it: add the request and what was done
 > to the **Change log**, and fix any section that is no longer true.
-> Last updated: 2026-10-23 (after request #27).
+> Last updated: 2026-10-23 (after request #28).
 
 ---
 
@@ -75,7 +75,7 @@ src/latte.js        3D Spanish latte barista game
 src/monster.js      3D Monster can: top view → tab → crack → swing to front → pour into glass
 src/topper-font.json  only the glyphs "3" and "0" of Three's gentilis_bold font (for the gold "30" topper)
 fonts/              woff2 fonts (bundled by Vite)
-public/assets/      copied as-is: img/sagarika.(jpg|webp) portrait, img/monster-can.webp (real can photo, 300x795 RGBA),
+public/assets/      copied as-is: img/stitch/*.webp (Stitch layers), img/sagarika.(jpg|webp) portrait, img/monster-can.webp (real can photo, 300x795 RGBA),
                     img/memories/*.webp (+ -600 phone sizes), img/snacks/*.webp, audio/him-and-i-instrumental.mp3,
                     favicon.svg, .nojekyll
 original/Happy_30th_Sagarika.html   the owner's original single-file page (backup; never delete)
@@ -99,7 +99,7 @@ tools/tests/        Playwright + Python test scripts (see §7)
 9. **Paradise** (Mauritius card with chips, check-in/out, Open in Maps) and **the week** timeline (8 days; the birthday day is highlighted).
 10. **Chidi Shika** badminton canvas game (original logic kept; its canvas only animates while on screen).
 11. **Finale**: portrait, "Happy 30th, Sagarika", the note, **Stitch** (request #27), then "Celebrate again 🎉" (confetti).
-   - **Stitch** (`#stitch-stage`, inline SVG fan art in index.html, no official Disney images; logic `src/stitch.js` `initStitch(stage, window.__music)`, imported when the stage is within 600 px): blue Stitch sitting with a ukulele, idle breathing/blinking/ear twitches. The first time he's ≥60% on screen he wiggles and says "Aloha! 🌺", then (if a sound channel is already running) plays by himself; otherwise tapping him plays. Song: "Happy Birthday" (public-domain melody, C major, 0.43 s/beat, ~13 s) as a Karplus-Strong plucked ukulele melody + GCEA chord strums (C, G7, F) + a soft vibrato "ooh" hum; he bobs, sways, strums and opens his mouth per note; the glass bubble shows the lyric lines ("Happy birthday, dear Sagarika 💙"); notes/hearts float up. End: hearts burst + confetti + "Ohana means family. Happy 30th, Sagarika 💙"; hint becomes "Tap Stitch for an encore 🎸". Tapping while playing = giggle + ear flick. The background song is **ducked** to 0.18 while he plays (`window.__music.duck(true/false)`), restored after.
+   - **Stitch** (`#stitch-stage`; since #28 he is the **owner-supplied Stitch picture** (`tools/stitch/stitch-source.png`, sitting, mouth open), split by `tools/stitch/layers.py` into `public/assets/img/stitch/stitch-body.webp` + `stitch-ear-l/-r.webp` (white background → clean alpha, 3× upscale; the ears sit behind the body and wiggle/flick); the ukulele and his two paws are an SVG overlay (`.st-props`, viewBox = the 269×372 source); logic `src/stitch.js` `initStitch(stage, window.__music)`, imported when the stage is within 600 px): blue Stitch sitting with a ukulele, idle breathing/blinking/ear twitches. The first time he's ≥60% on screen he wiggles and says "Aloha! 🌺", then (if a sound channel is already running) plays by himself; otherwise tapping him plays. Song: "Happy Birthday" (public-domain melody, C major, 0.43 s/beat, ~13 s) as a Karplus-Strong plucked ukulele melody + GCEA chord strums (C, G7, F) + a soft vibrato "ooh" hum; he bobs, sways, strums and opens his mouth per note; the glass bubble shows the lyric lines ("Happy birthday, dear Sagarika 💙"); notes/hearts float up. End: hearts burst + confetti + "Ohana means family. Happy 30th, Sagarika 💙"; hint becomes "Tap Stitch for an encore 🎸". Tapping while playing = giggle + ear flick. The background song is **ducked** to 0.18 while he plays (`window.__music.duck(true/false)`), restored after.
 
 ### Global systems in script.js
 - **Music:** `SONG_FILE='assets/audio/him-and-i-instrumental.mp3'`, loop, decoded with Web Audio, silence trimmed for a gapless loop (~2.05 s to 265.86 s). It is **held until the cake is done** (`window.__cakeDone`), then starts within about 0.25 s. If the page's own AudioContext isn't unlocked (no tap), it plays through the **mic's still-running AudioContext** (passed in the `cakedone` event detail). 1 s fade-in. Pauses when the tab is hidden. Falls back to an `<audio>` element, then a synthesized music box.
@@ -183,10 +183,11 @@ tools/tests/        Playwright + Python test scripts (see §7)
 25. Replace "Dr. Sagarika" with "Mrs. Sagarika". → Changed the germ gag's opening line (and code comments/notes).
 26. She also loves **Stitch** (Lilo & Stitch). The owner asked for ideas first and will pick one. → Gave 8 ideas (see §9); nothing built yet.
 27. The owner picked **"Stitch at the finale"**. → Built `src/stitch.js` + SVG Stitch with ukulele in the finale (see §4 step 11); `window.__music` ducking API; test `stitchtest.js` passes on iPhone 13 and desktop.
+28. "That doesn't look like Stitch at all" + sent the real Stitch picture. → Replaced the hand-drawn SVG with his picture (layered: body + wiggling ears), ukulele across the lap with SVG paws (one on the neck, one strumming); song/behaviour unchanged. Disney artwork used because the owner supplied it for this personal gift.
 
 ## 9. Ideas mentioned but not done / open questions
 
-- **Stitch ideas (#26)**, #7 built in #27; the rest are still available: 1) Stitch crashes the site (pod lands, he causes chaos, she catches him); 2) hidden Stitch hunt across sections; 3) Experiment 626 adoption certificate; 4) "Ohana" message with a Stitch letter; 5) feed Stitch; 6) Stitch steals a candle; 7) Stitch sings/plays ukulele at the finale; 8) Stitch pet/scratch toy. Draw him as original fan art (no official Disney images). The finale SVG Stitch can be reused.
+- **Stitch ideas (#26)**, #7 built in #27; the rest are still available: 1) Stitch crashes the site (pod lands, he causes chaos, she catches him); 2) hidden Stitch hunt across sections; 3) Experiment 626 adoption certificate; 4) "Ohana" message with a Stitch letter; 5) feed Stitch; 6) Stitch steals a candle; 7) Stitch sings/plays ukulele at the finale; 8) Stitch pet/scratch toy. The finale Stitch layers (owner's picture) can be reused. **Never redraw Stitch by hand again; the owner rejected the hand-drawn one.**
 
 - The owner never said where most album photos were taken (only obvious places are named). He can send places or edits for the captions.
 - The pour, latte and shake strengths can be tuned on request.
