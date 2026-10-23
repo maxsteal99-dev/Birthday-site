@@ -743,3 +743,57 @@ var io = new IntersectionObserver(function (es) {
 }, { rootMargin: '600px 0px' });
 io.observe(stage);
 })();
+
+/* ---------- Phuket itinerary: "today" highlight during the trip + passport stamps ---------- */
+(function () {
+var days = [].slice.call(document.querySelectorAll('.day[data-date]')); if (!days.length) return;
+var KEY = 'phuket-stamps', stamped = {};
+try { stamped = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { stamped = {}; }
+var box = document.getElementById('stamps'), note = document.getElementById('passport-note');
+var COL = ['#8e2a42', '#2a6f78', '#a5762a', '#6e1a30', '#3d5a8c'];
+
+// today, in Phuket's time zone
+var today = '';
+try { today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); } catch (e) {}
+var pill = document.getElementById('today-pill');
+days.forEach(function (d) {
+  if (d.dataset.date === today) {
+    d.classList.add('today'); var det = d.querySelector('details'); if (det) det.open = true;
+    pill.hidden = false; pill.textContent = d.classList.contains('star') ? 'Today is your birthday, Sagarika 🎂' : 'Today in Phuket: ' + d.querySelector('h3').textContent;
+  }
+});
+
+function render(fresh) {
+  box.innerHTML = '';
+  days.forEach(function (d, i) {
+    var id = d.dataset.date, btn = d.querySelector('.stamp-btn'), on = !!stamped[id];
+    d.classList.toggle('stamped', on);
+    btn.textContent = on ? 'Stamped ✓' : 'Stamp this day'; btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (!on) return;
+    var s = document.createElement('span'); s.className = 'pstamp' + (fresh === id ? ' fresh' : '');
+    s.style.setProperty('--c', COL[i % COL.length]); s.style.setProperty('--r', ((i * 37) % 24 - 12) + 'deg');
+    s.innerHTML = '<i>' + btn.dataset.label.replace(' · ', '</i><b>') + '</b>';
+    box.appendChild(s);
+  });
+  var n = Object.keys(stamped).length;
+  note.textContent = n === 0 ? 'No stamps yet. The adventure starts on 1 November.' : n === days.length ? 'All five days stamped. Best trip ever? 💙' : n + ' of ' + days.length + ' days stamped.';
+}
+days.forEach(function (d) {
+  d.querySelector('.stamp-btn').addEventListener('click', function () {
+    var id = d.dataset.date;
+    if (stamped[id]) delete stamped[id]; else stamped[id] = Date.now();
+    try { localStorage.setItem(KEY, JSON.stringify(stamped)); } catch (e) {}
+    render(stamped[id] ? id : null);
+    if (stamped[id]) { thunk(); if (Object.keys(stamped).length === days.length && window.burst) burst(); }
+  });
+});
+var ac = null;
+function thunk() { // a rubber stamp hitting paper
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') ac.resume();
+    var t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain(); o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(55, t + .12);
+    g.gain.setValueAtTime(.5, t); g.gain.exponentialRampToValueAtTime(.001, t + .16); o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + .18);
+  } catch (e) {}
+}
+render();
+})();
