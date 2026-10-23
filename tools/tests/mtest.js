@@ -4,7 +4,7 @@ const { chromium, devices } = require('playwright');
   const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--autoplay-policy=no-user-gesture-required'] });
   const p = await (await b.newContext(dev === 'desktop' ? { viewport: { width: 1280, height: 860 } } : devices['iPhone 13'])).newPage();
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text().slice(0, 200)) });
-  await p.goto(base); await p.waitForFunction(() => !document.documentElement.classList.contains('loading'), null, { timeout: 40000 });
+  await p.addInitScript(d => { window.__maxDPR = d; }, +process.env.DPR || 2); await p.goto(base); await p.waitForFunction(() => !document.documentElement.classList.contains('loading'), null, { timeout: 40000 });
   if (await p.$('#gate-skip')) { await p.click('#gate-skip'); await p.waitForTimeout(1600); }
   await p.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; document.getElementById('canbox').scrollIntoView({ block: 'center' }); }); await p.waitForTimeout(500);
   await p.waitForFunction(() => window.__can3d, null, { timeout: 30000 });

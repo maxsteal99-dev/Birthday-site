@@ -5,7 +5,7 @@ const { chromium, devices } = require('playwright');
   const ctx = await b.newContext({ ...devices['iPhone 13'], permissions: ['microphone'] }); const p = await ctx.newPage();
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') errs.push(m.type() + ': ' + m.text().slice(0, 200)) });
   await p.addInitScript(() => { const S = AudioBufferSourceNode.prototype.start; AudioBufferSourceNode.prototype.start = function () { if (this.loop) window.__song = performance.now(); return S.apply(this, arguments); }; });
-  const t0 = Date.now(); await p.goto(base);
+  const t0 = Date.now(); await p.addInitScript(d => { window.__maxDPR = d; }, +process.env.DPR || 2); await p.goto(base);
   await p.waitForFunction(() => !document.documentElement.classList.contains('loading'), null, { timeout: 15000 });
   const r = { readyMs: Date.now() - t0 };
   await p.waitForTimeout(2500); await p.screenshot({ path: out + '/cake-1.png' });

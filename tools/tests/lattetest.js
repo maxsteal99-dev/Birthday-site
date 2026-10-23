@@ -5,7 +5,7 @@ const { chromium, devices } = require('playwright');
   const opts = dev === 'desktop' ? { viewport: { width: 1280, height: 860 } } : devices['iPhone 13'];
   const p = await (await b.newContext(opts)).newPage();
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text().slice(0, 160)) });
-  await p.goto(base); await p.waitForFunction(() => !document.documentElement.classList.contains('loading'), null, { timeout: 40000 });
+  await p.addInitScript(d => { window.__maxDPR = d; }, +process.env.DPR || 2); await p.goto(base); await p.waitForFunction(() => !document.documentElement.classList.contains('loading'), null, { timeout: 40000 });
   if (await p.$('#gate-skip')) { await p.click('#gate-skip'); await p.waitForTimeout(1600); }
   await p.evaluate(() => document.getElementById('barista').scrollIntoView({ block: 'center' })); 
   await p.waitForFunction(() => document.getElementById('barista-msg').textContent.length > 5, null, { timeout: 30000 });

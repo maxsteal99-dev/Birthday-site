@@ -4,7 +4,7 @@ const { chromium, devices } = require('playwright');
 (async () => {
   const base = process.argv[2], out = process.argv[3], dev = process.argv[4] || 'iPhone 13';
   const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
-  const open = async (ctx) => { const p = await ctx.newPage(); p.errs = []; p.on('pageerror', e => p.errs.push(e.message)); await p.goto(base); await p.waitForFunction(() => !document.documentElement.classList.contains('loading'), null, { timeout: 20000 }); await p.click('#gate-skip', { force: true }); await p.waitForTimeout(1600); return p; };
+  const open = async (ctx) => { const p = await ctx.newPage(); p.errs = []; p.on('pageerror', e => p.errs.push(e.message)); await p.addInitScript(d => { window.__maxDPR = d; }, +process.env.DPR || 2); await p.goto(base); await p.waitForFunction(() => !document.documentElement.classList.contains('loading'), null, { timeout: 20000 }); await p.click('#gate-skip', { force: true }); await p.waitForTimeout(1600); return p; };
   const ctx = await b.newContext(dev === 'desktop' ? { viewport: { width: 1280, height: 800 } } : { ...devices[dev] });
   let p = await open(ctx); const r = {};
   r.villa = await p.textContent('.villa h3'); r.stay = (await p.textContent('.stay')).replace(/\s+/g, ' ');

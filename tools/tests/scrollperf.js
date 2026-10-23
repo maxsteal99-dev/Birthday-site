@@ -5,7 +5,7 @@ const { chromium, devices } = require('playwright');
   const base = process.argv[2];
   const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   const ctx = await b.newContext({ ...devices['iPhone 13'] }); const p = await ctx.newPage();
-  await p.goto(base); await p.waitForFunction(() => !document.documentElement.classList.contains('loading'), null, { timeout: 20000 });
+  await p.addInitScript(d => { window.__maxDPR = d; }, +process.env.DPR || 2); await p.goto(base); await p.waitForFunction(() => !document.documentElement.classList.contains('loading'), null, { timeout: 20000 });
   await p.click('#gate-skip', { force: true }); await p.waitForTimeout(2500);
   const cdp = await ctx.newCDPSession(p); await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
   await cdp.send('Performance.enable'); const prof = process.argv[4] === 'profile'; if (prof) { await cdp.send('Profiler.enable'); await cdp.send('Profiler.setSamplingInterval', { interval: 500 }); await cdp.send('Profiler.start'); }

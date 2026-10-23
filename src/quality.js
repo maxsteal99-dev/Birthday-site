@@ -6,7 +6,8 @@
      animation is running, so a still scene costs half as much with identical pixels. */
 
 export function makeQuality(renderer, onChange) {
-  const top = Math.min(window.devicePixelRatio || 1, 3), floor = Math.min(top, 2);
+  // window.__maxDPR lets the software-rendered test browser cap resolution; real devices never set it
+  const top = Math.min(window.devicePixelRatio || 1, window.__maxDPR || 3), floor = Math.min(top, 2);
   renderer.setPixelRatio(top);
   let slow = 0, last = 0;
   return function adapt(now) {

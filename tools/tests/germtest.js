@@ -5,7 +5,7 @@ const { chromium, devices } = require('playwright');
   const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--ignore-gpu-blocklist'] });
   const ctx = await b.newContext(dev === 'desktop' ? { viewport: { width: 1280, height: 800 }, permissions: ['microphone'] } : { ...devices[dev], permissions: ['microphone'] });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto(base); await p.waitForFunction(() => !document.documentElement.classList.contains('loading'), null, { timeout: 20000 });
+  await p.addInitScript(d => { window.__maxDPR = d; }, +process.env.DPR || 2); await p.goto(base); await p.waitForFunction(() => !document.documentElement.classList.contains('loading'), null, { timeout: 20000 });
   const { width: vw, height: vh } = p.viewportSize(); await p.waitForTimeout(3000);
   for (let k = 0; k < 50; k++) {
     if (await p.evaluate(() => !document.getElementById('gate') || document.body.classList.contains('opened'))) break;

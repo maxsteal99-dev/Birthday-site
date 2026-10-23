@@ -7,7 +7,7 @@ const { chromium, devices } = require('playwright');
   const ctx = await b.newContext(dev === 'desktop' ? { viewport: { width: 1280, height: 800 } } : { ...devices[dev] });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.addInitScript(() => { window.__plucks = 0; const S = AudioBufferSourceNode.prototype.start; AudioBufferSourceNode.prototype.start = function () { if (!this.loop) window.__plucks++; return S.apply(this, arguments); }; });
-  await p.goto(base); await p.waitForFunction(() => !document.documentElement.classList.contains('loading'), null, { timeout: 20000 });
+  await p.addInitScript(d => { window.__maxDPR = d; }, +process.env.DPR || 2); await p.goto(base); await p.waitForFunction(() => !document.documentElement.classList.contains('loading'), null, { timeout: 20000 });
   await p.click('#gate-skip', { force: true }); await p.waitForTimeout(1800);
   await p.mouse.click(10, 10); await p.waitForTimeout(800);
   await p.evaluate(() => document.getElementById('stitch-stage').scrollIntoView({ block: 'center' }));

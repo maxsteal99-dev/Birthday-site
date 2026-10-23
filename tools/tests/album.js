@@ -4,7 +4,7 @@ const { chromium, devices } = require('playwright');
   for (const [name, opts] of [['iphone', devices['iPhone 13']], ['desktop', { viewport: { width: 1280, height: 800 } }]]) {
     const p = await (await b.newContext(opts)).newPage();
     const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()) }); p.on('response', r => { if (r.status() >= 400) errs.push(r.status() + ' ' + r.url()) });
-    await p.goto(process.argv[3]); await p.waitForFunction(() => !document.documentElement.classList.contains('loading'), null, { timeout: 40000 }); if (await p.$('#gate-skip')) { await p.click('#gate-skip'); await p.waitForTimeout(1600); } await p.click('#open'); await p.waitForTimeout(800);
+    await p.addInitScript(d => { window.__maxDPR = d; }, +process.env.DPR || 2); await p.goto(process.argv[3]); await p.waitForFunction(() => !document.documentElement.classList.contains('loading'), null, { timeout: 40000 }); if (await p.$('#gate-skip')) { await p.click('#gate-skip'); await p.waitForTimeout(1600); } await p.click('#open'); await p.waitForTimeout(800);
     await p.evaluate(() => document.getElementById('memories').scrollIntoView()); await p.waitForTimeout(2600);
     await p.screenshot({ path: `${process.argv[2]}/al-${name}-1.png` });
     const c = () => p.textContent('#al-count');
