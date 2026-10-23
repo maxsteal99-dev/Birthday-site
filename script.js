@@ -685,6 +685,17 @@ addEventListener('cakedone', function (e) {
   if (el === 'pending') { el = null; startElement(); } else startBuffer();
 });
 
+/* other parts of the page (Stitch's ukulele) borrow the running sound channel and turn the song down */
+window.__music = {
+  ctx: function () { if (cx && cx.state === 'running') return cx; if (alt && alt.state === 'running') return alt; return null; },
+  duck: function (on) {
+    if (el && el !== 'pending') { el.volume = on ? .25 : 1; return; }
+    if (!cx || !out) return;
+    var t = cx.currentTime; out.gain.cancelScheduledValues(t); out.gain.setValueAtTime(out.gain.value, t);
+    out.gain.linearRampToValueAtTime(on ? .18 : (fellBack ? 1 : .9), t + (on ? .6 : 2));
+  }
+};
+
 document.addEventListener('visibilitychange', function () {
   if (el && el !== 'pending') { if (document.hidden) el.pause(); else if (began || !el.paused) el.play().catch(function () {}); return; }
   if (!cx) return;
@@ -720,4 +731,15 @@ new MutationObserver(function (ms) { ms.forEach(function (m) { [].forEach.call(m
 // the highlight follows the finger or mouse across the glass
 function light(e) { var g = e.target && e.target.closest && e.target.closest('.lg'); if (!g) return; var r = g.getBoundingClientRect(); g.style.setProperty('--lx', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%'); g.style.setProperty('--ly', ((e.clientY - r.top) / r.height * 100).toFixed(1) + '%'); }
 addEventListener('pointermove', light, { passive: true }); addEventListener('pointerdown', light, { passive: true });
+})();
+
+/* ---------- Stitch plays "Happy Birthday" at the finale (loaded when she gets close) ---------- */
+(function () {
+var stage = document.getElementById('stitch-stage'); if (!stage) return;
+var io = new IntersectionObserver(function (es) {
+  if (!es.some(function (e) { return e.isIntersecting; })) return;
+  io.disconnect();
+  import('./src/stitch.js').then(function (m) { m.initStitch(stage, window.__music); }).catch(function () {});
+}, { rootMargin: '600px 0px' });
+io.observe(stage);
 })();

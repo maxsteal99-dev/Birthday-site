@@ -3,7 +3,7 @@
 > **Living memory for this project.** Read this whole file before doing anything.
 > After finishing **every** request, update it: add the request and what was done
 > to the **Change log**, and fix any section that is no longer true.
-> Last updated: 2026-10-23 (after request #26).
+> Last updated: 2026-10-23 (after request #27).
 
 ---
 
@@ -69,6 +69,7 @@ script.js           all behaviour (ES module): loader, cake gate, confetti, gift
 src/cake.js         3D cake gate (Three.js)
 src/breath.js       mic breath detector
 src/germs.js        "Mrs. Sagarika" germ-cleaning gag shown after the candles are blown out (lazy chunk)
+src/stitch.js       Stitch plays "Happy Birthday" on a ukulele at the finale (lazy chunk)
 src/haptics.js      vibration helpers (Android vibrate; iOS switch-tick, which only works on iOS 17.4–26.4)
 src/latte.js        3D Spanish latte barista game
 src/monster.js      3D Monster can: top view → tab → crack → swing to front → pour into glass
@@ -97,10 +98,12 @@ tools/tests/        Playwright + Python test scripts (see §7)
 8. **Snack machine** ("Snack break / And for the cravings"): "Sagarika's Snack Machine" with **real product images** (Domino's garlic breadsticks cut-out, McDonald's India McSpicy Paneer meal PNG, Kurkure Solid Masti Twisteez packet). Tap → drop into the tray (clunk) and a **coupon No. 0411-A1/B2/C3** "Redeem with Mani · Valid forever"; all three → gold "Snack trifecta" combo coupon plus confetti; "Surprise me 🎲" picks at random.
 9. **Paradise** (Mauritius card with chips, check-in/out, Open in Maps) and **the week** timeline (8 days; the birthday day is highlighted).
 10. **Chidi Shika** badminton canvas game (original logic kept; its canvas only animates while on screen).
-11. **Finale**: portrait, "Happy 30th, Sagarika", "Celebrate again 🎉" (confetti).
+11. **Finale**: portrait, "Happy 30th, Sagarika", the note, **Stitch** (request #27), then "Celebrate again 🎉" (confetti).
+   - **Stitch** (`#stitch-stage`, inline SVG fan art in index.html, no official Disney images; logic `src/stitch.js` `initStitch(stage, window.__music)`, imported when the stage is within 600 px): blue Stitch sitting with a ukulele, idle breathing/blinking/ear twitches. The first time he's ≥60% on screen he wiggles and says "Aloha! 🌺", then (if a sound channel is already running) plays by himself; otherwise tapping him plays. Song: "Happy Birthday" (public-domain melody, C major, 0.43 s/beat, ~13 s) as a Karplus-Strong plucked ukulele melody + GCEA chord strums (C, G7, F) + a soft vibrato "ooh" hum; he bobs, sways, strums and opens his mouth per note; the glass bubble shows the lyric lines ("Happy birthday, dear Sagarika 💙"); notes/hearts float up. End: hearts burst + confetti + "Ohana means family. Happy 30th, Sagarika 💙"; hint becomes "Tap Stitch for an encore 🎸". Tapping while playing = giggle + ear flick. The background song is **ducked** to 0.18 while he plays (`window.__music.duck(true/false)`), restored after.
 
 ### Global systems in script.js
 - **Music:** `SONG_FILE='assets/audio/him-and-i-instrumental.mp3'`, loop, decoded with Web Audio, silence trimmed for a gapless loop (~2.05 s to 265.86 s). It is **held until the cake is done** (`window.__cakeDone`), then starts within about 0.25 s. If the page's own AudioContext isn't unlocked (no tap), it plays through the **mic's still-running AudioContext** (passed in the `cakedone` event detail). 1 s fade-in. Pauses when the tab is hidden. Falls back to an `<audio>` element, then a synthesized music box.
+- **`window.__music`** (end of the music module): `ctx()` returns the running song AudioContext (or the mic one), `duck(on)` turns the song down/up. Used by Stitch.
 - **Confetti:** `burst(x?, y?)` with gold-foil confetti on a canvas; `window.burst` is exported for other modules.
 - **Scene moods:** `body[data-mood]` cross-fades the fixed lighting layers (candle, rose, coffee, silver, lagoon, court).
 - **Liquid glass:** JS adds `.lg` to `.pill, .btn-ghost, .card, .chips span, .nav-btn, .step, .barista-msg, .can3d-msg, .gate-mic, .gate-skip, .gate-toast, .game`, including elements added later (MutationObserver). Chromium (not iOS) also gets `.lg-refract` (an SVG `#lg-distort` displacement in `backdrop-filter`) on `.card, .game, .gate-mic, .barista-msg, .can3d-msg, .gate-toast, .pill`. The specular highlight follows the pointer (`--lx/--ly`). Gold `.btn-lux` buttons keep their gold with an added top gloss.
@@ -147,7 +150,7 @@ tools/tests/        Playwright + Python test scripts (see §7)
 - Many scripts take `(outDir, baseUrl)` or `(baseUrl, outDir)`; check the `process.argv` usage at the top. Most press `#gate-skip` first.
 - Fake mic: generate WAVs with `python3 tools/tests/gen_audio.py <dir>`, then launch Chromium with `--use-fake-ui-for-media-stream --use-fake-device-for-media-stream --use-file-for-fake-audio-capture=<wav>`.
 - `package.json` has `"type":"module"`, so the CommonJS test scripts must be **copied to the scratchpad as `.cjs`** before running (e.g. `cp tools/tests/germtest.js $S/germtest.cjs`).
-- Scripts: `germtest.js` (base, outDir, [device|desktop]: blows the cake out by swiping, then nag check, sprays a grid, wipes rows; expects the overlay gone, scroll unlocked), `album.js` (swipe/flip/nav/confetti), `snack.js` (coupons/combo), `lattetest.js` (full recipe + sip), `mtest.js` (Monster phases), `cake-flow.js` (gate end-to-end), `blowtest.js`/`blowtest2.js` (mic breath vs non-breath; candle counts per second, with debug), `musictest.js` (ms from last candle to song start, under a gesture-required autoplay policy), `vibtest2.js` (records `navigator.vibrate` calls / iOS ticks / shake frames), `gifttest.js` (gift box), `lgshot.js` (liquid glass screenshots), `perf.js` (frame times under 4× CPU throttle), `vendshot.js`, `ltshot.js`, `cakeshot.js` (screenshots), `det.py` (periodicity per window of a WAV), `sim.py` (simulates the breath detector at given fps: `python3 sim.py 60,30 files…`).
+- Scripts: `stitchtest.js` (base, outDir, [device|desktop]: skip cake, scroll to Stitch, checks lyrics, pluck count ~106, end text, encore), `germtest.js` (base, outDir, [device|desktop]: blows the cake out by swiping, then nag check, sprays a grid, wipes rows; expects the overlay gone, scroll unlocked), `album.js` (swipe/flip/nav/confetti), `snack.js` (coupons/combo), `lattetest.js` (full recipe + sip), `mtest.js` (Monster phases), `cake-flow.js` (gate end-to-end), `blowtest.js`/`blowtest2.js` (mic breath vs non-breath; candle counts per second, with debug), `musictest.js` (ms from last candle to song start, under a gesture-required autoplay policy), `vibtest2.js` (records `navigator.vibrate` calls / iOS ticks / shake frames), `gifttest.js` (gift box), `lgshot.js` (liquid glass screenshots), `perf.js` (frame times under 4× CPU throttle), `vendshot.js`, `ltshot.js`, `cakeshot.js` (screenshots), `det.py` (periodicity per window of a WAV), `sim.py` (simulates the breath detector at given fps: `python3 sim.py 60,30 files…`).
 - Expected results: talking, music, laughter and claps → 0 candles out; soft, rumbly and hard breaths → all out; song starts about 0.26 s after the last candle.
 
 ## 8. Change log (every request, in order)
@@ -179,10 +182,11 @@ tools/tests/        Playwright + Python test scripts (see §7)
 24. Fun gag for her hygiene OCD: after blowing out the cake she must clean the screen with sanitizer and wipes before the site is fully visible. → Added `src/germs.js` (see §4, step 2b), hooked from `close(true)` in script.js; CSS at the end of styles.css; test `tools/tests/germtest.js` passes on iPhone 13 and desktop.
 25. Replace "Dr. Sagarika" with "Mrs. Sagarika". → Changed the germ gag's opening line (and code comments/notes).
 26. She also loves **Stitch** (Lilo & Stitch). The owner asked for ideas first and will pick one. → Gave 8 ideas (see §9); nothing built yet.
+27. The owner picked **"Stitch at the finale"**. → Built `src/stitch.js` + SVG Stitch with ukulele in the finale (see §4 step 11); `window.__music` ducking API; test `stitchtest.js` passes on iPhone 13 and desktop.
 
 ## 9. Ideas mentioned but not done / open questions
 
-- **Stitch ideas (#26), waiting for the owner's pick:** 1) Stitch crashes the site (pod lands, he causes chaos, she catches him); 2) hidden Stitch hunt across sections; 3) Experiment 626 adoption certificate; 4) "Ohana" message with a Stitch letter; 5) feed Stitch; 6) Stitch steals a candle; 7) Stitch sings/plays ukulele at the finale; 8) Stitch pet/scratch toy. Draw him as original fan art (no official Disney images).
+- **Stitch ideas (#26)**, #7 built in #27; the rest are still available: 1) Stitch crashes the site (pod lands, he causes chaos, she catches him); 2) hidden Stitch hunt across sections; 3) Experiment 626 adoption certificate; 4) "Ohana" message with a Stitch letter; 5) feed Stitch; 6) Stitch steals a candle; 7) Stitch sings/plays ukulele at the finale; 8) Stitch pet/scratch toy. Draw him as original fan art (no official Disney images). The finale SVG Stitch can be reused.
 
 - The owner never said where most album photos were taken (only obvious places are named). He can send places or edits for the captions.
 - The pour, latte and shake strengths can be tuned on request.

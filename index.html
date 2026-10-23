@@ -447,7 +447,82 @@
     </div>
     <h2 class="reveal" style="--d:.15s">Happy 30th, Sagarika</h2>
     <p class="note reveal" style="--d:.3s">Here’s to thirty years of you, and to every adventure still ahead.</p>
-    <p class="reveal" style="--d:.45s"><button id="again" class="btn btn-lux" type="button">Celebrate again 🎉</button></p>
+    <div class="stitch-stage reveal" style="--d:.4s" id="stitch-stage">
+      <p class="stitch-bubble lg" id="stitch-bubble" aria-live="polite">Aloha! 🌺</p>
+      <button type="button" class="stitch" id="stitch" aria-label="Stitch with a ukulele. Tap him to hear him play Happy Birthday">
+        <svg viewBox="0 0 320 340" aria-hidden="true" focusable="false">
+          <defs>
+            <radialGradient id="st-skin" cx="42%" cy="34%" r="70%"><stop offset="0" stop-color="#6f9ff0"/><stop offset=".6" stop-color="#4a7fd6"/><stop offset="1" stop-color="#2c58a8"/></radialGradient>
+            <radialGradient id="st-pale" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#cfe4fb"/><stop offset="1" stop-color="#93bdee"/></radialGradient>
+            <linearGradient id="st-ear" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4a9c6"/><stop offset="1" stop-color="#d9739c"/></linearGradient>
+            <radialGradient id="st-wood" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#e2a35e"/><stop offset=".7" stop-color="#b36a2c"/><stop offset="1" stop-color="#7a4318"/></radialGradient>
+            <radialGradient id="st-glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ecd7b2" stop-opacity=".35"/><stop offset="1" stop-color="#ecd7b2" stop-opacity="0"/></radialGradient>
+          </defs>
+          <ellipse cx="160" cy="200" rx="170" ry="150" fill="url(#st-glow)"/>
+          <ellipse cx="160" cy="326" rx="104" ry="10" fill="#000" opacity=".35"/>
+          <g class="st-body">
+            <!-- feet -->
+            <g fill="url(#st-skin)"><ellipse cx="114" cy="306" rx="34" ry="20"/><ellipse cx="206" cy="306" rx="34" ry="20"/></g>
+            <g fill="#e9eef8"><path d="M86 314l-6 6 9-1zM98 320l-3 7 8-4zM234 314l6 6-9-1zM222 320l3 7-8-4z"/></g>
+            <!-- body and chest patch -->
+            <ellipse cx="160" cy="248" rx="72" ry="64" fill="url(#st-skin)"/>
+            <ellipse cx="160" cy="258" rx="44" ry="42" fill="url(#st-pale)"/>
+            <!-- ukulele -->
+            <g class="st-uke" transform="translate(166 240) rotate(20)">
+              <rect x="-138" y="-9" width="30" height="18" rx="4" fill="#5a2f10"/>
+              <g fill="#e9dcc4"><circle cx="-131" cy="-12" r="2.6"/><circle cx="-119" cy="-12" r="2.6"/><circle cx="-131" cy="12" r="2.6"/><circle cx="-119" cy="12" r="2.6"/></g>
+              <rect x="-110" y="-6" width="108" height="12" rx="2" fill="#3b2412"/>
+              <g stroke="#c9b48a" stroke-width="1"><path d="M-92 -6v12M-74 -6v12M-58 -6v12M-44 -6v12M-31 -6v12"/></g>
+              <circle cx="14" cy="0" r="28" fill="url(#st-wood)"/><circle cx="56" cy="0" r="35" fill="url(#st-wood)"/>
+              <circle cx="28" cy="0" r="10" fill="#2a1508"/><circle cx="28" cy="0" r="12.5" fill="none" stroke="#f1d6a4" stroke-width="1.5" opacity=".7"/>
+              <rect x="66" y="-12" width="7" height="24" rx="2" fill="#3b2412"/>
+              <g class="st-strings" stroke="#f6eee3" stroke-width=".9" opacity=".85"><path d="M-128 -4.5H70M-128 -1.5H70M-128 1.5H70M-128 4.5H70"/></g>
+            </g>
+            <!-- arms: left holds the neck, right strums -->
+            <path d="M108 226 Q 86 230 92 214" stroke="url(#st-skin)" stroke-width="22" stroke-linecap="round" fill="none"/>
+            <circle cx="92" cy="213" r="13" fill="#4a7fd6"/>
+            <path d="M84 204l-6-5 2 8zM94 201l-1-8-4 7z" fill="#e9eef8"/>
+            <g class="st-strum">
+              <path d="M220 222 Q 226 246 198 254" stroke="url(#st-skin)" stroke-width="22" stroke-linecap="round" fill="none"/>
+              <circle cx="195" cy="255" r="13" fill="#4a7fd6"/>
+              <path d="M185 262l-4 7 7-3zM195 267l-1 8 5-6z" fill="#e9eef8"/>
+            </g>
+          </g>
+          <g class="st-head">
+            <!-- ears: long, pink inside, a notch in the left one -->
+            <g class="st-ear st-ear-l">
+              <path d="M100 108 C 72 78 34 44 4 30 C 16 52 26 70 34 80 L 26 84 L 40 92 C 54 112 70 130 92 142 Z" fill="url(#st-skin)"/>
+              <path d="M94 114 C 72 92 44 66 22 52 C 36 76 54 102 86 132 Z" fill="url(#st-ear)"/>
+            </g>
+            <g class="st-ear st-ear-r">
+              <path d="M220 108 C 248 78 286 44 316 30 C 304 54 292 76 280 92 C 266 112 250 130 228 142 Z" fill="url(#st-skin)"/>
+              <path d="M226 114 C 248 92 276 66 298 52 C 284 76 266 102 234 132 Z" fill="url(#st-ear)"/>
+            </g>
+            <!-- head -->
+            <path d="M160 64 C 216 64 254 92 254 136 C 254 184 214 212 160 212 C 106 212 66 184 66 136 C 66 92 104 64 160 64 Z" fill="url(#st-skin)"/>
+            <path d="M150 66 l6 -14 4 12 6 -10 2 14 z" fill="#3a68bd"/>
+            <!-- pale patches round the eyes and the muzzle -->
+            <ellipse cx="116" cy="136" rx="38" ry="34" fill="url(#st-pale)"/><ellipse cx="204" cy="136" rx="38" ry="34" fill="url(#st-pale)"/>
+            <ellipse cx="160" cy="176" rx="56" ry="30" fill="url(#st-pale)"/>
+            <!-- brows -->
+            <path d="M92 100 Q 116 88 140 102" stroke="#2c58a8" stroke-width="6" stroke-linecap="round" fill="none"/>
+            <path d="M180 102 Q 204 88 228 100" stroke="#2c58a8" stroke-width="6" stroke-linecap="round" fill="none"/>
+            <!-- big black eyes -->
+            <g class="st-eyes">
+              <ellipse cx="120" cy="134" rx="23" ry="26" fill="#0d0d18"/><ellipse cx="200" cy="134" rx="23" ry="26" fill="#0d0d18"/>
+              <g fill="#fff"><circle cx="111" cy="122" r="7.5"/><circle cx="191" cy="122" r="7.5"/><circle cx="127" cy="145" r="3"/><circle cx="207" cy="145" r="3"/></g>
+            </g>
+            <!-- nose -->
+            <ellipse cx="160" cy="160" rx="24" ry="16" fill="#23306e"/><ellipse cx="152" cy="154" rx="8" ry="4.5" fill="#6c7cc4" opacity=".8"/>
+            <!-- mouth: a grin, or open while singing -->
+            <path class="st-grin" d="M116 182 Q 160 208 204 182" stroke="#1c2558" stroke-width="5" stroke-linecap="round" fill="none"/>
+            <g class="st-sing"><path d="M128 182 Q 160 230 192 182 Q 160 194 128 182 Z" fill="#3a0f24"/><path d="M144 204 Q 160 216 176 204 Q 160 198 144 204 Z" fill="#e0607e"/><path d="M134 184 l6 7 6 -6 6 7 6 -7 6 7 6 -6 6 7 6 -7 Q 160 194 134 184 Z" fill="#fff"/></g>
+          </g>
+        </svg>
+      </button>
+      <p class="stitch-hint">Tap Stitch 🎸</p>
+    </div>
+    <p class="reveal" style="--d:.55s"><button id="again" class="btn btn-lux" type="button">Celebrate again 🎉</button></p>
   </div>
 </section>
 </main>
