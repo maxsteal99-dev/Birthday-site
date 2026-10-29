@@ -895,3 +895,76 @@ html.cleaning,html.cleaning body{overflow:hidden;overscroll-behavior:none}
 @keyframes planIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 @keyframes stampIn{0%{transform:rotate(var(--r)) scale(2.2);opacity:0}60%{transform:rotate(var(--r)) scale(.92);opacity:1}100%{transform:rotate(var(--r)) scale(1)}}
 @media (prefers-reduced-motion:reduce){.plan ol,.pstamp.fresh{animation:none}}
+
+/* ---------- The present: pink iPad keyboard reveal (src/gift.js) ---------- */
+html.gifting,html.gifting body{overflow:hidden}
+.gift-reveal{position:fixed;inset:0;z-index:8500;color:var(--ivory)}
+.gr-backdrop{position:absolute;inset:0;opacity:0;transition:opacity .7s var(--ease);
+  background:radial-gradient(70% 45% at 50% 22%,rgba(255,150,190,.28),transparent 70%),radial-gradient(90% 60% at 50% 100%,rgba(110,26,48,.55),transparent 70%),rgba(8,4,10,.86);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%)}
+.gift-reveal.in .gr-backdrop{opacity:1}
+.gift-reveal.out{opacity:0;transition:opacity .6s var(--ease)}
+.gr-scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;text-align:center;
+  padding:max(56px,env(safe-area-inset-top)) 0 calc(48px + env(safe-area-inset-bottom))}
+.gr-close{position:absolute;top:max(14px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right));width:42px;height:42px;border:0;border-radius:50%;
+  color:var(--ivory);font-size:16px;cursor:pointer;z-index:2}
+/* stage */
+.gr-stage{position:relative;width:min(88vw,460px);margin:0 auto;aspect-ratio:1190/833}
+.gr-product{position:relative;z-index:2;display:block;width:100%;height:auto;filter:drop-shadow(0 26px 30px rgba(0,0,0,.55));
+  animation:grFloat 4.5s ease-in-out 1.6s infinite}
+.gr-halo{position:absolute;left:50%;top:50%;width:130%;aspect-ratio:1;transform:translate(-50%,-50%) scale(.4);opacity:0;border-radius:50%;z-index:0;
+  background:radial-gradient(closest-side,rgba(255,170,205,.55),rgba(255,120,170,.18) 45%,transparent 72%);transition:transform 1.4s var(--ease-out) .3s,opacity 1.2s .3s}
+.gift-reveal.in .gr-halo{transform:translate(-50%,-50%) scale(1);opacity:1}
+.gr-rays{position:absolute;left:50%;top:50%;width:150%;aspect-ratio:1;transform:translate(-50%,-50%);z-index:0;opacity:0;transition:opacity 1.5s .6s;
+  background:repeating-conic-gradient(from 0deg,rgba(255,230,240,.16) 0 4deg,transparent 4deg 18deg);
+  -webkit-mask:radial-gradient(closest-side,#000 20%,transparent 70%);mask:radial-gradient(closest-side,#000 20%,transparent 70%);animation:grSpin 40s linear infinite}
+.gift-reveal.in .gr-rays{opacity:1}
+.gr-shadow{position:absolute;left:18%;right:4%;bottom:-4%;height:10%;border-radius:50%;z-index:1;background:radial-gradient(closest-side,rgba(0,0,0,.5),transparent);
+  animation:grShadow 4.5s ease-in-out 1.6s infinite}
+/* words */
+.gr-kicker,.gr-title,.gr-sub,.gr-bubbles li,.gr-name,.gr-cards,.gr-dots,.gr-from,.gr-go{opacity:0;transform:translateY(16px)}
+.gift-reveal.in .gr-kicker,.gift-reveal.in .gr-title,.gift-reveal.in .gr-sub,.gift-reveal.in .gr-name,.gift-reveal.in .gr-cards,.gift-reveal.in .gr-dots,.gift-reveal.in .gr-from,.gift-reveal.in .gr-go{
+  animation:grUp .8s var(--ease-out) forwards}
+.gift-reveal.in .gr-kicker{animation-delay:1.05s}.gift-reveal.in .gr-title{animation-delay:1.2s}.gift-reveal.in .gr-sub{animation-delay:1.4s}
+.gift-reveal.in .gr-name{animation-delay:3.2s}.gift-reveal.in .gr-cards{animation-delay:3.5s}.gift-reveal.in .gr-dots{animation-delay:3.7s}
+.gift-reveal.in .gr-from{animation-delay:3.9s}.gift-reveal.in .gr-go{animation-delay:4.1s}
+.gr-kicker{margin:22px 0 2px;font:600 .8rem/1.4 var(--sans);letter-spacing:.3em;text-transform:uppercase;color:var(--champagne)}
+.gr-title{margin:0 auto;padding:0 18px;max-width:16ch;font:400 clamp(2.4rem,1.6rem + 4vw,3.4rem)/1.15 var(--script);color:#ffd9e8;
+  text-shadow:0 0 30px rgba(255,150,190,.45)}
+.gr-sub{margin:10px auto 0;padding:0 22px;max-width:30ch;font:italic 500 1.2rem/1.45 var(--serif);color:rgba(246,238,227,.88)}
+/* bubbles */
+.gr-bubbles{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin:22px auto 0;padding:0 16px;max-width:520px}
+.gr-bubbles li{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:999px;font:500 .92rem/1 var(--sans);color:#3a0d1a;
+  background:linear-gradient(180deg,#fff3f8,#ffd3e5);box-shadow:0 8px 20px -8px rgba(255,120,170,.6),inset 0 1px 0 #fff}
+.gr-bubbles li span{font-size:1.1rem}
+.gift-reveal.in .gr-bubbles li{animation:grPop .55s cubic-bezier(.2,1.6,.4,1) forwards;animation-delay:calc(1.7s + var(--i) * .23s)}
+.gr-bubbles li:active{transform:scale(.94)}
+/* name keycaps */
+.gr-name{position:relative;margin:26px auto 0;width:min(92vw,460px);padding:16px 12px 12px;border-radius:22px}
+.gr-name>p{margin:0;font-size:.82rem;letter-spacing:.08em;color:var(--champagne)}
+.gr-keys{display:flex;justify-content:center;gap:clamp(3px,1.2vw,6px);margin:12px 0 8px}
+.gr-key{flex:0 0 auto;width:min(8.6vw,44px);height:min(10vw,48px);padding:0;border:0;border-radius:9px;cursor:pointer;font:600 clamp(.9rem,.7rem + 1vw,1.1rem)/1 var(--sans);
+  color:#5a3040;background:linear-gradient(180deg,#fff6fa,#f6dbe6);
+  box-shadow:0 0 0 1.5px color-mix(in srgb,var(--glow) 70%,transparent),0 0 14px color-mix(in srgb,var(--glow) 55%,transparent),inset 0 -3px 0 rgba(0,0,0,.08),0 4px 8px rgba(0,0,0,.35);
+  text-shadow:0 0 8px var(--glow);transition:box-shadow .3s,transform .12s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.gr-key.press{transform:translateY(2px) scale(.96);box-shadow:0 0 0 2px var(--glow),0 0 26px var(--glow),inset 0 -1px 0 rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.3)}
+.gr-colour{margin:0 !important;font-size:.75rem !important;color:rgba(246,238,227,.6) !important}
+/* cards */
+.gr-cards{display:flex;gap:14px;margin:26px 0 0;padding:4px max(6vw,calc(50vw - 200px)) 10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.gr-cards::-webkit-scrollbar{display:none}
+.gr-card{position:relative;flex:0 0 min(84vw,400px);scroll-snap-align:center;border-radius:22px;overflow:hidden;text-align:left;padding:0 0 16px}
+.gr-card img{display:block;width:100%;aspect-ratio:16/11;object-fit:cover;border-radius:22px 22px 0 0}
+.gr-card h3{margin:14px 18px 4px;font:400 1.9rem/1.15 var(--script);color:#ffd9e8}
+.gr-card p{margin:0 18px;color:rgba(246,238,227,.85);line-height:1.5}
+.gr-dots{display:flex;justify-content:center;gap:7px;margin:12px 0 0}
+.gr-dots i{width:7px;height:7px;border-radius:50%;background:rgba(246,238,227,.3);transition:background .3s,transform .3s}
+.gr-dots i.on{background:#ffb3d1;transform:scale(1.3)}
+.gr-from{margin:24px 0 14px;font:400 1.8rem/1.2 var(--script);color:var(--champagne)}
+.gr-go{min-height:52px}
+@keyframes grFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-10px) rotate(-.6deg)}}
+@keyframes grShadow{0%,100%{transform:scaleX(1);opacity:1}50%{transform:scaleX(.9);opacity:.7}}
+@keyframes grSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes grUp{to{opacity:1;transform:none}}
+@keyframes grPop{0%{opacity:0;transform:translateY(14px) scale(.6)}100%{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.gr-product,.gr-shadow,.gr-rays{animation:none}
+  .gift-reveal.in .gr-kicker,.gift-reveal.in .gr-title,.gift-reveal.in .gr-sub,.gift-reveal.in .gr-bubbles li,.gift-reveal.in .gr-name,.gift-reveal.in .gr-cards,.gift-reveal.in .gr-dots,.gift-reveal.in .gr-from,.gift-reveal.in .gr-go{animation:none;opacity:1;transform:none}}

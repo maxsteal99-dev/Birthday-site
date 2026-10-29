@@ -168,12 +168,19 @@ function snd(kind) { try {
 } catch (e) {} }
 function goToSurprise() {
   m.classList.add('open'); document.body.classList.add('opened');
-  setTimeout(function () { document.getElementById('hello').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }, 1300);
+  setTimeout(function () { document.getElementById('hello').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }, 500);
 }
 function confettiFromBox() { var r = gift.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height * 0.45); setTimeout(function () { burst(r.left + r.width / 2, r.top + r.height * 0.45); }, 260); }
+// the present inside (src/gift.js) starts loading on her first tap, so it's ready when the lid pops
+var present = null;
+function loadPresent() { present = present || import('./src/gift.js'); return present; }
+function reveal() {
+  var r = gift.getBoundingClientRect();
+  loadPresent().then(function (m) { m.showGift({ from: r, buzz: vibrate, onClose: goToSurprise }); }).catch(goToSurprise);
+}
 gift.addEventListener('click', function () {
-  if (gift.classList.contains('opened')) { confettiFromBox(); snd('open'); goToSurprise(); return; }
-  taps++;
+  if (gift.classList.contains('opened')) { confettiFromBox(); snd('open'); setTimeout(reveal, 350); return; }
+  taps++; loadPresent();
   if (taps < 3) {
     gift.classList.remove('shake', 'shake2'); void gift.offsetWidth; gift.classList.add(taps === 1 ? 'shake' : 'shake2');
     snd('tap'); label.textContent = LINES[taps - 1];
@@ -181,7 +188,7 @@ gift.addEventListener('click', function () {
   }
   gift.classList.remove('shake', 'shake2'); gift.classList.add('opened'); document.body.classList.add('gift-done'); snd('open');
   label.textContent = 'Happy birthday, Sagarika! ✨';
-  confettiFromBox(); goToSurprise();
+  confettiFromBox(); setTimeout(reveal, 750); // the lid flies off, then the present rises out of the box
 });
 })();
 document.getElementById('again').onclick = burst;
