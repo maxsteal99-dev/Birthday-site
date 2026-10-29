@@ -909,7 +909,7 @@ html.gifting,html.gifting body{overflow:hidden}
 .gr-close{position:absolute;top:max(14px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right));width:42px;height:42px;border:0;border-radius:50%;
   color:var(--ivory);font-size:16px;cursor:pointer;z-index:2}
 /* stage */
-.gr-stage{position:relative;width:min(88vw,460px);margin:0 auto;aspect-ratio:1190/833}
+.gr-stage{position:relative;width:min(88vw,460px);margin:0 auto;aspect-ratio:1800/1260}
 .gr-product{position:relative;z-index:2;display:block;width:100%;height:auto;filter:drop-shadow(0 26px 30px rgba(0,0,0,.55));
   animation:grFloat 4.5s ease-in-out 1.6s infinite}
 .gr-halo{position:absolute;left:50%;top:50%;width:130%;aspect-ratio:1;transform:translate(-50%,-50%) scale(.4);opacity:0;border-radius:50%;z-index:0;

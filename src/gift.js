@@ -26,7 +26,7 @@ export function showGift({ from, onClose, buzz } = {}) {
       <div class="gr-stage">
         <span class="gr-halo" aria-hidden="true"></span>
         <span class="gr-rays" aria-hidden="true"></span>
-        <img class="gr-product" src="${IMG}keyboard.webp" width="1190" height="833" alt="A pink keyboard case holding an iPad, floating on its stand">
+        <img class="gr-product" src="${IMG}keyboard.webp" width="1800" height="1260" alt="A pink keyboard case holding an iPad, floating on its stand">
         <span class="gr-shadow" aria-hidden="true"></span>
       </div>
       <p class="gr-kicker">Surprise! 🎁</p>
