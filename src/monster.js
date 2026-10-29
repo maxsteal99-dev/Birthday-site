@@ -23,7 +23,7 @@ export function createMonster(canvas, { photo, onPhase, onMessage } = {}) {
   const camera = new THREE.PerspectiveCamera(30, 1, 0.05, 50);
   scene.add(new THREE.HemisphereLight(0xe8f0ff, 0x101218, 0.5));
   const key = new THREE.SpotLight(0xffffff, 42, 16, 0.5, 0.75, 1.4); key.position.set(2.4, 5.5, 3.2); key.target.position.set(0, 0.9, 0);
-  key.castShadow = true; key.shadow.mapSize.set(1024, 1024); key.shadow.bias = -0.0004; key.shadow.radius = 5; scene.add(key, key.target);
+  key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0004; key.shadow.radius = 5; scene.add(key, key.target);
   const rim = new THREE.DirectionalLight(0xcfe0ff, 1.4); rim.position.set(-3, 3, -3.5); scene.add(rim);
   const fill = new THREE.DirectionalLight(0xffffff, 0.5); fill.position.set(0, 2, 5); scene.add(fill);
 
@@ -179,7 +179,8 @@ export function createMonster(canvas, { photo, onPhase, onMessage } = {}) {
 
   function resize() {
     const w = canvas.clientWidth || 400, h = canvas.clientHeight || 400;
-    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    const cur = renderer.getSize(new THREE.Vector2()); if (cur.x !== w || cur.y !== h) renderer.setSize(w, h, false); // reallocating the canvas is costly: only when the size really changed
+    camera.aspect = w / h; camera.updateProjectionMatrix();
     framing = shots(); if (!rig) rig = framing.top; else rig = phase === 'top' || phase === 'lifting' ? framing.top : (phase === 'swing' ? rig : framing.front); place(rig);
   }
 

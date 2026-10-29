@@ -271,7 +271,7 @@ h3{font-family:var(--serif);font-weight:600;font-size:clamp(1.45rem,1.2rem + 1vw
 .sky i{top:auto;bottom:-170px;translate:none;animation:up linear forwards,sway ease-in-out infinite alternate}
 @keyframes up{to{transform:translateY(calc(-100vh - 280px))}}
 @keyframes sway{from{translate:-16px 0;rotate:-4deg}to{translate:16px 0;rotate:4deg}}
-.hrt{position:fixed;z-index:25;pointer-events:none;font:400 var(--fs,16px)/1 var(--serif);color:var(--champagne);text-shadow:0 0 12px rgba(236,215,178,.8);animation:hf 1.8s ease-out forwards}
+.hrt{position:fixed;left:0;top:0;z-index:25;pointer-events:none;opacity:0;font-family:var(--serif);font-weight:400;line-height:1;color:var(--champagne);text-shadow:0 0 12px rgba(236,215,178,.8);will-change:transform,opacity}
 @keyframes hf{0%{opacity:0;transform:translateY(10px) scale(.6)}20%{opacity:.9}100%{opacity:0;transform:translateY(-90px) scale(1.15)}}
 
 /* =========================================================

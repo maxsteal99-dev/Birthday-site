@@ -434,7 +434,7 @@ var cards = [].slice.call(stage.querySelectorAll('.pc')), N = cards.length, orde
 var count = document.getElementById('al-count'), rm = matchMedia('(prefers-reduced-motion: reduce)').matches, celebrated = false, busy = false;
 var tilt = cards.map(function (c, i) { return [-4, 3, -2, 5, -3, 2][i % 6]; });
 
-function load(i) { var img = cards[i].querySelector('img'); if (img && !img.getAttribute('src')) { img.srcset = img.getAttribute('data-srcset'); img.src = img.getAttribute('data-src'); } }
+function load(i) { var img = cards[i].querySelector('img'); if (img && !img.getAttribute('src')) { img.srcset = img.getAttribute('data-srcset'); img.src = img.getAttribute('data-src'); if (img.decode) img.decode().catch(function () {}); } } // decode ahead, off the main thread, before the card comes up
 function layout() {
   order.forEach(function (ci, k) {
     var c = cards[ci], vis = k < 3;
@@ -732,8 +732,16 @@ function balloon() { if (document.hidden || sky.childElementCount > 8) return; v
   b.style.cssText = '--w:' + w + 'px;--c1:' + c[0] + ';--c2:' + c[1] + ';--c3:' + c[2] + ';left:' + (Math.random() * 92) + '%;animation-duration:' + d + 's,' + (3 + Math.random() * 2) + 's;opacity:' + (.3 + Math.random() * .35);
   sky.appendChild(b); setTimeout(function () { b.remove(); }, d * 1000 + 300); }
 for (var i = 0; i < 3; i++) setTimeout(balloon, i * 900); setInterval(balloon, 2600);
-var last = 0, E = ['♥', '✦', '✧', '♡', '✦'];
-addEventListener('scroll', function () { var y = scrollY; if (Math.abs(y - last) < 140) return; last = y; var e = document.createElement('b'); e.className = 'hrt'; e.setAttribute('aria-hidden', 'true'); e.textContent = E[Math.floor(Math.random() * E.length)]; e.style.setProperty('--fs', (14 + Math.random() * 10) + 'px'); e.style.left = (Math.random() < .5 ? 3 + Math.random() * 12 : 84 + Math.random() * 12) + '%'; e.style.top = (40 + Math.random() * 45) + 'vh'; document.body.appendChild(e); setTimeout(function () { e.remove(); }, 1850); }, { passive: true });
+// sparkles while scrolling: a small reusable pool animated on the GPU (transform/opacity only); the scroll position
+// is read in the next animation frame, never in the scroll event itself (that forced a layout on every event)
+var last = 0, E = ['♥', '✦', '✧', '♡', '✦'], pool = [], pi = 0, pend = false;
+for (var k = 0; k < 8; k++) { var hb = document.createElement('b'); hb.className = 'hrt'; hb.setAttribute('aria-hidden', 'true'); hb.textContent = E[k % E.length]; hb.style.fontSize = (14 + Math.random() * 10) + 'px'; document.body.appendChild(hb); pool.push(hb); }
+function spark() {
+  pend = false; var y = scrollY; if (Math.abs(y - last) < 140) return; last = y;
+  var e = pool[pi++ % pool.length], x = (Math.random() < .5 ? .03 + Math.random() * .12 : .84 + Math.random() * .12) * innerWidth, t = (.4 + Math.random() * .45) * innerHeight, at = 'translate3d(' + x.toFixed(0) + 'px,' + t.toFixed(0) + 'px,0)';
+  if (e.animate) e.animate([{ opacity: 0, transform: at + ' translateY(10px) scale(.6)' }, { opacity: .9, transform: at + ' translateY(-10px) scale(.71)', offset: .2 }, { opacity: 0, transform: at + ' translateY(-90px) scale(1.15)' }], { duration: 1800, easing: 'ease-out' });
+}
+addEventListener('scroll', function () { if (!pend) { pend = true; requestAnimationFrame(spark); } }, { passive: true });
 })();
 
 /* ---------- Liquid glass ---------- */

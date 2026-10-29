@@ -26,16 +26,16 @@ export function createLatte(canvas, { onStep, onMessage, onDone } = {}) {
   scene.add(new THREE.HemisphereLight(0xffe6cc, 0x1a0f0a, 0.45));
   const key = new THREE.SpotLight(0xffe0b8, 40, 14, 0.55, 0.8, 1.5);
   key.position.set(2.2, 4.5, 3); key.target.position.set(0, 0.4, 0); key.castShadow = true;
-  key.shadow.mapSize.set(1024, 1024); key.shadow.bias = -0.0004; key.shadow.radius = 5;
+  key.shadow.mapSize.set(2048, 2048); // sharper shadow; cheap because it only re-renders when something moves key.shadow.bias = -0.0004; key.shadow.radius = 5;
   scene.add(key, key.target);
   const rim = new THREE.DirectionalLight(0xbfd0ff, 1.1); rim.position.set(-3, 2.5, -3); scene.add(rim);
 
   /* ---------- canvas textures ---------- */
-  function tex(w, h, draw, srgb = true) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; }
-  const woodTex = tex(1024, 512, (g, w, h) => {
+  function tex(w, h, draw, srgb = true) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t; }
+  const woodTex = tex(2048, 1024, (g, w, h) => {
     const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#3a2318'); gr.addColorStop(1, '#2a170f'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
-    for (let i = 0; i < 260; i++) { g.strokeStyle = `rgba(${90 + Math.random() * 60},${50 + Math.random() * 30},${30 + Math.random() * 20},${0.05 + Math.random() * 0.12})`; g.lineWidth = 0.5 + Math.random() * 2.5; g.beginPath(); // grain lines wave with whole-number periods across the width, so the texture tiles with no seam
-      const y0 = Math.random() * h, a1 = Math.random() * 3.5, k1 = 1 + (Math.random() * 3 | 0), p1 = Math.random() * 6.28, a2 = Math.random() * 1.5, k2 = 4 + (Math.random() * 5 | 0), p2 = Math.random() * 6.28;
+    for (let i = 0; i < 260; i++) { g.strokeStyle = `rgba(${90 + Math.random() * 60},${50 + Math.random() * 30},${30 + Math.random() * 20},${0.05 + Math.random() * 0.12})`; g.lineWidth = (0.5 + Math.random() * 2.5) * w / 1024; g.beginPath(); // grain lines wave with whole-number periods across the width, so the texture tiles with no seam
+      const y0 = Math.random() * h, a1 = Math.random() * 3.5 * h / 512, k1 = 1 + (Math.random() * 3 | 0), p1 = Math.random() * 6.28, a2 = Math.random() * 1.5 * h / 512, k2 = 4 + (Math.random() * 5 | 0), p2 = Math.random() * 6.28;
       for (let x = 0; x <= w; x += 8) { const u = x / w * Math.PI * 2, y = y0 + a1 * Math.sin(u * k1 + p1) + a2 * Math.sin(u * k2 + p2); x ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); }
   });
   woodTex.wrapS = woodTex.wrapT = THREE.RepeatWrapping; woodTex.repeat.set(2, 1);
@@ -336,7 +336,8 @@ export function createLatte(canvas, { onStep, onMessage, onDone } = {}) {
   const look = new V3(0, 0.5, 0.05);
   function resize() {
     const w = canvas.clientWidth || 400, h = canvas.clientHeight || 400;
-    renderer.setSize(w, h, false); camera.aspect = w / h;
+    const cur = renderer.getSize(new THREE.Vector2()); if (cur.x !== w || cur.y !== h) renderer.setSize(w, h, false); // reallocating the canvas is costly: only when the size really changed
+    camera.aspect = w / h;
     const vf = THREE.MathUtils.degToRad(camera.fov) / 2, hf = Math.atan(Math.tan(vf) * camera.aspect);
     const dist = Math.max(1.02 / Math.tan(vf), (camera.aspect < 1 ? 1.14 : 1.24) / Math.tan(hf));
     camera.position.copy(look).add(new V3(0, 0.62, 1).normalize().multiplyScalar(dist));
