@@ -3,7 +3,7 @@
 > **Living memory for this project.** Read this whole file before doing anything.
 > After finishing **every** request, update it: add the request and what was done
 > to the **Change log**, and fix any section that is no longer true.
-> Last updated: 2026-10-23 (after request #33).
+> Last updated: 2026-10-30 (after request #34).
 
 ---
 
@@ -209,6 +209,7 @@ tools/tests/        Playwright + Python test scripts (see §7)
 31. "Quality feels compromised compared to before; use any technology, no compromise in anything." → Restored everything #30 had cut (glass blur on all surfaces, the shimmer, refraction, 8 balloons, original glows, 3D animating while scrolling, soft germ shadows, dirt softness) using cheaper techniques that keep the pixels identical (GPU-layer shimmer, smart shadow updates, preloading). Note: the software-rendered test browser draws each 3D frame in ~0.5 s, so scroll numbers there are dominated by 3D and can't represent an iPhone GPU; functional tests pass. Raised quality beyond the original: 3D renders at up to 3× (was capped at 2× and could drop to 1× without shadows), Stitch upscaled with an AI super-resolution model, seamless latte wood, no refraction seam over the latte canvas.
 32. New booking (Wings Phuket Villa, Pasak Soi 8, Cherngtalay, 1–5 Nov), a thorough itinerary, a beach club for the 4 Nov birthday dinner, and the gift box should reveal his present (pink iPad keyboard case) in a cute, non-technical way. → Researched the villa area and beach clubs (chose Catch Beach Club, Plan B Xana); rewrote the villa card and all 5 days; built the present reveal (§4, 2c). Booking reference/phone kept off the public site.
 33. "Increase quality and make it way smoother, no compromise." → Profiled a full scroll (unminified build + CPU profile) and fixed the main-thread hotspots without changing visuals (sparkle pool, guarded canvas resizes, pre-decoded album photos); raised quality: album photos from originals with correct srcset (were mislabelled → soft on iPhone), EDSR-upscaled portrait/Monster can texture/snacks, 2048 shadow maps on latte/Monster, max anisotropy, 2× latte wood.
+34. Sent an 18.6 s video (VID_20200814_223411.mov, three friends on a sofa, Aug 2020) and asked for a thorough transcription, filling in unclear words. → No site change. Audio pipeline: ffmpeg denoise, Demucs vocal isolation, faster-whisper (large-v3, large-v2, medium.en) on full and sliced audio, wav2vec2 phonemes, and **candidate scoring**: force-decode each candidate with Whisper large-v3 (transformers) and subtract its score on blank audio (removes the language prior that penalises names), plus video frames to see who speaks. Transcript given in chat only (kept off this public repo). Reusable scripts were in the session scratchpad; deps: `pip install faster-whisper demucs transformers` (faster-whisper's `decode_audio` breaks with the installed PyAV, so pass a numpy array).
 
 ## 9. Ideas mentioned but not done / open questions
 
