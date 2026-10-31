@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Happy 30th, Sagarika</title>
+<meta name="description" content="A surprise for Sagarika, who is turning 30.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b0710">
+<meta name="color-scheme" content="dark">
+<meta property="og:title" content="Happy 30th, Sagarika">
+<meta property="og:description" content="A surprise for you. Open your birthday box.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="./assets/great-vibes-q5-78SH_.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./assets/cormorant-garamond-CUoBjw-S.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./assets/dm-sans-Xz1IZZA0.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add('js','loading');setTimeout(function(){document.documentElement.classList.remove('loading')},9000)</script>
+  <script type="module" crossorigin src="./assets/index-DLRoXEk3.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CYsE2CNi.css">
+</head>
+<body data-mood="candle">
+
+<svg class="lg-defs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <filter id="lg-distort" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.010 0.016" numOctaves="2" seed="7" result="noise"/>
+    <feGaussianBlur in="noise" stdDeviation="2.2" result="soft"/>
+    <feDisplacementMap in="SourceGraphic" in2="soft" scale="34" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="ld-glow"></div>
+  <p class="ld-name">Sagarika</p>
+  <p class="ld-text">Preparing your surprise</p>
+  <div class="ld-bar"><i id="ld-fill"></i></div>
+</div>
+
+<div class="gate" id="gate" hidden>
+  <canvas id="cake-canvas" tabindex="0" role="img" aria-label="A birthday cake with 30 lit candles. Blow on your phone's microphone or swipe across the flames to blow them out. Press Space to blow."></canvas>
+  <div class="gate-top">
+    <p class="eyebrow">Make a wish, Sagarika</p>
+    <p class="gate-title">Blow out your candles</p>
+    <p class="gate-count" id="gate-count" aria-live="polite">30 candles still burning</p>
+  </div>
+  <div class="gate-bottom">
+    <p class="gate-mic" id="gate-mic" aria-live="polite"><span class="mic-dot" aria-hidden="true"></span><span id="gate-mic-text">Blow on your phone to blow out the candles</span></p>
+    <p class="gate-hint" id="gate-hint">or swipe across the flames with your finger</p>
+  </div>
+  <button class="gate-skip" id="gate-skip" type="button">Skip</button>
+  <p class="gate-toast" id="gate-toast" role="status"></p>
+</div>
+
+<canvas id="cf" aria-hidden="true"></canvas>
+
+<!-- Fixed atmosphere: one lighting layer per scene, cross-faded as she scrolls -->
+<div class="atmos" aria-hidden="true">
+  <div class="layer l-candle"></div>
+  <div class="layer l-rose"></div>
+  <div class="layer l-coffee"></div>
+  <div class="layer l-silver"></div>
+  <div class="layer l-lagoon"></div>
+  <div class="layer l-court"></div>
+  <div class="orbs"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+<div id="bar" aria-hidden="true"></div>
+
+<header class="hero" id="top" data-mood="candle">
+  <div class="hero-light" aria-hidden="true">
+    <span class="rays"></span>
+    <span class="glow"></span>
+    <span class="flare"></span>
+  </div>
+  <div class="deco" aria-hidden="true">
+    <i style="--w:74px;--l:4%;--t:9%;--c1:#f6e7cc;--c2:#d9b77e;--c3:#8a6434" data-p=".22"></i>
+    <i style="--w:54px;--l:13%;--t:64%;--c1:#f3d3d6;--c2:#c98a95;--c3:#6e2638;animation-delay:-3s" data-p=".08"></i>
+    <i style="--w:84px;--l:80%;--t:11%;--c1:#e6a3ae;--c2:#8e2a42;--c3:#3e0a19;animation-delay:-1.5s" data-p="-.1"></i>
+    <i style="--w:50px;--l:87%;--t:63%;--c1:#ffffff;--c2:#e9dccb;--c3:#9f8b74;animation-delay:-4.5s" data-p=".16"></i>
+  </div>
+
+  <div class="hero-inner">
+    <div class="portrait intro" style="--i:0">
+      <picture>
+        <source srcset="assets/img/sagarika.webp" type="image/webp">
+        <img class="pic" id="p1" src="assets/img/sagarika.jpg" width="480" height="480" alt="Sagarika smiling by a window" fetchpriority="high">
+      </picture>
+    </div>
+    <div class="eyebrow intro" style="--i:1">A surprise for</div>
+    <h1 class="intro" style="--i:2"><span>Sagarika</span></h1>
+    <p class="sub intro" style="--i:3">is turning 30</p>
+    <div class="cup intro" style="--i:4" aria-hidden="true">
+      <svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path class="steam s1" d="M24 22c-3-4 3-6 0-11"/>
+        <path class="steam s2" d="M32 22c-3-4 3-6 0-11"/>
+        <path class="steam s3" d="M40 22c-3-4 3-6 0-11"/>
+        <path d="M14 28h36v8a16 16 0 0 1-16 16h-4a16 16 0 0 1-16-16z"/>
+        <path d="M50 31h3a6 6 0 0 1 0 12h-5"/>
+        <path d="M10 57h44"/>
+      </svg>
+    </div>
+    <p class="eyebrow date-line intro" style="--i:5">4 November 2026</p>
+    <div class="intro gift-wrap" style="--i:6">
+      <button id="open" class="gift" type="button" aria-label="Open your birthday box">
+        <span class="gift-glow" aria-hidden="true"></span>
+        <span class="gift-rays" aria-hidden="true"></span>
+        <span class="gift-inside" aria-hidden="true"></span>
+        <span class="gift-body" aria-hidden="true"></span>
+        <span class="gift-lid" aria-hidden="true"><span class="bow"><i></i><i></i><em></em><em></em><b></b></span></span>
+      </button>
+      <p class="gift-label" id="gift-label" aria-live="polite"><span class="tap">Tap</span> to open your birthday box</p>
+    </div>
+  </div>
+
+  <a class="scroll-cue" href="#hello" aria-label="Scroll to your birthday message"><span>Scroll</span><i></i></a>
+</header>
+
+<main>
+
+<section id="hello" class="scene letter" data-mood="candle">
+  <div class="wrap narrow">
+    <span class="pill reveal" id="cd"></span>
+    <p class="note reveal" style="--d:.12s"><span class="lede">Happy 30th birthday, Sagarika Sharma.</span> I planned five days of sunshine, sea and slow mornings in Phuket, just for you. Keep scrolling, your adventure is waiting below.</p>
+    <p class="note sign reveal" style="--d:.3s">With all my love, Mani</p>
+  </div>
+</section>
+
+<section class="scene album" id="memories" data-mood="rose" aria-labelledby="album-title">
+  <div class="wrap narrow center">
+    <div class="ornament reveal" aria-hidden="true"></div>
+    <p class="eyebrow reveal">Our story so far</p>
+    <h2 id="album-title" class="reveal" style="--d:.08s">Thirty of my favourite chapters</h2>
+    <p class="album-hint reveal" style="--d:.16s">Thirty memories for thirty years. Swipe through them, and tap a photo to turn it over.</p>
+  </div>
+  <div class="album-stage reveal" style="--d:.24s" id="album" tabindex="0" role="region" aria-roledescription="photo album" aria-label="Our memories. Use the arrow keys to move between photos and Enter to turn one over.">
+    <figure class="pc" data-i="0">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/coffee-laugh.webp" data-srcset="assets/img/memories/coffee-laugh-600.webp 640w, assets/img/memories/coffee-laugh-1080.webp 1080w, assets/img/memories/coffee-laugh.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika laughing at a café table with two coffee cups" style="object-position:50% 30%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Coffee o’clock</span><span class="pc-cap">This laugh is my favourite song.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>The cup says slow down to wake up. With you, I never want to rush a single moment.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="1">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/golden-temple.webp" data-srcset="assets/img/memories/golden-temple-600.webp 640w, assets/img/memories/golden-temple.webp 1003w" sizes="(max-width: 520px) 86vw, 420px" width="1254" height="1254" alt="Sagarika and Mani at the Golden Temple at night, lights reflected in the water" style="object-position:50% 40%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Golden Temple · Amritsar</span><span class="pc-cap">Golden hour, golden you.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Everything around us was glowing, and I still couldn’t stop looking at you.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="2">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/golden-night.webp" data-srcset="assets/img/memories/golden-night-600.webp 640w, assets/img/memories/golden-night-1080.webp 1080w, assets/img/memories/golden-night.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika sitting by the water at the Golden Temple at night" style="object-position:50% 50%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Golden Temple at night</span><span class="pc-cap">Peace looks a lot like you.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Sitting quietly by the water while the whole temple glowed. Thank you for every calm moment with you.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="3">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/saqqara.webp" data-srcset="assets/img/memories/saqqara-600.webp 640w, assets/img/memories/saqqara-1080.webp 1080w, assets/img/memories/saqqara.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika in a sun hat smiling up at Mani in front of the step pyramid" style="object-position:50% 70%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Saqqara · Egypt</span><span class="pc-cap">You, smiling under that hat.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Pyramids have stood for thousands of years. That smile is still my favourite wonder of the world.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="4">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/sphinx.webp" data-srcset="assets/img/memories/sphinx-600.webp 640w, assets/img/memories/sphinx-1080.webp 1080w, assets/img/memories/sphinx.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika and Mani laughing together in front of the Sphinx and a pyramid" style="object-position:50% 75%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">The Sphinx · Giza</span><span class="pc-cap">Even the Sphinx gave us a moment.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Some secrets the Sphinx keeps. Mine is easy: it’s always been you.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="5">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/giza.webp" data-srcset="assets/img/memories/giza-600.webp 640w, assets/img/memories/giza-1080.webp 1080w, assets/img/memories/giza.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika and Mani from behind, arm in arm, looking out at the pyramids of Giza" style="object-position:50% 60%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Giza · Egypt</span><span class="pc-cap">Looking at the same horizon.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Wherever we go next, I want to see it standing right next to you.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="6">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/pyramid-tunnel.webp" data-srcset="assets/img/memories/pyramid-tunnel-600.webp 640w, assets/img/memories/pyramid-tunnel-1080.webp 1080w, assets/img/memories/pyramid-tunnel.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika and Mani taking a selfie inside a narrow stone tunnel" style="object-position:50% 45%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Inside a pyramid</span><span class="pc-cap">Tight squeeze, big smiles.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Only you could make a tunnel inside a pyramid feel cosy.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="7">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/temple-bar.webp" data-srcset="assets/img/memories/temple-bar-600.webp 640w, assets/img/memories/temple-bar-1080.webp 1080w, assets/img/memories/temple-bar.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika resting her head on Mani in front of the Temple Bar covered in Christmas lights" style="object-position:50% 80%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Temple Bar · Dublin</span><span class="pc-cap">A million lights, and you leaned on me.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Christmas lights everywhere, and the warmest thing on that street was you.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="8">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/saga-mani.webp" data-srcset="assets/img/memories/saga-mani-600.webp 640w, assets/img/memories/saga-mani-1080.webp 1080w, assets/img/memories/saga-mani.webp 1210w" sizes="(max-width: 520px) 86vw, 420px" width="2016" height="1512" alt="Sagarika beside a graffiti wall with “Saga ♥ Mani” written in a heart" style="object-position:35% 50%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Our names on the wall</span><span class="pc-cap">Saga ♥ Mani. Written in ink.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Some walls get painted over. Not this one, and not us.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="9">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/the-alley.webp" data-srcset="assets/img/memories/the-alley-600.webp 640w, assets/img/memories/the-alley-1080.webp 1080w, assets/img/memories/the-alley.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Mani and Sagarika embracing in a colourful lit alley, her foot kicked up" style="object-position:50% 50%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">The alley</span><span class="pc-cap">The one with the foot pop.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Every movie has that scene. This one is ours.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="10">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/city-walk.webp" data-srcset="assets/img/memories/city-walk-600.webp 640w, assets/img/memories/city-walk.webp 994w" sizes="(max-width: 520px) 86vw, 420px" width="2208" height="1242" alt="Sagarika and Mani cheek to cheek on a city street at dusk" style="object-position:62% 50%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">City walk</span><span class="pc-cap">Cheek to cheek, any street.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Every street feels like home when we’re this close.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="11">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/by-the-sea.webp" data-srcset="assets/img/memories/by-the-sea-600.webp 640w, assets/img/memories/by-the-sea-1080.webp 1080w, assets/img/memories/by-the-sea.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika and Mani in a selfie on a clifftop with the sea behind them" style="object-position:50% 60%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">By the sea</span><span class="pc-cap">Wind, sea and my whole world.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>The sea went on forever. So will we.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="12">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/coffee-and-flowers.webp" data-srcset="assets/img/memories/coffee-and-flowers-600.webp 640w, assets/img/memories/coffee-and-flowers-1080.webp 1080w, assets/img/memories/coffee-and-flowers.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika holding a bouquet next to Mani in a coffee roastery" style="object-position:50% 45%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Coffee &amp; flowers</span><span class="pc-cap">Flowers for my favourite flower.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>You make every café feel like a first date.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="13">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/cat-cafe.webp" data-srcset="assets/img/memories/cat-cafe-600.webp 640w, assets/img/memories/cat-cafe-1080.webp 1080w, assets/img/memories/cat-cafe.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika smiling with two kittens on her lap next to Mani" style="object-position:45% 45%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Cat café</span><span class="pc-cap">Two kittens and one very happy girl.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Still the cutest one in the room, and the kittens know it.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="14">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/marigolds.webp" data-srcset="assets/img/memories/marigolds-600.webp 640w, assets/img/memories/marigolds-1080.webp 1080w, assets/img/memories/marigolds.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika and Mani laughing under umbrellas filled with marigolds and lights" style="object-position:50% 65%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Under the marigolds</span><span class="pc-cap">A thousand flowers, and you laughing.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Keep laughing like that forever. I promise to keep the jokes coming.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="15">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/gondola.webp" data-srcset="assets/img/memories/gondola-600.webp 640w, assets/img/memories/gondola-1080.webp 1080w, assets/img/memories/gondola.webp 1242w" sizes="(max-width: 520px) 86vw, 420px" width="1242" height="2208" alt="Sagarika and Mani in a gondola with the gondolier standing behind them" style="object-position:50% 72%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Gondola ride</span><span class="pc-cap">Our own little Venice.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Our gondolier looked so serious. We couldn’t stop smiling.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="16">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/rooftop.webp" data-srcset="assets/img/memories/rooftop-600.webp 640w, assets/img/memories/rooftop-1080.webp 1080w, assets/img/memories/rooftop.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika and Mani in a selfie on a rooftop above city towers at night" style="object-position:55% 70%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">City lights</span><span class="pc-cap">Top of the city, top of my world.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>A tilted photo, and a perfectly straight answer: it’s you.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="17">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/clock-wall.webp" data-srcset="assets/img/memories/clock-wall-600.webp 640w, assets/img/memories/clock-wall.webp 864w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1080" alt="Sagarika and Mani smiling in front of a wall of clocks and frames" style="object-position:35% 50%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Wall of clocks</span><span class="pc-cap">Every clock in the room said it was our time.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Look at us. Still my favourite selfie partner, every single time.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="18">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/lasers.webp" data-srcset="assets/img/memories/lasers-600.webp 640w, assets/img/memories/lasers-1080.webp 1080w, assets/img/memories/lasers.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika and Mani taking a selfie under purple and yellow laser lights" style="object-position:50% 62%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Lights and lasers</span><span class="pc-cap">My favourite person in any crowd.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Loud music, lasers everywhere, and all I noticed was you leaning on me.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="19">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/rooftop-laugh.webp" data-srcset="assets/img/memories/rooftop-laugh-600.webp 640w, assets/img/memories/rooftop-laugh-1080.webp 1080w, assets/img/memories/rooftop-laugh.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika laughing with a drink on a rooftop at night, city lights behind" style="object-position:50% 32%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Rooftop nights</span><span class="pc-cap">That laugh, that view.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>I don’t remember what I said, but I’ll keep saying silly things forever just to see you laugh like this.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="20">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/full-moon.webp" data-srcset="assets/img/memories/full-moon-600.webp 640w, assets/img/memories/full-moon-1080.webp 1080w, assets/img/memories/full-moon.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika and Mani under a full moon in front of red brick buildings" style="object-position:50% 62%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Under the full moon</span><span class="pc-cap">Just us, and a moon showing off.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Cold night, warm coats, and you. A perfect night.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="21">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/clifftop.webp" data-srcset="assets/img/memories/clifftop-600.webp 640w, assets/img/memories/clifftop-1080.webp 1080w, assets/img/memories/clifftop.webp 1152w" sizes="(max-width: 520px) 86vw, 420px" width="1152" height="1536" alt="Sagarika and Mani hugging on a clifftop by the sea, blue sky behind" style="object-position:50% 30%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Clifftop wind</span><span class="pc-cap">Hold on to me, the wind is strong.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Sea, sky and your windblown hair. One of my favourite days with you.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="22">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/lift-selfie.webp" data-srcset="assets/img/memories/lift-selfie-600.webp 640w, assets/img/memories/lift-selfie-1080.webp 1080w, assets/img/memories/lift-selfie.webp 1242w" sizes="(max-width: 520px) 86vw, 420px" width="1242" height="2208" alt="Sagarika and Mani taking a mirror selfie in a lift" style="object-position:50% 28%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Lift selfie</span><span class="pc-cap">Our favourite mirror.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Even a lift ride turns into a little adventure with you.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="23">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/detective.webp" data-srcset="assets/img/memories/detective-600.webp 640w, assets/img/memories/detective.webp 880w" sizes="(max-width: 520px) 86vw, 420px" width="880" height="1920" alt="Sagarika looking through her chhalni beside a glowing diya on Karva Chauth, on a video call" style="object-position:50% 45%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Karva Chauth · Doha to Dublin</span><span class="pc-cap">Your moon, through a phone screen.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Thousands of kilometres apart, and you still kept the whole fast for me and found my face through the chhalni on a video call. Distance never stood a chance against you.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="24">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/pink-gamer.webp" data-srcset="assets/img/memories/pink-gamer-600.webp 640w, assets/img/memories/pink-gamer-1080.webp 1080w, assets/img/memories/pink-gamer.webp 1242w" sizes="(max-width: 520px) 86vw, 420px" width="1242" height="2208" alt="Sagarika smiling at a pink gaming desk with cat-ear headphones" style="object-position:62% 38%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Pink gamer girl</span><span class="pc-cap">Cat ears, pink keys… foreshadowing? 😉</span></figcaption>
+        </div>
+        <div class="pc-back"><p>I saw this smile and knew exactly what to get you for your 30th.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="25">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/sparklers.webp" data-srcset="assets/img/memories/sparklers-600.webp 640w, assets/img/memories/sparklers-1080.webp 1080w, assets/img/memories/sparklers.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika and Mani laughing with sparklers at night" style="object-position:50% 25%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Sparklers</span><span class="pc-cap">You light up every festival.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>The sparklers were bright, but your laugh was brighter.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="26">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/haldi.webp" data-srcset="assets/img/memories/haldi-600.webp 640w, assets/img/memories/haldi-1080.webp 1080w, assets/img/memories/haldi.webp 1200w" sizes="(max-width: 520px) 86vw, 420px" width="1200" height="1600" alt="Sagarika in a yellow outfit with mehndi, smiling at her haldi" style="object-position:50% 35%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Haldi day</span><span class="pc-cap">Sunshine, in yellow.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Mehndi on your hands, flowers in your hair, and that shy little smile. I was the luckiest man there.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="27">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/wedding-sparks.webp" data-srcset="assets/img/memories/wedding-sparks-600.webp 640w, assets/img/memories/wedding-sparks-1080.webp 1080w, assets/img/memories/wedding-sparks.webp 1365w" sizes="(max-width: 520px) 86vw, 420px" width="2560" height="1706" alt="Sagarika laughing in her red bridal lehenga beside Mani as sparks fall around them" style="object-position:45% 40%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">Our wedding</span><span class="pc-cap">The day sparks literally flew.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Your laugh as we walked in. I will remember that moment for the rest of my life.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="28">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/s-and-m.webp" data-srcset="assets/img/memories/s-and-m-600.webp 640w, assets/img/memories/s-and-m-1080.webp 1080w, assets/img/memories/s-and-m.webp 1200w" sizes="(max-width: 520px) 86vw, 420px" width="1200" height="1600" alt="Sagarika in her bridal lehenga smiling up at Mani in front of an S and M monogram" style="object-position:45% 35%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">S ♥ M</span><span class="pc-cap">You, looking at me like that.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Every promise I made you that day, I will keep.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+    <figure class="pc" data-i="29">
+      <div class="pc-inner">
+        <div class="pc-front">
+          <div class="pc-photo"><img data-src="assets/img/memories/the-kiss.webp" data-srcset="assets/img/memories/the-kiss-600.webp 640w, assets/img/memories/the-kiss-1080.webp 1080w, assets/img/memories/the-kiss.webp 1440w" sizes="(max-width: 520px) 86vw, 420px" width="1440" height="1920" alt="Sagarika kissing Mani on the cheek in front of sparkling lights" style="object-position:40% 50%" decoding="async" draggable="false"></div>
+          <figcaption><span class="pc-tag">My favourite one</span><span class="pc-cap">And then you did this.</span></figcaption>
+        </div>
+        <div class="pc-back"><p>Here’s to every kiss, every trip and every year still ahead. Happy 30th, my love.</p><span class="pc-sign">Mani</span></div>
+      </div>
+    </figure>
+  </div>
+  <div class="album-nav reveal" style="--d:.3s">
+    <button class="nav-btn" id="al-prev" type="button" aria-label="Previous memory"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <span class="al-count" id="al-count" aria-live="polite">1 / 30</span>
+    <button class="nav-btn" id="al-next" type="button" aria-label="Next memory"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+</section>
+
+<section class="scene sky30-scene" id="sky" data-mood="court" aria-labelledby="sky30-title">
+  <div class="wrap narrow center">
+    <div class="ornament reveal" aria-hidden="true"></div>
+    <p class="eyebrow reveal">Thirty years · thirty memories</p>
+    <h2 id="sky30-title" class="reveal" style="--d:.08s">A sky full of us</h2>
+    <p class="sky30-lede reveal" style="--d:.16s">Every star up here is one of our memories. Thirty of them, one for every year of you.</p>
+  </div>
+  <div class="sky30 reveal" style="--d:.24s" id="sky30" role="group" aria-label="Thirty memory stars">
+    <span class="sky30-dust" aria-hidden="true"></span><span class="sky30-shoot" aria-hidden="true"></span>
+    <svg class="sky30-lines" aria-hidden="true"></svg>
+  </div>
+  <div class="wrap narrow center">
+    <p class="sky30-status" id="sky30-status" aria-live="polite"></p>
+    <p><button class="btn btn-lux" id="sky30-go" type="button">Light up the sky ✨</button></p>
+  </div>
+</section>
+
+<section class="scene latte-scene" data-mood="coffee">
+  <div class="wrap narrow center">
+    <div class="ornament reveal" aria-hidden="true"></div>
+    <p class="eyebrow reveal">Barista Sagarika</p>
+    <h2 class="reveal" style="--d:.06s">Your official fuel</h2>
+    <p class="reveal" style="--d:.1s">One Spanish latte, espresso with sweet condensed milk, is the unofficial start of every great day. This trip has a mission: find the best Spanish latte in Phuket.</p>
+    <p class="barista-how reveal" style="--d:.14s">But first, make your own. Tap each ingredient on the counter in order, then stir with your finger.</p>
+
+    <div class="barista reveal" style="--d:.18s" id="barista">
+      <div class="barista-stage">
+        <canvas id="latte-canvas" role="img" aria-label="A café counter with a can of condensed milk, a bowl of ice, a bottle of milk and an espresso next to a tall glass"></canvas>
+        <div class="latte-stage latte-fallback" aria-hidden="true">
+          <div class="latte-steam"><i></i><i></i><i></i></div>
+          <div class="latte" id="latte"></div>
+          <div class="saucer"></div>
+        </div>
+        <p class="barista-msg" id="barista-msg" aria-live="polite"></p>
+      </div>
+      <ol class="recipe" id="recipe" aria-label="Spanish latte recipe">
+        <li><button type="button" class="step next" data-step="cm"><span class="n">1</span>Condensed milk</button></li>
+        <li><button type="button" class="step" data-step="ice"><span class="n">2</span>Ice</button></li>
+        <li><button type="button" class="step" data-step="milk"><span class="n">3</span>Milk</button></li>
+        <li><button type="button" class="step" data-step="esp"><span class="n">4</span>Espresso</button></li>
+        <li><button type="button" class="step" data-step="stir"><span class="n">5</span>Stir</button></li>
+      </ol>
+      <p class="barista-again"><button class="btn btn-lux" id="latte-again" type="button" hidden>Make another ☕</button></p>
+    </div>
+
+    <div class="tally reveal" style="--d:.2s">
+      <button id="tally" class="btn btn-ghost" type="button"><span aria-hidden="true">☕</span> Add a latte to the tally</button>
+      <p id="tn" aria-live="polite">Lattes enjoyed: <strong id="tn-n">0</strong></p>
+    </div>
+  </div>
+</section>
+
+<section class="scene can-scene" data-mood="silver">
+  <div class="wrap narrow center">
+    <div class="ornament reveal" aria-hidden="true"></div>
+    <h2 class="reveal">Her other fuel</h2>
+    <p class="reveal" style="--d:.1s">Because every adventure needs a power-up. Crack it open!</p>
+    <div class="can3d reveal" style="--d:.2s" id="can3d" hidden>
+      <canvas id="can-canvas" role="img" aria-label="A 3D Monster Energy Ultra can seen from the top. Drag up to lift the tab and open it, or use the button below."></canvas>
+      <p class="can3d-msg" id="can3d-msg" aria-live="polite"></p>
+    </div>
+    <div class="canbox reveal" style="--d:.2s" id="canbox">
+      <div class="mist"></div>
+      <svg viewBox="0 0 150 397" width="150" height="397" role="img" aria-label="A white Monster Energy Ultra can">
+        <defs><linearGradient id="rg" gradientUnits="userSpaceOnUse" x1="0" y1="397" x2="0" y2="300"><stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="rm" maskUnits="userSpaceOnUse" x="0" y="0" width="150" height="397"><rect width="150" height="397" fill="url(#rg)"/></mask></defs>
+        <image id="ci" href="assets/img/monster-can.webp" width="150" height="397"/>
+        <use href="#ci" transform="translate(0,794) scale(1,-1)" mask="url(#rm)"/>
+        <defs>
+          <linearGradient id="tabMetal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8e979e"/><stop offset=".22" stop-color="#e9edf0"/><stop offset=".5" stop-color="#b9c1c7"/><stop offset=".78" stop-color="#f4f6f8"/><stop offset="1" stop-color="#868f96"/></linearGradient>
+          <radialGradient id="holeDark" cx=".5" cy=".4" r=".6"><stop offset="0" stop-color="#0d1013"/><stop offset=".8" stop-color="#2a3138"/><stop offset="1" stop-color="#5b656d"/></radialGradient>
+        </defs>
+        <ellipse id="hole" cx="76" cy="5.6" rx="11" ry="2.2" fill="url(#holeDark)" opacity="0"/>
+        <g id="tabwrap" transform="translate(76 6.4)">
+          <g id="tab" transform="scale(1 .2)">
+            <path d="M-12 0 V-12 a4 4 0 0 1 4-4 H8 a4 4 0 0 1 4 4 V0 Z M-8.5 -5 V-11 a2.4 2.4 0 0 1 2.4-2.4 H6.1 a2.4 2.4 0 0 1 2.4 2.4 V-5 a2.4 2.4 0 0 1 -2.4 2.4 H-6.1 a2.4 2.4 0 0 1 -2.4-2.4 Z" fill="url(#tabMetal)" fill-rule="evenodd" stroke="#6f787f" stroke-width=".5"/>
+            <circle cx="0" cy="-1.3" r="1.5" fill="#9aa3aa" stroke="#6f787f" stroke-width=".4"/>
+          </g>
+        </g>
+      </svg>
+      <div class="drops" id="drops"></div>
+      <div class="fx" id="fx"></div>
+      <div class="spray" id="spray" aria-hidden="true"></div>
+      <div class="can-grab" id="can-grab" aria-hidden="true"><span class="pull-hint"><i></i>Pull the tab up</span></div>
+    </div>
+    <p id="cmsg" aria-live="polite">Psssht! Fuel up, birthday girl! ⚡</p>
+    <button id="pop" class="btn btn-lux" type="button">Crack it open 🥤</button>
+  </div>
+</section>
+
+<section class="scene snacks" data-mood="coffee" aria-labelledby="snacks-title">
+  <div class="wrap narrow center">
+    <div class="ornament reveal" aria-hidden="true"></div>
+    <p class="eyebrow reveal">Snack break</p>
+    <h2 id="snacks-title" class="reveal" style="--d:.08s">And for the cravings</h2>
+    <p class="reveal" style="--d:.14s">Her three true loves (after me, obviously). Tap a snack to get it from the machine and collect your coupon.</p>
+
+    <div class="vend reveal" style="--d:.2s" id="vend">
+      <div class="vend-top"><span class="vend-sign">Sagarika’s Snack Machine</span><span class="vend-bulbs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
+      <div class="vend-glass">
+        <button class="slot" type="button" data-snack="garlic" aria-label="Get garlic bread"><span class="snack"><img src="assets/img/snacks/garlic-bread.webp" alt="" width="440" height="251" loading="lazy" decoding="async" draggable="false"></span><span class="coil" aria-hidden="true"></span><span class="slot-tag"><b>A1</b> Garlic bread</span></button>
+        <button class="slot" type="button" data-snack="burger" aria-label="Get a McSpicy Paneer burger"><span class="snack"><img src="assets/img/snacks/mcspicy-paneer.webp" alt="" width="304" height="257" loading="lazy" decoding="async" draggable="false"></span><span class="coil" aria-hidden="true"></span><span class="slot-tag"><b>B2</b> McSpicy Paneer</span></button>
+        <button class="slot" type="button" data-snack="kurkure" aria-label="Get Kurkure Solid Masti Twisteez"><span class="snack"><img src="assets/img/snacks/kurkure-solid-masti.webp" alt="" width="249" height="400" loading="lazy" decoding="async" draggable="false"></span><span class="coil" aria-hidden="true"></span><span class="slot-tag"><b>C3</b> Solid Masti Twisteez</span></button>
+      </div>
+      <div class="vend-base">
+        <div class="tray" id="tray" aria-hidden="true"><span class="tray-label">Push</span></div>
+        <button class="btn btn-ghost surprise" id="surprise" type="button">Surprise me <span aria-hidden="true">🎲</span></button>
+      </div>
+    </div>
+    <p class="vend-msg" id="vend-msg" aria-live="polite">Pick a snack.</p>
+    <div class="coupons" id="coupons" aria-label="Your snack coupons"></div>
+  </div>
+</section>
+
+<section class="scene paradise" data-mood="lagoon">
+  <div class="horizon" aria-hidden="true"><span class="sun"></span><span class="sea"></span><span class="glints"></span></div>
+  <div class="wrap narrow">
+    <div class="ornament left reveal" aria-hidden="true"></div>
+    <h2 class="reveal">Our paradise</h2>
+    <p class="reveal" style="--d:.1s">Phuket, Thailand’s biggest island: warm Andaman sea, limestone islands, temples on the hills and street food on every corner. Our villa is tucked away in quiet, green Pasak, in Cherngtalay on the west coast, a short drive from Bang Tao, Layan and the Laguna lagoons.</p>
+    <div class="card villa reveal" style="--d:.2s">
+      <p class="eyebrow">Where we’re staying</p>
+      <h3>Wings Phuket Villa</h3>
+      <p class="villa-type">Villa · 1 bedroom · private pool</p>
+      <p class="addr">68/80 Moo 4, Pasak Soi 8, Cherngtalay, Thalang, Phuket 83110, Thailand</p>
+      <div class="chips"><span>🏊 Our own private pool</span><span>🏡 The whole villa is ours</span><span>🌿 Quiet, green Pasak</span><span>🏖️ About 15 min to Bang Tao beach</span></div>
+      <p class="stay"><span><strong>Check-in:</strong> Sunday 1 November</span><span><strong>Check-out:</strong> Thursday 5 November</span></p>
+      <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Wings+Phuket+Villa+68%2F80+Moo+4+Pasak+Soi+8+Cherngtalay+Phuket" target="_blank" rel="noopener">Open in Maps <span aria-hidden="true">↗</span></a>
+    </div>
+    <p class="reveal">Early November is the very end of the rainy season: warm sea (around 29°C), mostly sunny days, sunset around 6 pm and the odd quick tropical shower. The west-coast surf can still be rough, so if the beach shows red flags, our private pool is waiting.</p>
+  </div>
+</section>
+
+<section class="scene week" data-mood="lagoon">
+  <div class="wrap narrow">
+    <div class="ornament left reveal" aria-hidden="true"></div>
+    <h2 class="reveal">Five days in Phuket</h2>
+    <p class="week-intro reveal" style="--d:.1s">Tap a day to open the plan. When we’ve done a day, stamp it in our passport ✈️</p>
+    <p class="today-pill" id="today-pill" hidden></p>
+    <div class="days" id="days">
+      <span class="rail" aria-hidden="true"><span class="rail-fill" id="rail"></span></span>
+
+      <article class="day reveal" data-date="2026-11-01">
+        <div class="date">Sun 1 Nov<small>Day 1</small></div>
+        <div class="day-body">
+          <h3>Sawasdee, Phuket 🙏</h3>
+          <p>Land, settle into our villa, first swim, then Phuket’s famous Sunday night market in the Old Town.</p>
+          <details class="plan"><summary>Open the plan</summary>
+            <ol>
+              <li><b>Arrive</b>Phuket Airport (HKT) is in the north of the island. Cherngtalay is roughly a 25–30 minute drive.</li>
+              <li><b>Check in</b>Usually from 2 pm (confirm with the villa if we land early). Unpack, first dip in our private pool.</li>
+              <li><b>Snacks</b>Stock the villa fridge at Villa Market or the Tops food hall at Boat Avenue / Porto de Phuket, about 10–15 minutes away: fruit, water, and condensed milk for Spanish lattes ☕ <a href="https://www.google.com/maps/search/?api=1&amp;query=Boat+Avenue+Bang+Tao+Phuket" target="_blank" rel="noopener">Map ↗</a></li>
+              <li><b>5 pm – 10 pm</b>Sunday Walking Street (“Lard Yai”) on Thalang Road, Phuket Old Town: pastel Sino-Portuguese shophouses, lanterns, live music and street food. It runs only on Sundays (4–10 pm), and we land on one! About 40–45 minutes’ drive. <a href="https://www.google.com/maps/search/?api=1&amp;query=Thalang+Road+Phuket+Old+Town" target="_blank" rel="noopener">Map ↗</a></li>
+            </ol>
+            <p class="tip"><b>Tip:</b> it gets busiest after 6 pm. Try roti, satay, mango sticky rice and coconut ice cream, and take photos on Soi Romanee.</p>
+            <p class="planb"><b>Plan B, if we’re tired:</b> a slow evening by our pool and dinner at Boat Avenue.</p>
+          </details>
+          <button class="stamp-btn" type="button" data-label="Phuket · 1 Nov">Stamp this day</button>
+        </div>
+      </article>
+
+      <article class="day reveal" data-date="2026-11-02">
+        <div class="date">Mon 2 Nov<small>Day 2</small></div>
+        <div class="day-body">
+          <h3>Beaches and slow sunsets</h3>
+          <p>A quiet, wild beach in the morning, pool and nap in the afternoon, sunset on Bang Tao.</p>
+          <details class="plan"><summary>Open the plan</summary>
+            <ol>
+              <li><b>Morning</b>Spanish latte and pastries around Boat Avenue (Little Paris does French pastries).</li>
+              <li><b>Late morning</b>Layan Beach, just north of Bang Tao: a quiet, natural beach protected as part of a national park, with soft sand and almost no crowds. A small national-park fee may apply. <a href="https://www.google.com/maps/search/?api=1&amp;query=Layan+Beach+Phuket" target="_blank" rel="noopener">Map ↗</a></li>
+              <li><b>Afternoon</b>Back to the villa for lunch, our pool and a nap in the hottest hours.</li>
+              <li><b>Around 5:30 pm</b>Sunset walk on Bang Tao beach, the long golden curve of sand facing west. Swim only where it’s safe; red flag means pool.</li>
+              <li><b>Dinner</b>Boat Avenue or Porto de Phuket: lakeside restaurants, and a food hall that grills the seafood we pick.</li>
+            </ol>
+            <p class="planb"><b>Plan B, if it rains:</b> a couple’s Thai massage, then Chillva night market in Phuket Town (open Monday to Saturday evenings).</p>
+          </details>
+          <button class="stamp-btn" type="button" data-label="Layan · 2 Nov">Stamp this day</button>
+        </div>
+      </article>
+
+      <article class="day reveal" data-date="2026-11-03">
+        <div class="date">Tue 3 Nov<small>Day 3</small></div>
+        <div class="day-body">
+          <h3>Phang Nga Bay</h3>
+          <p>A full day among giant limestone islands: sea caves, hidden lagoons and James Bond Island.</p>
+          <details class="plan"><summary>Open the plan</summary>
+            <ol>
+              <li><b>Early</b>Hotel pickup and boat from Ao Po Pier or Royal Phuket Marina. Tours run about 8–10 hours. Check that Cherngtalay / Pasak is in the pickup zone when booking.</li>
+              <li><b>Hong Island</b>Sea canoe through the caves into the hidden lagoons (canoeing is included on these tours).</li>
+              <li><b>James Bond Island</b>Khao Phing Kan, facing Koh Tapu, the needle-shaped rock from <i>The Man with the Golden Gun</i>.</li>
+              <li><b>Lunch</b>Koh Panyi, the fishing village built on stilts over the water.</li>
+              <li><b>Evening</b>Back at the villa: pool, takeaway and an early night (big day tomorrow 🎂).</li>
+            </ol>
+            <p class="tip"><b>Why this and not Phi Phi:</b> Phang Nga Bay is sheltered, while early-November seas on the open west side can still be choppy. Bring sunscreen, a hat and a dry bag for phones.</p>
+            <p class="planb"><b>Plan B:</b> if the sea is calm, Phi Phi and Maya Bay by speedboat instead (Maya Bay is open October to July). If the boats are cancelled, swap this day with Day 2.</p>
+          </details>
+          <button class="stamp-btn" type="button" data-label="Phang Nga · 3 Nov">Stamp this day</button>
+        </div>
+      </article>
+
+      <article class="day star reveal" data-date="2026-11-04">
+        <div class="date">Wed 4 Nov<small>Birthday! 🎂</small></div>
+        <div class="day-body">
+          <h3>Sagarika’s 30th</h3>
+          <p>Your day, start to finish: a slow pool morning, pampering, then sunset and a birthday dinner on the beach at Catch Beach Club.</p>
+          <details class="plan"><summary>Open the plan</summary>
+            <ol>
+              <li><b>Morning</b>Birthday breakfast by our private pool, a Spanish latte the way you like it, and your present 🎁</li>
+              <li><b>Midday</b>Lazy swim, cake for no reason, as much sleep as you want.</li>
+              <li><b>2 pm – 4 pm</b>Pampering: a couple’s spa and Thai massage.</li>
+              <li><b>Around 5 pm</b>Dress up and head to Catch Beach Club on Bang Tao beach, about 15 minutes from the villa. <a href="https://www.google.com/maps/search/?api=1&amp;query=Catch+Beach+Club+Bang+Tao+Phuket" target="_blank" rel="noopener">Map ↗</a></li>
+              <li><b>Around 6 pm</b>Sunset over the Andaman Sea from the beach, with a birthday cocktail (or a mocktail) 🥂</li>
+              <li><b>Dinner</b>Birthday dinner at Catch, right on the sand: seafood platters, oysters, prime cuts and Thai classics, served until about 10:30 pm. Candles on dessert. 🕯️</li>
+            </ol>
+            <p class="tip"><b>For Mani:</b> book ahead and ask for a beachfront table at sunset, and mention the birthday for the dessert.</p>
+            <p class="planb"><b>Plan B, for a quieter night:</b> Xana Beach Club at Angsana Laguna, also on Bang Tao, with a Mediterranean menu and sunset views.</p>
+          </details>
+          <button class="stamp-btn" type="button" data-label="Happy 30th · 4 Nov">Stamp this day</button>
+        </div>
+      </article>
+
+      <article class="day reveal" data-date="2026-11-05">
+        <div class="date">Thu 5 Nov<small>Day 5</small></div>
+        <div class="day-body">
+          <h3>One last swim, then home</h3>
+          <p>A slow last morning, one last view over the island, one last Spanish latte.</p>
+          <details class="plan"><summary>Open the plan</summary>
+            <ol>
+              <li><b>Morning</b>Last swim in our pool, pack, check out (usually by 12 pm).</li>
+              <li><b>If the flight is late</b>The Big Buddha on Nakkerd Hill: a 45-metre white marble Buddha with views over Chalong Bay. Entry is free; cover shoulders and knees (sarongs at the gate). It’s in the south, about 45 minutes from Cherngtalay and an hour from the airport. <a href="https://www.google.com/maps/search/?api=1&amp;query=Big+Buddha+Phuket" target="_blank" rel="noopener">Map ↗</a></li>
+              <li><b>If the flight is early</b>Lunch near the villa or at Boat Avenue, then the airport, about 25–30 minutes away.</li>
+              <li><b>Then</b>A farewell Spanish latte. Until next time, Phuket.</li>
+            </ol>
+          </details>
+          <button class="stamp-btn" type="button" data-label="Phuket · 5 Nov">Stamp this day</button>
+        </div>
+      </article>
+    </div>
+    <div class="passport reveal" id="passport" aria-live="polite">
+      <p class="eyebrow">Our Phuket passport</p>
+      <div class="stamps" id="stamps"></div>
+      <p class="passport-note" id="passport-note">No stamps yet. The adventure starts on 1 November.</p>
+    </div>
+  </div>
+</section>
+
+<section class="scene game-scene" data-mood="court">
+  <div class="wrap narrow">
+    <div class="ornament left reveal" aria-hidden="true"></div>
+    <h2 class="reveal">Chidi Shika</h2>
+    <p class="reveal" style="--d:.1s">Mani vs Sagarika. Mani is on autopilot, but even he slips up eventually. Tap your racket button when it glows to hit the shuttle back over the net. Wait until the last moment for a PERFECT smash and bonus points, but too early is a fault. Keep the rally alive until Mani misses and you win!</p>
+    <div class="game reveal" style="--d:.2s">
+      <canvas id="gm" width="720" height="360" aria-label="Badminton court: Mani on the left, Sagarika on the right"></canvas>
+      <p id="sc">Rally 0 · Best 0 · Wins 0</p>
+      <p id="mg" aria-live="polite">Tap Serve to start</p>
+      <div class="row"><button class="btn gb" id="br" type="button">Sagarika 🏸 Hit!</button></div>
+      <p class="serve"><button id="sv" class="btn btn-lux" type="button">Serve</button></p>
+      <p class="keys">On a keyboard, press <kbd>A</kbd> or <kbd>L</kbd> to hit.</p>
+    </div>
+  </div>
+</section>
+
+<section class="scene end" data-mood="candle">
+  <div class="end-light" aria-hidden="true"><span></span></div>
+  <div class="wrap narrow center">
+    <div class="end-portrait reveal">
+      <img class="pic" id="p2" src="assets/img/sagarika.jpg" width="480" height="480" loading="lazy" decoding="async" alt="">
+    </div>
+    <h2 class="reveal" style="--d:.15s">Happy 30th, Sagarika</h2>
+    <p class="note reveal" style="--d:.3s">Here’s to thirty years of you, and to every adventure still ahead.</p>
+    <div class="stitch-stage reveal" style="--d:.4s" id="stitch-stage">
+      <p class="stitch-bubble lg" id="stitch-bubble" aria-live="polite">Aloha! 🌺</p>
+      <button type="button" class="stitch" id="stitch" aria-label="Stitch with a ukulele. Tap him to hear him play Happy Birthday">
+        <span class="st-fig" aria-hidden="true">
+          <span class="st-glow"></span>
+          <span class="st-shadow"></span>
+          <span class="st-body">
+            <img class="st-ear st-ear-l" src="assets/img/stitch/stitch-ear-l.webp" alt="" width="1076" height="1488" decoding="async" loading="lazy">
+            <img class="st-ear st-ear-r" src="assets/img/stitch/stitch-ear-r.webp" alt="" width="1076" height="1488" decoding="async" loading="lazy">
+            <img class="st-main" src="assets/img/stitch/stitch-body.webp" alt="" width="1076" height="1488" decoding="async" loading="lazy">
+            <svg class="st-props" viewBox="0 0 269 372" focusable="false">
+              <defs><radialGradient id="st-wood" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#e6a862"/><stop offset=".7" stop-color="#b36a2c"/><stop offset="1" stop-color="#7a4318"/></radialGradient></defs>
+              <!-- ukulele resting across his lap, neck up to the left -->
+              <g class="st-uke" transform="translate(128 286) rotate(24)" stroke="#111" stroke-width="2.4" stroke-linejoin="round">
+                <rect x="-120" y="-8" width="26" height="16" rx="4" fill="#5a2f10"/>
+                <g fill="#efe3c8" stroke-width="1.6"><circle cx="-114" cy="-11" r="2.6"/><circle cx="-102" cy="-11" r="2.6"/><circle cx="-114" cy="11" r="2.6"/><circle cx="-102" cy="11" r="2.6"/></g>
+                <rect x="-96" y="-5.5" width="80" height="11" rx="2" fill="#3b2412"/>
+                <path d="M0 -26 C 14 -26 20 -18 30 -18 C 40 -18 46 -32 66 -32 C 86 -32 98 -18 98 0 C 98 18 86 32 66 32 C 46 32 40 18 30 18 C 20 18 14 26 0 26 C -16 26 -26 14 -26 0 C -26 -14 -16 -26 0 -26 Z" fill="url(#st-wood)"/>
+                <circle cx="22" cy="0" r="10" fill="#2a1508" stroke-width="1.8"/>
+                <rect x="70" y="-11" width="7" height="22" rx="2" fill="#3b2412" stroke-width="1.6"/>
+                <g stroke="none" fill="#f1d6a4" opacity=".55"><path d="M-6 -20 C 4 -22 10 -16 12 -12 C 4 -16 -2 -16 -10 -12 Z"/></g>
+                <g class="st-strings" stroke="#f6eee3" stroke-width=".8" opacity=".9"><path d="M-110 -3.6H72M-110 -1.2H72M-110 1.2H72M-110 3.6H72"/></g>
+                <g stroke="#c9b48a" stroke-width=".9"><path d="M-80 -5.5v11M-64 -5.5v11M-50 -5.5v11M-38 -5.5v11"/></g>
+              </g>
+              <!-- his paws: one on the neck, one strumming -->
+              <g stroke="#111" stroke-width="2.6" stroke-linejoin="round" fill="#5372a6" transform="translate(-22 4)">
+                <path d="M72 255 C 64 244 76 232 88 236 C 98 238 102 250 96 258 C 90 266 78 264 72 255 Z"/>
+                <path d="M76 236 l-5 -7 M86 234 l-2 -8 M96 238 l2 -7" fill="none"/>
+              </g>
+              <g transform="translate(-30 14)"><g class="st-strum" stroke="#111" stroke-width="2.6" stroke-linejoin="round">
+                <path d="M196 262 C 206 270 204 286 190 292 C 178 298 164 292 164 282 C 164 270 182 254 196 262 Z" fill="#5372a6"/>
+                <path d="M170 294 l-6 6 M180 297 l-2 8 M190 294 l3 7" fill="none"/>
+                <path d="M184 266 C 190 268 194 274 192 280" fill="none" stroke="#7b97cc" stroke-width="2" opacity=".8"/>
+              </g></g>
+            </svg>
+          </span>
+        </span>
+      </button>
+      <p class="stitch-hint">Tap Stitch 🎸</p>
+    </div>
+    <p class="reveal" style="--d:.55s"><button id="again" class="btn btn-lux" type="button">Celebrate again 🎉</button></p>
+  </div>
+</section>
+</main>
+
+</body>
+</html>
