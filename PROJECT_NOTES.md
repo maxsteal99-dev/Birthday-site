@@ -3,7 +3,7 @@
 > **Living memory for this project.** Read this whole file before doing anything.
 > After finishing **every** request, update it: add the request and what was done
 > to the **Change log**, and fix any section that is no longer true.
-> Last updated: 2026-10-23 (after request #34).
+> Last updated: 2026-10-23 (after request #35).
 
 ---
 
@@ -13,6 +13,7 @@
 - **Recipient:** **Sagarika Sharma**, turning **30** on **4 November 2026**. She is called "Saga" (see the graffiti photo "Saga ♥ Mani").
 - **The trip in the site (since #32):** **Phuket, Thailand**, **Sun 1 – Thu 5 November 2026**, at **Wings Phuket Villa by Two Villas Holiday**, Villa 1 Bedroom Private Pool, 2 adults, 68/80 Moo 4, Pasak Soi 8, Cherngtalay, Thalang, Phuket 83110 (booking voucher from the owner; the booking reference and the villa's phone number are deliberately NOT on the public site). Quiet residential Pasak; listings say Bang Tao/Surin beaches ~15 min drive; check-in ~14:00–15:00, check-out by 12:00 (listings vary, so the site says "usually"). Her birthday (Wed 4 Nov) is day 4. *(History: Mauritius/Rama Villas 1–8 Nov until #29; The Residence Resort, Choeng Thale in #29–#31.)*
 - **Her favourites (used on the site):** Spanish latte; Monster Energy **Ultra** (white can); garlic bread (Domino's garlic breadsticks); McDonald's **McSpicy Paneer**; **Kurkure Solid Masti Twisteez** (Masala); the song **"Him & I"** (G-Eazy & Halsey), piano instrumental.
+- **Long distance:** Sagarika lives in **Doha**, Mani in **Dublin** (e.g. her Karva Chauth fast was broken over a video call).
 - **Owner tests on an iPhone.** Talks casually ("bro"), gives voice-to-text instructions; read intent, not literal words.
 
 ## 2. Live site, repo, branches, deploy
@@ -150,7 +151,7 @@ tools/tests/        Playwright + Python test scripts (see §7)
 16. rooftop (tilted on purpose): "City lights / Top of the city, top of my world."
 17. the-kiss: "My favourite one / And then you did this." / "…Happy 30th, my love."
 **Added in #34 (13 more → exactly 30; duplicate check: none matched the album or each other, max similarity 0.74 vs ~0.9+ for a real duplicate; the night Golden Temple photo of her alone is a different photo from the existing AI-enhanced couple one). Order: golden-night right after golden-temple; the rest after rooftop; the-kiss stays #30:**
-- golden-night: "Golden Temple at night / Peace looks a lot like you." · clock-wall: "Wall of clocks / Every clock in the room said it was our time." · lasers: "Lights and lasers / My favourite person in any crowd." · rooftop-laugh: "Rooftop nights / That laugh, that view." · full-moon: "Under the full moon / Just us, and a moon showing off." · clifftop: "Clifftop wind / Hold on to me, the wind is strong." · lift-selfie: "Lift selfie / Our favourite mirror." · detective: "Detective Sagarika / Case: who ate the last fries? 🔍" · pink-gamer: "Pink gamer girl / Cat ears, pink keys… foreshadowing? 😉" (back note ties to the keyboard present) · sparklers: "Sparklers / You light up every festival." · haldi: "Haldi day / Sunshine, in yellow." · wedding-sparks: "Our wedding / The day sparks literally flew." · s-and-m: "S ♥ M / You, looking at me like that." Each has a back note signed Mani (see index.html).
+- golden-night: "Golden Temple at night / Peace looks a lot like you." · clock-wall: "Wall of clocks / Every clock in the room said it was our time." · lasers: "Lights and lasers / My favourite person in any crowd." · rooftop-laugh: "Rooftop nights / That laugh, that view." · full-moon: "Under the full moon / Just us, and a moon showing off." · clifftop: "Clifftop wind / Hold on to me, the wind is strong." · lift-selfie: "Lift selfie / Our favourite mirror." · detective (file name kept): **Karva Chauth** — a screenshot of their Karva Chauth video call (she is in Doha, Mani in Dublin; she broke her fast with the full ritual over video, looking through the chhalni with a diya): "Karva Chauth · Doha to Dublin / Your moon, through a phone screen." back: "Thousands of kilometres apart, and you still kept the whole fast for me and found my face through the chhalni on a video call. Distance never stood a chance against you." (fixed in #35; it was wrongly captioned "Detective Sagarika") · pink-gamer: "Pink gamer girl / Cat ears, pink keys… foreshadowing? 😉" (back note ties to the keyboard present) · sparklers: "Sparklers / You light up every festival." · haldi: "Haldi day / Sunshine, in yellow." · wedding-sparks: "Our wedding / The day sparks literally flew." · s-and-m: "S ♥ M / You, looking at me like that." Each has a back note signed Mani (see index.html).
 - **Removed:** "Photo by Sagarika" (Mani at the pyramids) in request #13. Four accidental Golden Temple duplicates were discarded in #12.
 - Real place names are used only where obvious; the owner never supplied the other locations.
 
@@ -213,6 +214,7 @@ tools/tests/        Playwright + Python test scripts (see §7)
 32. New booking (Wings Phuket Villa, Pasak Soi 8, Cherngtalay, 1–5 Nov), a thorough itinerary, a beach club for the 4 Nov birthday dinner, and the gift box should reveal his present (pink iPad keyboard case) in a cute, non-technical way. → Researched the villa area and beach clubs (chose Catch Beach Club, Plan B Xana); rewrote the villa card and all 5 days; built the present reveal (§4, 2c). Booking reference/phone kept off the public site.
 33. "Increase quality and make it way smoother, no compromise." → Profiled a full scroll (unminified build + CPU profile) and fixed the main-thread hotspots without changing visuals (sparkle pool, guarded canvas resizes, pre-decoded album photos); raised quality: album photos from originals with correct srcset (were mislabelled → soft on iPhone), EDSR-upscaled portrait/Monster can texture/snacks, 2048 shadow maps on latte/Monster, max anisotropy, 2× latte wood.
 34. Sent 13 more photos: check duplicates, make it 30 for the 30th, add to the album and do something magical. → No duplicates (17 + 13 = 30). All 13 exported from the originals (3 sizes, correct srcset) with captions + back notes; album now "Thirty of my favourite chapters". New section "A sky full of us": 30 photo-stars → golden "30" → tap to relive each memory → heart finale (§4, 5b). Album test now runs to the last photo, whatever the count.
+35. The "detective" photo is really Karva Chauth on a video call (she's in Doha, he's in Dublin; she broke the fast with the full ritual over video). → New caption "Karva Chauth · Doha to Dublin / Your moon, through a phone screen." and back note; alt text fixed. Also shows in the sky viewer (memory 24).
 
 ## 9. Ideas mentioned but not done / open questions
 
