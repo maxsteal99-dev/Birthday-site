@@ -18,7 +18,7 @@ const { chromium, devices } = require('playwright');
     r.flipped = await p.$eval('.pc.top', e => e.classList.contains('flipped'));
     await p.screenshot({ path: `${process.argv[2]}/al-${name}-flip.png` });
     await p.focus('#album'); await p.keyboard.press('ArrowRight'); await p.waitForTimeout(400); r.afterKey = await c();
-    for (let i = 0; i < 20 && (await c()) !== '17 / 17'; i++) { await p.click('#al-next'); await p.waitForTimeout(380); }
+    for (let i = 0; i < 40 && !/^(\d+) \/ \1$/.test(await c()); i++) { await p.click('#al-next'); await p.waitForTimeout(380); }
     r.end = await c(); await p.waitForTimeout(1000); await p.screenshot({ path: `${process.argv[2]}/al-${name}-end.png` });
     r.brokenImgs = await p.$$eval('.pc img[src]', is => is.filter(i => i.complete && !i.naturalWidth).length);
     r.overflowX = await p.evaluate(() => document.documentElement.scrollWidth - innerWidth);

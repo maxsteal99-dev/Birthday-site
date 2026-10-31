@@ -833,3 +833,14 @@ function thunk() { // a rubber stamp hitting paper
 }
 render();
 })();
+
+/* ---------- "A sky full of us": 30 memory-stars (loaded when she gets close) ---------- */
+(function () {
+var sec = document.getElementById('sky'); if (!sec) return;
+var io = new IntersectionObserver(function (es) {
+  if (!es.some(function (e) { return e.isIntersecting; })) return;
+  io.disconnect();
+  import('./src/stars.js').then(function (m) { m.initStars(sec); }).catch(function () {});
+}, { rootMargin: '700px 0px' });
+io.observe(sec);
+})();

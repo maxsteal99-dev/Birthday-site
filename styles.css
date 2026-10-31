@@ -968,3 +968,61 @@ html.gifting,html.gifting body{overflow:hidden}
 @keyframes grPop{0%{opacity:0;transform:translateY(14px) scale(.6)}100%{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.gr-product,.gr-shadow,.gr-rays{animation:none}
   .gift-reveal.in .gr-kicker,.gift-reveal.in .gr-title,.gift-reveal.in .gr-sub,.gift-reveal.in .gr-bubbles li,.gift-reveal.in .gr-name,.gift-reveal.in .gr-cards,.gift-reveal.in .gr-dots,.gift-reveal.in .gr-from,.gift-reveal.in .gr-go{animation:none;opacity:1;transform:none}}
+
+/* ---------- "A sky full of us": 30 memory-stars (src/stars.js) ---------- */
+.sky30-lede{color:var(--muted)}
+.sky30{position:relative;width:min(94vw,620px);aspect-ratio:5/4;margin:26px auto 6px;border-radius:28px;overflow:hidden;
+  background:radial-gradient(60% 50% at 70% 20%,rgba(120,90,200,.22),transparent 70%),radial-gradient(70% 60% at 20% 90%,rgba(110,26,48,.35),transparent 70%),
+    linear-gradient(180deg,#0b0a1c,#120a1e 60%,#0b0710);box-shadow:inset 0 0 0 1px rgba(236,215,178,.16),0 40px 80px -30px rgba(0,0,0,.9)}
+.sky30-dust{position:absolute;inset:0;opacity:.7;pointer-events:none;
+  background:radial-gradient(1px 1px at 12% 18%,#fff,transparent),radial-gradient(1px 1px at 33% 72%,#fff,transparent),radial-gradient(1.4px 1.4px at 57% 12%,#fff,transparent),
+    radial-gradient(1px 1px at 78% 44%,#fff,transparent),radial-gradient(1.2px 1.2px at 88% 82%,#fff,transparent),radial-gradient(1px 1px at 46% 52%,#ffe9c4,transparent),
+    radial-gradient(1px 1px at 22% 46%,#fff,transparent),radial-gradient(1.3px 1.3px at 66% 88%,#ffe9c4,transparent),radial-gradient(1px 1px at 92% 10%,#fff,transparent),
+    radial-gradient(1px 1px at 6% 64%,#fff,transparent);background-size:180px 160px;animation:dust 6s ease-in-out infinite alternate}
+.sky30-shoot{position:absolute;top:12%;left:-20%;width:120px;height:1.5px;border-radius:2px;pointer-events:none;opacity:0;
+  background:linear-gradient(90deg,transparent,#fff6e0);transform:rotate(18deg);animation:shoot 9s ease-in 2s infinite}
+.sky30-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.sky30-lines path{fill:none;stroke:rgba(255,226,170,.75);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0;
+  filter:drop-shadow(0 0 4px rgba(255,214,140,.9))}
+.star30{position:absolute;left:0;top:0;width:clamp(30px,8.2vw,48px);aspect-ratio:1;padding:0;border:0;border-radius:50%;cursor:pointer;background:none;
+  transition:transform 1.6s cubic-bezier(.22,1,.36,1),width .6s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;z-index:1}
+.star30 img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;opacity:.35;transform:scale(.55);filter:saturate(.6) brightness(1.2);
+  box-shadow:0 0 0 1.5px rgba(255,236,200,.8),0 0 14px 3px rgba(255,220,160,.55);transition:opacity .9s,transform .9s cubic-bezier(.22,1,.36,1),filter .9s,box-shadow .6s}
+.star30 i{position:absolute;inset:-30%;border-radius:50%;pointer-events:none;background:radial-gradient(closest-side,rgba(255,240,210,.55),rgba(255,220,160,.15) 45%,transparent 70%);
+  animation:twinkle var(--tw,3s) ease-in-out var(--td,0s) infinite alternate}
+.sky30.lit .star30 img{opacity:1;transform:none;filter:none;transition-delay:.6s}
+.star30.seen img{box-shadow:0 0 0 2px #f3cf86,0 0 16px 4px rgba(243,207,134,.75)}
+.star30:active img{transform:scale(.9)}
+.star30:focus-visible{outline:2px solid var(--champagne);outline-offset:3px}
+.sky30.heart .star30 img{box-shadow:0 0 0 2px #ffb7c9,0 0 18px 5px rgba(255,150,180,.7)}
+.sky30.heart .sky30-lines path{stroke:rgba(255,180,200,.85);filter:drop-shadow(0 0 5px rgba(255,140,180,.9))}
+.sky30-status{min-height:1.6em;margin:10px 0 6px;color:var(--champagne);letter-spacing:.04em}
+.sky30-final{display:block;font:400 clamp(1.7rem,1.3rem + 2vw,2.3rem)/1.3 var(--script);color:#ffd6e2;letter-spacing:0;animation:grUp 1s var(--ease-out) both}
+#sky30-go.quiet{opacity:.6;pointer-events:none}
+@keyframes twinkle{from{opacity:.35;transform:scale(.85)}to{opacity:1;transform:scale(1.1)}}
+@keyframes dust{to{opacity:.4}}
+@keyframes shoot{0%,86%{opacity:0;transform:translate(0,0) rotate(18deg)}88%{opacity:1}100%{opacity:0;transform:translate(160vw,52vw) rotate(18deg)}}
+/* memory viewer */
+.mem30{position:fixed;inset:0;z-index:8600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  padding:max(58px,env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom))}
+.mem30-bg{position:absolute;inset:0;background:radial-gradient(70% 50% at 50% 30%,rgba(120,90,200,.25),transparent 70%),rgba(6,4,12,.88);
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);animation:gIn .4s ease both}
+.mem30.out{opacity:0;transition:opacity .35s}
+/* sized to fit the screen with room for the buttons below */
+.mem30-card{position:relative;margin:0;width:min(88vw,460px,calc((100svh - 230px) * .8));padding:12px 12px 14px;border-radius:6px;background:#fbf6ee;color:#3a2a20;
+  box-shadow:0 30px 70px rgba(0,0,0,.6),0 0 60px -10px rgba(255,214,140,.35);touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.mem30-photo{aspect-ratio:4/5;overflow:hidden;background:#d9cbb7}
+.mem30-photo img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.mem30-card figcaption{display:grid;gap:2px;padding:10px 4px 0;text-align:center}
+.mem30-n{font:600 .64rem/1.4 var(--sans);letter-spacing:.24em;text-transform:uppercase;color:#a07a3e}
+.mem30-tag{font:600 1.08rem/1.25 var(--serif);color:#3a2a20}
+.mem30-cap{font:400 1.38rem/1.2 var(--script);color:#6e1a30}
+.mem30-note{font:italic 400 .95rem/1.38 var(--serif);color:#5c4636}
+.mem30-note:empty{display:none}
+/* prev/next float at the screen edges (over the photo's edge on phones) so the photo gets all the room */
+.mem30-nav{position:absolute;inset:0;z-index:2;pointer-events:none}
+.mem30-prev,.mem30-next{position:absolute;top:50%;margin-top:-24px;pointer-events:auto}
+.mem30-prev{left:max(6px,calc(50% - 300px))}.mem30-next{right:max(6px,calc(50% - 300px))}
+.mem30-prev,.mem30-next,.mem30-close{width:48px;height:48px;border:0;border-radius:50%;color:var(--ivory);font-size:26px;line-height:1;cursor:pointer}
+.mem30-close{position:absolute;z-index:2;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));font-size:16px}
+@media (prefers-reduced-motion:reduce){.star30,.star30 img{transition:none}.star30 i,.sky30-dust,.sky30-shoot{animation:none}}
